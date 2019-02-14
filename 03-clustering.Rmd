@@ -1,0 +1,1135 @@
+# Clustering {#clustering}
+
+<!-- Matt -->
+
+<!-- http://www.madgroup.path.cam.ac.uk/microarraysummary.shtml -->
+
+<!--
+if variables are in same units - don't standardize, otherwise standardize
+-->
+
+## Introduction
+
+Clustering attempts to find groups (clusters) of similar objects. The members of a cluster should be more similar to each other, than to objects in other clusters. Clustering algorithms aim to minimize intra-cluster variation and maximize inter-cluster variation.
+
+Methods of clustering can be broadly divided into two types:
+
+**Hierarchic** techniques produce dendrograms (trees) through a process of division or agglomeration.
+
+**Partitioning** algorithms divide objects into non-overlapping subsets (examples include k-means and DBSCAN)
+
+
+```{r clusterTypes, fig.cap='Example clusters. **A**, *blobs*; **B**, *aggregation* [@Gionis2007]; **C**, *noisy moons*; **D**, *different density*; **E**, *anisotropic distributions*; **F**, *no structure*.', out.width='80%', fig.asp=1.2, fig.align='center', echo=F}
+library(ggplot2)
+library(GGally)
+
+blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
+aggregation <- read.table("data/example_clusters/aggregation.txt")
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+diff_density <- read.csv("data/example_clusters/different_density.csv", header=F)
+aniso <- read.csv("data/example_clusters/aniso.csv", header=F)
+no_structure <- read.csv("data/example_clusters/no_structure.csv", header=F)
+
+plotList <- list(
+qplot(x=V1, y=V2, data=blobs, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(blobs$V1)-min(blobs$V1))) + min(blobs$V1), 
+           y=(0.9 * (max(blobs$V2)-min(blobs$V2))) + min(blobs$V2), 
+           label ="A", size=8, col="blue"),
+qplot(x=V1, y=V2, data=aggregation, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(aggregation$V1)-min(aggregation$V1))) + min(aggregation$V1), 
+           y=(0.9 * (max(aggregation$V2)-min(aggregation$V2))) + min(aggregation$V2), 
+           label="B", size=8, col="blue"),
+qplot(x=V1, y=V2, data=noisy_moons, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(noisy_moons$V1)-min(noisy_moons$V1))) + min(noisy_moons$V1),
+           y=(0.9 * (max(noisy_moons$V2)-min(noisy_moons$V2))) + min(noisy_moons$V2),
+           label="C", size=8, col="blue"),
+qplot(x=V1, y=V2, data=diff_density, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(diff_density$V1)-min(diff_density$V1))) + min(diff_density$V1),
+           y=(0.9 * (max(diff_density$V2)-min(diff_density$V2))) + min(diff_density$V2),
+           label="D", size=8, col="blue"),
+qplot(x=V1, y=V2, data=aniso, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(aniso$V1)-min(aniso$V1))) + min(aniso$V1),
+           y=(0.9 * (max(aniso$V2)-min(aniso$V2))) + min(aniso$V2),
+           label="E", size=8, col="blue"),
+qplot(x=V1, y=V2, data=no_structure, geom="point", size=I(0.2)) + 
+  annotate("text", x=(0.01 * (max(no_structure$V1)-min(no_structure$V1))) + min(no_structure$V1),
+           y=(0.9 * (max(no_structure$V2)-min(no_structure$V2))) + min(no_structure$V2),
+           label="F", size=8, col="blue")
+)
+
+pm <- ggmatrix(
+  plotList, nrow=3, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F
+) + theme_bw()
+
+pm
+```
+
+## Distance metrics
+
+Various distance metrics can be used with clustering algorithms. We will use Euclidean distance in the examples and exercises in this chapter.
+
+\begin{equation}
+  distance\left(p,q\right)=\sqrt{\sum_{i=1}^{n} (p_i-q_i)^2}
+  (\#eq:euclidean)
+\end{equation}
+
+```{r euclideanDistanceDiagram, fig.cap='Euclidean distance.', out.width='75%', fig.asp=0.9, fig.align='center', echo=F}
+par(mai=c(0.8,0.8,0.1,0.1))
+x <- c(0.75,4.5)
+y <- c(2.5,4.5)
+plot(x, y, xlim=range(0,5), ylim=range(0,5), cex=5, col="steelblue", pch=16, cex.lab=1.5)
+segments(x[1], y[1], x[2], y[2], lwd=4, col="grey30")
+text(0.75,2, expression(paste('p(x'[1],'y'[1],')')), cex=1.7)
+text(4.5,4, expression(paste('q(x'[2],'y'[2],')')), cex=1.7)
+text(2.5,0.5, expression(paste('dist(p,q)'==sqrt((x[2]-x[1])^2 + (y[2]-y[1])^2))), cex=1.7)
+```
+
+```{r euclideanDistanceDiagram1, fig.cap='Euclidean distance.', out.width='75%', fig.asp=0.9, fig.align='center', echo=F}
+par(mai=c(0.8,0.8,0.1,0.1))
+x <- c(0.75,4.5)
+y <- c(2.5,4.5)
+plot(x, y, xlim=range(0,5), ylim=range(0,5), cex=5, col="steelblue", pch=16, cex.lab=1.5)
+segments(x[1], y[1], x[2], y[2], lwd=4, col="grey30")
+text(0.75,2, expression(paste('p(x'[1],'y'[1],')')), cex=1.7)
+text(4.5,4, expression(paste('q(x'[2],'y'[2],')')), cex=1.7)
+text(2.5,0.5, expression(paste('dist(p,q)'==sqrt((x[2]-x[1])^2 + (y[2]-y[1])^2))), cex=1.7)
+```
+
+
+## Hierarchic agglomerative
+
+
+```{r hierarchicClusteringDemo, echo = F, fig.cap = 'Building a dendrogram using hierarchic agglomerative clustering.', fig.align = 'center', fig.show='hold', out.width = '55%'}
+knitr::include_graphics(c("images/hclust_demo_0.png", "images/hclust_demo_1.png", "images/hclust_demo_2.png", "images/hclust_demo_3.png", "images/hclust_demo_4.png"))
+```
+
+
+### Linkage algorithms
+
+```{r echo=F}
+m <- matrix(c(rep(NA,5),
+       2,rep(NA,4),
+       6,5,rep(NA,3),
+       10,10,5,rep(NA,2),
+       9,8,3,4,NA),ncol=5,byrow=T,
+       dimnames=list(LETTERS[1:5], LETTERS[1:5])
+)
+
+mDisplay <- matrix(c(
+       2,rep("",3),
+       6,5,rep("",2),
+       10,10,5,rep("",1),
+       9,8,3,4),ncol=4,byrow=T,
+       dimnames=list(LETTERS[2:5], LETTERS[1:4])
+)
+
+d <- as.dist(m)
+```
+
+```{r distance-matrix, tidy=FALSE, echo=F}
+knitr::kable(
+  mDisplay, caption = 'Example distance matrix',
+  booktabs = TRUE
+)
+```
+
+
+Single linkage - nearest neighbours linkage
+
+Complete linkage - furthest neighbours linkage
+
+Average linkage - UPGMA (Unweighted Pair Group Method with Arithmetic Mean) 
+
+```{r echo=F}
+hclustSingle <- hclust(d, method="single")
+hclustComplete <- hclust(d, method="complete")
+hclustAverage <- hclust(d, method="average")
+```
+
+<!--
+Explain anatomy of the dendrogram - branches, nodes and leaves.
+-->
+
+```{r distance-merge, tidy=FALSE, echo=F}
+Single <- c(0,hclustSingle$height)
+Complete <- c(0,hclustComplete$height)
+Average <- c(0,hclustAverage$height)
+Groups <- c("A,B,C,D,E", "(A,B),C,D,E", "(A,B),(C,E),D", "(A,B)(C,D,E)", "(A,B,C,D,E)")
+distanceMerge <- data.frame(Groups,Single,Complete,Average)
+knitr::kable(
+  distanceMerge, caption = 'Merge distances for objects in the example distance matrix using three different linkage methods.',
+  booktabs = TRUE
+) 
+
+```
+
+```{r linkageComparison, fig.cap='Dendrograms for the example distance matrix using three different linkage methods. ', out.width='100%', fig.asp=0.3, fig.align='center', fig.show='hold',echo=F}
+library(ggdendro)
+
+dend_single <- as.dendrogram(hclustSingle)
+dend_complete <- as.dendrogram(hclustComplete)
+dend_average <- as.dendrogram(hclustAverage)
+
+dd_single <- dendro_data(dend_single, type="rectangle")
+dd_complete <- dendro_data(dend_complete, type="rectangle")
+dd_average <- dendro_data(dend_average, type="rectangle")
+
+p_single <- ggplot(segment(dd_single)) +
+  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  coord_flip() +
+  scale_y_reverse(expand=c(0.05,0)) +
+  ggtitle("Single linkage") +
+  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_single)) +
+  ylab("Distance") +
+  theme(axis.title.y=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())
+p_single
+
+p_complete <- ggplot(segment(dd_complete)) +
+  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  coord_flip() +
+  scale_y_reverse(expand=c(0.05,0)) +
+  ggtitle("Complete linkage") +
+  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_complete)) +
+  ylab("Distance") +
+  theme(axis.title.y=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())
+p_complete
+
+p_average <- ggplot(segment(dd_average)) +
+  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
+  coord_flip() +
+  scale_y_reverse(expand=c(0.05,0)) +
+  ggtitle("Average linkage") +
+  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_average)) +
+  ylab("Distance") +
+  theme(axis.title.y=element_blank(), 
+        axis.text.y=element_blank(), 
+        axis.ticks.y=element_blank())
+p_average
+
+```
+
+### Example: clustering synthetic data sets
+
+#### Step-by-step instructions
+1. Load required packages.
+```{r, echo=T}
+library(RColorBrewer)
+library(dendextend)
+library(ggplot2)
+library(GGally)
+```
+
+2. Retrieve a palette of eight colours.
+```{r, echo=T}
+cluster_colours <- brewer.pal(8,"Dark2")
+```
+
+3. Read in data for **blobs** example.
+```{r, echo=T}
+blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
+```
+
+4. Create distance matrix using Euclidean distance metric.
+```{r, echo=T}
+d <- dist(blobs[,1:2])
+```
+
+5. Perform hierarchical clustering using the **average** agglomeration method and convert the result to an object of class **dendrogram**. A **dendrogram** object can be edited using the advanced features of the **dendextend** package.
+```{r, echo=T}
+dend <- as.dendrogram(hclust(d, method="average"))
+```
+
+6. Cut the tree into three clusters
+```{r, echo=T}
+clusters <- cutree(dend,3,order_clusters_as_data=F)
+```
+
+7. The vector **clusters** contains the cluster membership (in this case *1*, *2* or *3*) of each observation (data point) in the order they appear on the dendrogram. We can use this vector to colour the branches of the dendrogram by cluster.
+```{r, echo=T}
+dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:3])
+```
+
+8. We can use the **labels** function to annotate the leaves of the dendrogram. However, it is not possible to create legible labels for the 1,500 leaves in our example dendrogram, so we will set the label for each leaf to an empty string.
+```{r, echo=T}
+labels(dend) <- rep("", length(blobs[,1]))
+```
+
+9. If we want to plot the dendrogram using **ggplot**, we must convert it to an object of class **ggdend**.
+```{r, echo=T}
+ggd <- as.ggdend(dend)
+```
+
+10. The **nodes** attribute of **ggd** is a data.frame of parameters related to the plotting of dendogram nodes. The **nodes** data.frame contains some NAs which will generate warning messages when **ggd** is processed by **ggplot**. Since we are not interested in annotating dendrogram nodes, the easiest option here is to delete all of the rows of **nodes**.
+```{r, echo=T}
+ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
+```
+
+11. We can use the cluster membership of each observation contained in the vector **clusters** to assign colours to the data points of a scatterplot. However, first we need to reorder the vector so that the cluster memberships are in the same order that the observations appear in the data.frame of observations. Fortunately the names of the elements of the vector are the indices of the observations in the data.frame and so reordering can be accomplished in one line.
+```{r, echo=T}
+clusters <- clusters[order(as.numeric(names(clusters)))]
+```
+
+12. We are now ready to plot a dendrogram and scatterplot. We will use the **ggmatrix** function from the **GGally** package to place the plots side-by-side. 
+
+```{r hclustBlobs, fig.cap='Hierarchical clustering of the blobs data set.', out.width='80%', fig.asp=0.5, fig.align='center', echo=T}
+plotList <- list(ggplot(ggd),
+                 ggplot(blobs, aes(V1,V2)) + 
+                   geom_point(col=cluster_colours[clusters], size=0.2)
+                 )
+
+pm <- ggmatrix(
+  plotList, nrow=1, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F, 
+  xAxisLabels=c("dendrogram", "scatter plot")
+) + theme_bw()
+
+pm
+```
+
+#### Clustering of other synthetic data sets
+
+```{r hclustToyData, fig.cap='Hierarchical clustering of synthetic data-sets. ', out.width='75%', fig.asp=2.2, fig.align='center',echo=T}
+
+aggregation <- read.table("data/example_clusters/aggregation.txt")
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+diff_density <- read.csv("data/example_clusters/different_density.csv", header=F)
+aniso <- read.csv("data/example_clusters/aniso.csv", header=F)
+no_structure <- read.csv("data/example_clusters/no_structure.csv", header=F)
+
+hclust_plots <- function(data_set, n){
+  d <- dist(data_set[,1:2])
+  dend <- as.dendrogram(hclust(d, method="average"))
+  clusters <- cutree(dend,n,order_clusters_as_data=F)
+  dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:n])
+  clusters <- clusters[order(as.numeric(names(clusters)))]
+  labels(dend) <- rep("", length(data_set[,1]))
+  ggd <- as.ggdend(dend)
+  ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
+  plotPair <- list(ggplot(ggd),
+    ggplot(data_set, aes(V1,V2)) + 
+      geom_point(col=cluster_colours[clusters], size=0.2))
+  return(plotPair)
+}
+
+plotList <- c(
+  hclust_plots(aggregation, 7),
+  hclust_plots(noisy_moons, 2),
+  hclust_plots(diff_density, 2),
+  hclust_plots(aniso, 3),
+  hclust_plots(no_structure, 3)
+)
+
+pm <- ggmatrix(
+  plotList, nrow=5, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F,
+  xAxisLabels=c("dendrogram", "scatter plot"), 
+  yAxisLabels=c("aggregation", "noisy moons", "different density", "anisotropic", "no structure")
+) + theme_bw()
+
+pm
+
+```
+
+### Example: gene expression profiling of human tissues
+
+#### Basics
+Load required libraries
+```{r echo=T}
+library(RColorBrewer)
+library(dendextend)
+```
+
+Load data
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+Inspect data
+```{r echo=T}
+table(tissue)
+dim(e)
+```
+
+Compute distance between each sample
+```{r echo=T} 
+d <- dist(t(e))
+```
+
+perform hierarchical clustering
+```{r tissueDendrogram, fig.cap='Clustering of tissue samples based on gene expression profiles. ', out.width='100%', fig.asp=0.7, fig.align='center', echo=T}
+hc <- hclust(d, method="average")
+plot(hc, labels=tissue, cex=0.5, hang=-1, xlab="", sub="")
+```
+
+
+#### Colour labels
+
+The dendextend library can be used to plot dendrogram with colour labels
+```{r tissueDendrogramColour, fig.cap='Clustering of tissue samples based on gene expression profiles with labels coloured by tissue type. ', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+tissue_type <- unique(tissue)
+dend <- as.dendrogram(hc)
+dend_colours <- brewer.pal(length(unique(tissue)),"Dark2")
+names(dend_colours) <- tissue_type
+labels(dend) <- tissue[order.dendrogram(dend)]
+labels_colors(dend) <- dend_colours[tissue][order.dendrogram(dend)]
+labels_cex(dend) = 0.5
+plot(dend, horiz=T)
+```
+
+#### Defining clusters by cutting tree
+
+Define clusters by cutting tree at a specific height
+```{r tissueDendrogramCutHeight, fig.cap='Clusters found by cutting tree at a height of 125', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+plot(dend, horiz=T)
+abline(v=125, lwd=2, lty=2, col="blue")
+hclusters <- cutree(dend, h=125)
+table(tissue, cluster=hclusters)
+```
+
+Select a specific number of clusters.
+```{r tissueDendrogramEightClusters, fig.cap='Selection of eight clusters from the dendogram', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+plot(dend, horiz=T)
+abline(v = heights_per_k.dendrogram(dend)["8"], lwd = 2, lty = 2, col = "blue")
+hclusters <- cutree(dend, k=8)
+table(tissue, cluster=hclusters)
+```
+
+#### Heatmap
+Base R provides a **heatmap** function, but we will use the more advanced **heatmap.2** from the **gplots** package.
+```{r echo=T}
+library(gplots)
+```
+
+Define a colour palette (also known as a lookup table).
+```{r echo=T}
+heatmap_colours <- colorRampPalette(brewer.pal(9, "PuBuGn"))(100)
+```
+
+Calculate the variance of each gene.
+```{r echo=T}
+geneVariance <- apply(e,1,var)
+```
+
+Find the row numbers of the 40 genes with the highest variance.
+```{r echo=T}
+idxTop40 <- order(-geneVariance)[1:40]
+```
+
+Define colours for tissues.
+```{r echo=T}
+tissueColours <- palette(brewer.pal(8, "Dark2"))[as.numeric(as.factor(tissue))]
+```
+
+Plot heatmap.
+```{r heatmapTissueExpression, fig.cap='Heatmap of the expression of the 40 genes with the highest variance.', out.width='100%', fig.asp=0.8, fig.align='center', echo=T}
+heatmap.2(e[idxTop40,], labCol=tissue, trace="none",
+          ColSideColors=tissueColours, col=heatmap_colours)
+```
+
+
+## K-means
+
+### Algorithm
+
+Pseudocode for the K-means algorithm
+```
+randomly choose k objects as initial centroids
+while true:
+  1. create k clusters by assigning each object to closest centroid
+  2. compute k new centroids by averaging the objects in each cluster
+  3. if none of the centroids differ from the previous iteration:
+        return the current set of clusters
+```
+
+
+```{r kmeansIterations, fig.cap='Iterations of the k-means algorithm', out.width='90%', fig.asp=1.2, fig.align='center',echo=F}
+library(RColorBrewer)
+point_shapes <- c(17,19)
+point_colours <- brewer.pal(3,"Dark2")
+point_size = 4
+center_point_size = 8
+load("data/example_clusters/kmeans_iteration_demo.rda")
+# current_centers=initial_centroids
+
+plotList <- list(
+ ggplot(kmeans_demo_df, aes(V1,V2)) + 
+   geom_point(col="grey30", shape=15, size=point_size) + 
+   geom_point(data=initial_centroids, aes(V1,V2), shape=3, 
+              col="black", size=center_point_size) +theme_bw())
+
+plot_kmeans_result <- function(iterations,dat,centers) {
+  res <- suppressWarnings(kmeans(dat,centers=centers, iter.max=iterations, algorithm="Lloyd"))
+  current_centers <- as.data.frame(res$centers)
+  ggplot(kmeans_demo_df, aes(V1,V2)) + 
+    geom_point(col=point_colours[res$cluster], shape=point_shapes[res$cluster], size=point_size) + 
+    geom_point(data=current_centers, aes(V1,V2), shape=3, col="black", size=center_point_size) + theme_bw() + 
+    annotate("text", x=-7, y=7, label =paste("Iter.", iterations, sep=" "), size=8, col="black")
+}
+
+plotList <- c(plotList, lapply(c(1,3,2,4), plot_kmeans_result, dat=kmeans_demo_df, centers=initial_centroids))
+
+pm <- ggmatrix(
+  plotList, nrow=3, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F
+) + theme_bw()
+
+pm
+
+```
+
+The default setting of the **kmeans** function is to perform a maximum of 10 iterations and if the algorithm fails to converge a warning is issued. The maximum number of iterations is set with the argument **iter.max**.
+
+### Choosing initial cluster centres
+```{r kmeansCentreChoice, fig.cap='Initial centres determine clusters. The starting centres are shown as crosses. **A**, real clusters found; **B**, convergence to a local minimum.', out.width='100%', fig.asp=0.5, fig.align='center',echo=T}
+library(RColorBrewer)
+point_shapes <- c(15,17,19)
+point_colours <- brewer.pal(3,"Dark2")
+point_size = 1.5
+center_point_size = 8
+
+blobs <- as.data.frame(read.csv("data/example_clusters/blobs.csv", header=F))
+
+good_centres <- as.data.frame(matrix(c(2,8,7,3,12,7), ncol=2, byrow=T))
+bad_centres <- as.data.frame(matrix(c(13,13,8,12,2,2), ncol=2, byrow=T))
+
+good_result <- kmeans(blobs[,1:2], centers=good_centres)
+bad_result <- kmeans(blobs[,1:2], centers=bad_centres)
+
+plotList <- list(
+ggplot(blobs, aes(V1,V2)) + 
+  geom_point(col=point_colours[good_result$cluster], shape=point_shapes[good_result$cluster], 
+             size=point_size) + 
+  geom_point(data=good_centres, aes(V1,V2), shape=3, col="black", size=center_point_size) + 
+  theme_bw(),
+ggplot(blobs, aes(V1,V2)) + 
+  geom_point(col=point_colours[bad_result$cluster], shape=point_shapes[bad_result$cluster], 
+             size=point_size) + 
+  geom_point(data=bad_centres, aes(V1,V2), shape=3, col="black", size=center_point_size) + 
+  theme_bw()
+)
+
+pm <- ggmatrix(
+  plotList, nrow=1, ncol=2, showXAxisPlotLabels = T, showYAxisPlotLabels = T, 
+  xAxisLabels=c("A", "B")
+) + theme_bw()
+
+pm
+```
+Convergence to a local minimum can be avoided by starting the algorithm multiple times, with different random centres. The **nstart** argument to the **k-means** function can be used to specify the number of random sets and optimal solution will be selected automatically.
+
+
+### Choosing k {#choosingK}
+
+```{r kmeansRangeK, fig.cap='K-means clustering of the blobs data set using a range of values of k from 1-9. Cluster centres indicated with a cross.', out.width='100%', fig.asp=1, fig.align='center',echo=T}
+point_colours <- brewer.pal(9,"Set1")
+k <- 1:9
+res <- lapply(k, function(i){kmeans(blobs[,1:2], i, nstart=50)})
+
+plotList <- lapply(k, function(i){
+  ggplot(blobs, aes(V1, V2)) + 
+    geom_point(col=point_colours[res[[i]]$cluster], size=1) +
+    geom_point(data=as.data.frame(res[[i]]$centers), aes(V1,V2), shape=3, col="black", size=5) +
+    annotate("text", x=2, y=13, label=paste("k=", i, sep=""), size=8, col="black") +
+    theme_bw()
+}
+)
+
+pm <- ggmatrix(
+  plotList, nrow=3, ncol=3, showXAxisPlotLabels = T, showYAxisPlotLabels = T
+) + theme_bw()
+
+pm
+```
+
+```{r choosingKplot, fig.cap='Variance within the clusters. Total within-cluster sum of squares plotted against k.', out.width='50%', fig.asp=1, fig.align='center',echo=T}
+tot_withinss <- sapply(k, function(i){res[[i]]$tot.withinss})
+qplot(k, tot_withinss, geom=c("point", "line"), 
+      ylab="Total within-cluster sum of squares") + theme_bw()
+```
+
+*N.B.* we have set ```nstart=50``` to run the algorithm 50 times, starting from different, random sets of centroids.
+
+
+### Example: clustering synthetic data sets
+Let's see how k-means performs on the other toy data sets. First we will define some variables and functions we will use in the analysis of all data sets.
+```{r echo=T}
+k=1:9
+point_shapes <- c(15,17,19,5,6,0,1)
+point_colours <- brewer.pal(7,"Dark2")
+point_size = 1.5
+center_point_size = 8
+
+plot_tot_withinss <- function(kmeans_output){
+  tot_withinss <- sapply(k, function(i){kmeans_output[[i]]$tot.withinss})
+  qplot(k, tot_withinss, geom=c("point", "line"), 
+        ylab="Total within-cluster sum of squares") + theme_bw()
+}
+
+plot_clusters <- function(data_set, kmeans_output, num_clusters){
+    ggplot(data_set, aes(V1,V2)) + 
+    geom_point(col=point_colours[kmeans_output[[num_clusters]]$cluster],
+               shape=point_shapes[kmeans_output[[num_clusters]]$cluster], 
+               size=point_size) +
+    geom_point(data=as.data.frame(kmeans_output[[num_clusters]]$centers), aes(V1,V2),
+               shape=3,col="black",size=center_point_size) + 
+    theme_bw()
+}
+
+```
+
+#### Aggregation
+```{r kmeansAggregationElbow, fig.cap='K-means clustering of the aggregation data set: variance within clusters.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+aggregation <- as.data.frame(read.table("data/example_clusters/aggregation.txt"))
+res <- lapply(k, function(i){kmeans(aggregation[,1:2], i, nstart=50)})
+plot_tot_withinss(res)
+```
+
+```{r kmeansAggregationScatter, fig.cap='K-means clustering of the aggregation data set: scatterplots of clusters for k=3 and k=7. Cluster centres indicated with a cross.', out.width='100%', fig.asp=0.5, fig.align='center', echo=T}
+plotList <- list(
+  plot_clusters(aggregation, res, 3),
+  plot_clusters(aggregation, res, 7)
+)
+pm <- ggmatrix(
+  plotList, nrow=1, ncol=2, showXAxisPlotLabels = T, showYAxisPlotLabels = T, 
+  xAxisLabels=c("k=3", "k=7")
+) + theme_bw()
+pm
+```
+
+#### Noisy moons
+```{r kmeansNoisyMoonsElbow, fig.cap='K-means clustering of the noisy moons data set: variance within clusters.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+res <- lapply(k, function(i){kmeans(noisy_moons[,1:2], i, nstart=50)})
+plot_tot_withinss(res)
+```
+
+```{r kmeansNoisyMoonsScatter, fig.cap='K-means clustering of the noisy moons data set: scatterplot of clusters for k=2. Cluster centres indicated with a cross.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+plot_clusters(noisy_moons, res, 2)
+```
+
+#### Different density
+
+```{r echo=T}
+diff_density <- as.data.frame(read.csv("data/example_clusters/different_density.csv", header=F))
+res <- lapply(k, function(i){kmeans(diff_density[,1:2], i, nstart=50)})
+```
+Failure to converge, so increase number of iterations.
+```{r kmeansDiffDensityElbow, fig.cap='K-means clustering of the different density distributions data set: variance within clusters.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+res <- lapply(k, function(i){kmeans(diff_density[,1:2], i, iter.max=20, nstart=50)})
+plot_tot_withinss(res)
+```
+
+```{r kmeansDiffDensityScatter, fig.cap='K-means clustering of the different density distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+plot_clusters(diff_density, res, 2)
+```
+
+#### Anisotropic distributions
+```{r kmeansAnisoElbow, fig.cap='K-means clustering  of the anisotropic distributions data set: variance within clusters.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+aniso <- as.data.frame(read.csv("data/example_clusters/aniso.csv", header=F))
+res <- lapply(k, function(i){kmeans(aniso[,1:2], i, nstart=50)})
+plot_tot_withinss(res)
+```
+
+```{r kmeansAnisoScatter, fig.cap='K-means clustering of the anisotropic distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross.', out.width='100%', fig.asp=0.5, fig.align='center', echo=T}
+plotList <- list(
+  plot_clusters(aniso, res, 2),
+  plot_clusters(aniso, res, 3)
+)
+pm <- ggmatrix(
+  plotList, nrow=1, ncol=2, showXAxisPlotLabels = T, 
+  showYAxisPlotLabels = T, xAxisLabels=c("k=2", "k=3")
+) + theme_bw()
+pm
+```
+
+#### No structure
+```{r noStructureElbow, fig.cap='K-means clustering of the data set with no structure: variance within clusters.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+no_structure <- as.data.frame(read.csv("data/example_clusters/no_structure.csv", header=F))
+res <- lapply(k, function(i){kmeans(no_structure[,1:2], i, nstart=50)})
+plot_tot_withinss(res)
+```
+
+```{r noStructureScatter, fig.cap='K-means clustering of the data set with no structure: scatterplot of clusters for k=4. Cluster centres indicated with a cross.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+plot_clusters(no_structure, res, 4)
+```
+
+### Example: gene expression profiling of human tissues
+Let's return to the data on gene expression of human tissues.
+Load data
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+As we saw earlier, the data set contains expression levels for over 22,000 transcripts in seven tissues.
+```{r echo=T}
+table(tissue)
+dim(e)
+```
+
+First we will examine the total intra-cluster variance with different values of *k*. Our data-set is fairly large, so clustering it for several values or *k* and with multiple random starting centres is computationally quite intensive. Fortunately the task readily lends itself to parallelization; we can assign the analysis of each 'k' to a different processing core. As we have seen in the previous chapters on supervised learning, [caret](http://cran.r-project.org/web/packages/caret/index.html) has parallel processing built in and we simply have to load a package for multicore processing, such as [doMC](http://cran.r-project.org/web/packages/doMC/index.html), and then register the number of cores we would like to use. Running **kmeans** in parallel is slightly more involved, but still very easy. We will start by loading [doMC](http://cran.r-project.org/web/packages/doMC/index.html) and registering all available cores:
+```{r echo=T}
+library(doMC)
+registerDoMC(detectCores())
+```
+To find out how many cores we have registered we can use:
+```{r echo=T}
+getDoParWorkers()
+```
+
+Instead of using the **lapply** function to vectorize our code, we will instead use the parallel equivalent, **foreach**. Like **lapply**, **foreach** returns a list by default. For this example we have set a seed, rather than generate a random number, for the sake of reproducibility. Ordinarily we would omit ```set.seed(42)``` and ```.options.multicore=list(set.seed=FALSE)```.
+```{r tissueExpressionElbow, fig.cap='K-means clustering of human tissue gene expression: variance within clusters.', out.width='100%', fig.asp=0.5, fig.align='center', echo=T}
+k<-1:15
+set.seed(42)
+res_k_15 <- foreach(
+  i=k, 
+  .options.multicore=list(set.seed=FALSE)) %dopar% kmeans(t(e), i, nstart=10)
+plot_tot_withinss(res_k_15)
+```
+<!--
+set.seed(42)
+res_k_15 <- lapply(k, function(i){kmeans(t(e), i, nstart=10)})
+-->
+There is no obvious elbow, but since we know that there are seven tissues in the data set we will try k=7. 
+<!--
+```{r echo=T}
+set.seed(42)
+res <- kmeans(t(e), 7, nstart=10)
+table(tissue, res$cluster)
+```
+-->
+```{r echo=T}
+table(tissue, res_k_15[[7]]$cluster)
+```
+The analysis has found a distinct cluster for each tissue and therefore performed slightly better than the earlier hierarchical clustering analysis, which placed endometrium and kidney observations in the same cluster.
+
+To visualize the result in a 2D scatter plot we first need to apply dimensionality reduction. We will use principal component analysis (PCA), which was described in chapter \@ref(dimensionality-reduction).
+
+```{r tissueExpressionPCA, fig.cap='K-means clustering of human gene expression (k=7): scatterplot of first two principal components.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+pca <- prcomp(t(e))
+ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
+  geom_point(col=brewer.pal(7,"Dark2")[res_k_15[[7]]$cluster], 
+             shape=c(49:55)[res_k_15[[7]]$cluster], size=5) + 
+  theme_bw()
+```
+
+## DBSCAN
+Density-based spatial clustering of applications with noise
+
+### Algorithm
+
+
+Abstract DBSCAN algorithm in pseudocode [@Schubert2017]
+
+```
+1 Compute neighbours of each point and identify core points   // Identify core points
+2 Join neighbouring core points into clusters                 // Assign core points
+3 foreach non-core point do
+      Add to a neighbouring core point if possible            // Assign border points
+      Otherwise, add to noise                                 // Assign noise points
+```
+
+
+
+```{r dbscanIllustration, echo=FALSE, out.width='75%', fig.align='center', fig.cap="Illustration of the DBSCAN algorithm. By Chire (Own work) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons."}
+knitr::include_graphics("images/DBSCAN_Illustration.svg")
+```
+
+The method requires two parameters; MinPts that is the minimum number of samples in any cluster; Eps that is the maximum distance of the sample to at least one other sample within the same cluster.
+
+This algorithm works on a parametric approach. The two parameters involved in this algorithm are:
+
+* e (eps) is the radius of our neighborhoods around a data point p.
+* minPts is the minimum number of data points we want in a neighborhood to define a cluster.
+
+
+
+### Implementation in R
+DBSCAN is implemented in two R packages: [dbscan](https://cran.r-project.org/package=dbscan) and [fpc](https://cran.r-project.org/package=fpc). We will use the package [dbscan](https://cran.r-project.org/package=dbscan), because it is significantly faster and can handle larger data sets than [fpc](https://cran.r-project.org/package=fpc). The function has the same name in both packages and so if for any reason both packages have been loaded into our current workspace, there is a danger of calling the wrong implementation. To avoid this we can specify the package name when calling the function, e.g.:
+```
+dbscan::dbscan
+```
+
+We load the dbscan package in the usual way:
+```{r echo=T}
+library(dbscan)
+
+```
+
+### Choosing parameters
+The algorithm only needs parameteres **eps** and **minPts**.
+
+Read in data and use **kNNdist** function from [dbscan](https://cran.r-project.org/package=dbscan) package to plot the distances of the 10-nearest neighbours for each observation (figure \@ref(fig:blobsKNNdist)).
+
+```{r blobsKNNdist, fig.cap='10-nearest neighbour distances for the blobs data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
+kNNdistplot(blobs[,1:2], k=10)
+abline(h=0.6)
+```
+<!-- dist2knn <- kNNdist(blobs, 10) -->
+
+```{r echo=T}
+res <- dbscan::dbscan(blobs[,1:2], eps=0.6, minPts = 10)
+table(res$cluster)
+```
+
+
+```{r blobsDBSCANscatter, fig.cap='DBSCAN clustering (eps=0.6, minPts=10) of the blobs data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+ggplot(blobs, aes(V1,V2)) + 
+  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1],
+             shape=c(4,15,17,19)[res$cluster+1],
+             size=1.5) +
+  theme_bw()
+```
+
+
+### Example: clustering synthetic data sets
+
+```{r echo=T}
+point_shapes <- c(4,15,17,19,5,6,0,1)
+point_colours <- brewer.pal(8,"Dark2")[c(8,1:7)]
+point_size = 1.5
+center_point_size = 8
+
+plot_dbscan_clusters <- function(data_set, dbscan_output){
+  ggplot(data_set, aes(V1,V2)) + 
+    geom_point(col=point_colours[dbscan_output$cluster+1],
+               shape=point_shapes[dbscan_output$cluster+1], 
+               size=point_size) +
+    theme_bw()
+}
+```
+
+
+#### Aggregation
+
+```{r aggregationKNNdist, fig.cap='10-nearest neighbour distances for the aggregation data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+aggregation <- read.table("data/example_clusters/aggregation.txt")
+kNNdistplot(aggregation[,1:2], k=10)
+abline(h=1.8)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(aggregation[,1:2], eps=1.8, minPts = 10)
+table(res$cluster)
+```
+
+```{r aggregationDBSCANscatter, fig.cap='DBSCAN clustering (eps=1.8, minPts=10) of the aggregation data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+plot_dbscan_clusters(aggregation, res)
+```
+
+
+#### Noisy moons
+```{r noisyMoonsKNNdist, fig.cap='10-nearest neighbour distances for the noisy moons data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+kNNdistplot(noisy_moons[,1:2], k=10)
+abline(h=0.075)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(noisy_moons[,1:2], eps=0.075, minPts = 10)
+table(res$cluster)
+```
+
+```{r noisyMoonsDBSCANscatter, fig.cap='DBSCAN clustering (eps=0.075, minPts=10) of the noisy moons data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+plot_dbscan_clusters(noisy_moons, res)
+```
+
+
+#### Different density
+
+```{r diffDensityKNNdist, fig.cap='10-nearest neighbour distances for the different density distributions data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+diff_density <- read.csv("data/example_clusters/different_density.csv", header=F)
+kNNdistplot(diff_density[,1:2], k=10)
+abline(h=0.9)
+abline(h=0.6, lty=2)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(diff_density[,1:2], eps=0.9, minPts = 10)
+table(res$cluster)
+```
+
+```{r diffDensityDBSCANscatter1, fig.cap='DBSCAN clustering of the different density distribution data set with eps=0.9 and minPts=10. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+plot_dbscan_clusters(diff_density, res)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(diff_density[,1:2], eps=0.6, minPts = 10)
+table(res$cluster)
+```
+
+```{r diffDensityDBSCANscatter2, fig.cap='DBSCAN clustering of the different density distribution data set with eps=0.6 and minPts=10. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+plot_dbscan_clusters(diff_density, res)
+```
+
+
+#### Anisotropic distributions
+
+```{r anisoKNNdist, fig.cap='10-nearest neighbour distances for the anisotropic distributions data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+aniso <- read.csv("data/example_clusters/aniso.csv", header=F)
+kNNdistplot(aniso[,1:2], k=10)
+abline(h=0.35)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(aniso[,1:2], eps=0.35, minPts = 10)
+table(res$cluster)
+```
+
+```{r anisoDBSCANscatter, fig.cap='DBSCAN clustering (eps=0.3, minPts=10) of the anisotropic distributions data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+plot_dbscan_clusters(aniso, res)
+```
+
+
+#### No structure
+
+```{r noStructureKNNdist, fig.cap='10-nearest neighbour distances for the data set with no structure.', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+no_structure <- read.csv("data/example_clusters/no_structure.csv", header=F)
+kNNdistplot(no_structure[,1:2], k=10)
+abline(h=0.057)
+```
+
+```{r echo=T}
+res <- dbscan::dbscan(no_structure[,1:2], eps=0.57, minPts = 10)
+table(res$cluster)
+```
+
+<!--No need for scatter plot-->
+
+
+### Example: gene expression profiling of human tissues
+Returning again to the data on gene expression of human tissues.
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+```{r echo=T}
+table(tissue)
+```
+
+We'll try k=5 (default for dbscan), because there are only six observations for placenta.
+
+```{r tissueExpressionKNNdist, fig.cap='Five-nearest neighbour distances for the gene expression profiling of human tissues data set.', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+kNNdistplot(t(e), k=5)
+abline(h=85)
+```
+
+```{r echo=T}
+set.seed(42)
+res <- dbscan::dbscan(t(e), eps=85, minPts=5)
+table(res$cluster)
+table(tissue, res$cluster)
+```
+
+```{r tissueExpressionDBSCANscatter, fig.cap='Clustering of human tissue gene expression: scatterplot of first two principal components.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+pca <- prcomp(t(e))
+ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
+  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1], 
+             shape=c(48:55)[res$cluster+1], size=5) + 
+  theme_bw()
+```
+
+
+## Evaluating cluster quality
+<!--
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
+-->
+
+### Silhouette method {#silhouetteMethod}
+
+**Silhouette**
+\begin{equation}
+  s(i) = \frac{b(i) - a(i)}{max\left(a(i),b(i)\right)}
+  (\#eq:silhouette)
+\end{equation}
+
+Where
+
+* _a(i)_ - average dissimmilarity of _i_ with all other data within the cluster. _a(i)_ can be interpreted as how well _i_ is assigned to its cluster (the smaller the value, the better the assignment).
+* _b(i)_ - the lowest average dissimilarity of _i_ to any other cluster, of which _i_ is not a member.
+
+Observations with a large _s(i)_ (close to 1) are very well clustered. Observations lying between clusters will have a small _s(i)_ (close to 0). If an observation has a negative _s(i)_, it has probably been placed in the wrong cluster. 
+
+### Example - k-means clustering of blobs data set
+Load library required for calculating silhouette coefficients and plotting silhouettes.
+```{r echo=T}
+library(cluster)
+```
+
+We are going to take another look at k-means clustering of the blobs data-set (figure \@ref(fig:kmeansRangeK)). Specifically we are going to see if silhouette analysis supports our original choice of k=3 as the optimum number of clusters (figure \@ref(fig:choosingKplot)).
+
+Silhouette analysis requires a minimum of two clusters, so we'll try values of k from 2 to 9.
+```{r echo=T}
+k <- 2:9
+```
+Create a palette of colours for plotting.
+```{r echo=T}
+kColours <- brewer.pal(9,"Set1")
+```
+Perform k-means clustering for each value of k from 2 to 9.
+```{r echo=T}
+res <- lapply(k, function(i){kmeans(blobs[,1:2], i, nstart=50)})
+```
+
+Calculate the Euclidean distance matrix
+```{r echo=T}
+d <- dist(blobs[,1:2])
+```
+
+Silhouette plot for k=2
+```{r silhouetteK2, fig.cap='Silhouette plot for k-means clustering of the blobs data set with k=2.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+s2 <- silhouette(res[[2-1]]$cluster, d)
+plot(s2, border=NA, col=kColours[sort(res[[2-1]]$cluster)], main="")
+```
+
+Silhouette plot for k=9
+```{r silhouetteK9, fig.cap='Silhouette plot for k-means clustering of the blobs data set with k=9.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+s9 <- silhouette(res[[9-1]]$cluster, d)
+plot(s9, border=NA, col=kColours[sort(res[[9-1]]$cluster)], main="")
+```
+
+Let's take a look at the silhouette plot for k=3.
+```{r silhouetteK3, fig.cap='Silhouette plot for k-means clustering of the blobs data set with k=3.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+s3 <- silhouette(res[[3-1]]$cluster, d)
+plot(s3, border=NA, col=kColours[sort(res[[3-1]]$cluster)], main="")
+```
+
+So far the silhouette plots have shown that k=3 appears to be the optimum number of clusters, but we should investigate the silhouette coefficients at other values of k. Rather than produce a silhouette plot for each value of k, we can get a useful summary by making a barplot of average silhouette coefficients.
+
+First we will calculate the silhouette coefficient for every observation (we need to index our list of **kmeans** outputs by ```i-1```, because we are counting from k=2 ).
+```{r echo=T}
+s <- lapply(k, function(i){silhouette(res[[i-1]]$cluster, d)})
+```
+We can then calculate the mean silhouette coefficient for each value of k from 2 to 9.
+```{r echo=T}
+avgS <- sapply(s, function(x){mean(x[,3])})
+```
+Now we have the data we need to produce a barplot.
+```{r silhouetteAllK, fig.cap='Barplot of the average silhouette coefficients resulting from k-means clustering of the blobs data-set using values of k from 1-9.', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+dat <- data.frame(k, avgS)
+ggplot(data=dat, aes(x=k, y=avgS)) + 
+         geom_bar(stat="identity", fill="steelblue") +
+  geom_text(aes(label=round(avgS,2)), vjust=1.6, color="white", size=3.5)+
+  labs(y="Average silhouette coefficient") +
+  scale_x_continuous(breaks=2:9) +
+  theme_bw()
+```
+
+The bar plot (figure \@ref(fig:silhouetteAllK)) confirms that the optimum number of clusters is three.
+
+### Example - DBSCAN clustering of noisy moons
+<!--
+Read data
+```{r echo=T}
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+```
+-->
+The clusters that DBSCAN found in the noisy moons data set are shown in figure \@ref(fig:noisyMoonsDBSCANscatter).
+
+Let's repeat clustering, because the original result is no longer in memory.
+```{r echo=T}
+res <- dbscan::dbscan(noisy_moons[,1:2], eps=0.075, minPts = 10)
+```
+
+Identify noise points as we do not want to include these in the silhouette analysis
+```{r echo=T}
+# identify and remove noise points
+noise <- res$cluster==0
+```
+
+Remove noise points from cluster results
+```{r echo=T}
+clusters <- res$cluster[!noise]
+```
+
+Generate distance matrix from ```noisy_moons``` data.frame, exluding noise points.
+```{r echo=T}
+d <- dist(noisy_moons[!noise,1:2])
+```
+
+Silhouette analysis
+```{r silhouetteNoisyMoonsDBSCAN, fig.cap='Silhouette plot for DBSCAN clustering of the noisy moons data set.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+clusterColours <- brewer.pal(9,"Set1")
+sil <- silhouette(clusters, d)
+plot(sil, border=NA, col=clusterColours[sort(clusters)], main="")
+```
+
+The silhouette analysis suggests that DBSCAN has found clusters of poor quality in the noisy moons data set. However, we saw by eye that it it did a good job of deliminiting the two clusters. The result demonstrates that the silhouette method is less useful when dealing with clusters that are defined by density, rather than inertia.
+
+
+
+## Exercises
+
+### Exercise 1 {#clusteringEx1}
+
+Image segmentation is used to partition digital images into distinct regions containing pixels with similar attributes. Applications include identifying objects or structures in biomedical images. The aim of this exercise is to use k-means clustering to segment the image of a histological section of lung tissue (figure \@ref(fig:lungHistology)) into distinct biological structures, based on pixel colour.
+
+```{r lungHistology, fig.cap='Image of haematoxylin and eosin (H&E) stained section of lung tissue from a patient with end-stage emphysema. CC BY 2.0, https://commons.wikimedia.org/w/index.php?curid=437645.', out.width='80%', fig.align='center', echo=F}
+knitr::include_graphics("data/histology/Emphysema_H_and_E.jpg")
+```
+
+The haematoxylin and eosin (H & E) staining reveals four types of biological objects, identified by the following colours:
+
+* blue-purple: cell nuclei
+* red: red blood cells
+* pink: other cell bodies and extracellular material
+* white: air spaces
+
+**Consider the following questions:**
+
+* Can k-means clustering find the four biological objects in the image based on pixel colour? 
+* Earlier we saw that if we plot the total within-cluster sum of squares against k, the position of the "elbow" is a useful guide to choosing the appropriate value of k (see section \@ref(choosingK). According to the "elbow" method, how many distinct clusters (colours) of pixels are present in the image?
+
+**Hints:**
+If you haven't worked with images in R before, you may find the following information helpful.
+
+The package [EBImage](https://bioconductor.org/packages/EBImage/) provides a suite of tools for working with images. We will use it to read the file containing the image of the lung section.
+
+<!--EBImage needs methods library, but doesn't import it -->
+```{r echo=F}
+library(methods)
+```
+
+```{r echo=T}
+library(EBImage)
+library(methods)
+img <- readImage("data/histology/Emphysema_H_and_E.jpg")
+```
+
+```img``` is an object of the [EBImage](https://bioconductor.org/packages/EBImage/) class Image; it is essentially a multidimensional array containing the pixel intensities. To see the dimensions of the array, run:
+```{r echo=T}
+dim(img)
+```
+
+In the case of this colour image, the array is 3-dimensional with 528 x 393 x 3 elements. These dimensions correspond to the image width (in pixels), image height and number of colour channels, respectively. The colour channels are red, green and blue (RGB). 
+
+Before we can cluster the pixels on colour, we need to convert the 3D array into a 2D data.frame (or matrix). Specifically, we require a data.frame (or matrix) where rows represent pixels and there is a column for the intensity of each of the three colour channels. We also need columns for the x and y coordinates of each pixel.
+
+```{r echo=T}
+imgDim <- dim(img)
+imgDF <- data.frame(
+  x = rep(1:imgDim[1], imgDim[2]),
+  y = rep(imgDim[2]:1, each=imgDim[1]),
+  r = as.vector(img[,,1]),
+  g = as.vector(img[,,2]),
+  b = as.vector(img[,,3])
+)
+```
+
+If the data in ```imgDF``` are correct, we should be able to display the image using ggplot:
+```{r recreatedLungHistology, fig.cap='Image of lung tissue recreated from reshaped data.', out.width='80%', fig.asp=0.744, fig.align='center', echo=T}
+ggplot(data = imgDF, aes(x = x, y = y)) + 
+  geom_point(colour = rgb(imgDF[c("r", "g", "b")])) +
+  xlab("x") +
+  ylab("y") +
+  theme_minimal()
+```
+
+This should be all the information you need to perform this exercise.
+
+
+
+**Solutions to exercises can be found in appendix \@ref(solutions-clustering).**
+
+

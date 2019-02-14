@@ -1,0 +1,7 @@
+book_filename: "intro-machine-learning"
+language:
+  ui:
+    chapter_name: ""
+new_session: yes
+output_dir: docs
+

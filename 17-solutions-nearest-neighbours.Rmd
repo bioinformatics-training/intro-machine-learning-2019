@@ -1,0 +1,139 @@
+# Solutions ch. 7 - Nearest neighbours {#solutions-nearest-neighbours}
+
+Solutions to exercises of chapter \@ref(nearest-neighbours).
+
+## Exercise 1
+
+Load libraries
+```{r echo=T}
+library(caret)
+library(RColorBrewer)
+library(doMC)
+library(corrplot)
+```
+
+Prepare for parallel processing
+```{r echo=T}
+registerDoMC(detectCores())
+```
+
+Load data
+```{r echo=T}
+load("data/wheat_seeds/wheat_seeds.Rda")
+```
+
+Partition data
+```{r echo=T}
+set.seed(42)
+trainIndex <- createDataPartition(y=variety, times=1, p=0.7, list=F)
+varietyTrain <- variety[trainIndex]
+morphTrain <- morphometrics[trainIndex,]
+varietyTest <- variety[-trainIndex]
+morphTest <- morphometrics[-trainIndex,]
+
+summary(varietyTrain)
+summary(varietyTest)
+```
+
+Data check: zero and near-zero predictors
+```{r echo=T}
+nzv <- nearZeroVar(morphTrain, saveMetrics=T)
+nzv
+```
+
+Data check: are all predictors on same scale?
+```{r echo=T}
+summary(morphTrain)
+```
+
+```{r wheatBoxplots, fig.cap='Boxplots of the 7 geometric parameters in the wheat data set',,  out.width='75%', fig.asp=1, fig.align='center', echo=T }
+featurePlot(x = morphTrain, 
+            y = varietyTrain, 
+            plot = "box", 
+            ## Pass in options to bwplot() 
+            scales = list(y = list(relation="free"),
+                          x = list(rot = 90)),  
+            layout = c(3,3))
+```
+
+Data check: pairwise correlations between predictors
+```{r wheatCorrelogram, fig.cap='Correlogram of the wheat seed data set.', out.width='75%', fig.asp=1, fig.align='center', echo=T}
+corMat <- cor(morphTrain)
+corrplot(corMat, order="hclust", tl.cex=1)
+```
+
+```{r echo=T}
+highCorr <- findCorrelation(corMat, cutoff=0.75)
+length(highCorr)
+names(morphTrain)[highCorr]
+```
+
+Data check: skewness
+```{r wheatDensityPlots, fig.cap='Density plots of the 7 geometric parameters in the wheat data set',,  out.width='75%', fig.asp=1, fig.align='center', echo=T }
+featurePlot(x = morphTrain, 
+            y = varietyTrain,
+            plot = "density", 
+            ## Pass in options to xyplot() to 
+            ## make it prettier
+            scales = list(x = list(relation="free"), 
+                          y = list(relation="free")), 
+            adjust = 1.5, 
+            pch = "|", 
+            layout = c(3, 3), 
+            auto.key = list(columns = 3))
+```
+            
+Create a 'grid' of values of _k_ for evaluation:
+```{r echo=T}
+tuneParam <- data.frame(k=seq(1,50,2))
+```
+            
+Generate a list of seeds for reproducibility (optional) based on grid size
+```{r echo=T}
+set.seed(42)
+seeds <- vector(mode = "list", length = 101)
+for(i in 1:100) seeds[[i]] <- sample.int(1000, length(tuneParam$k))
+seeds[[101]] <- sample.int(1000,1)
+```
+
+<!--
+Define a pre-processor (named transformations) and transform morphTrain
+```{r echo=T}
+transformations <- preProcess(morphTrain, 
+                              method=c("center", "scale", "corr"),
+                              cutoff=0.75)
+morphTrainT <- predict(transformations, morphTrain)
+```
+-->
+
+Set training parameters. In the example in chapter \@ref(nearest-neighbours) pre-processing was performed outside the cross-validation process to save time for the purposes of the demonstration. Here we have a relatively small data set, so we can do pre-processing within each iteration of the cross-validation process. We specify the option  ```preProcOptions=list(cutoff=0.75)``` to set a value for the pairwise correlation coefficient cutoff.
+```{r echo=T}
+train_ctrl <- trainControl(method="repeatedcv",
+                   number = 10,
+                   repeats = 10,
+                   preProcOptions=list(cutoff=0.75),
+                   seeds = seeds)
+```
+
+Run training
+```{r echo=T}
+knnFit <- train(morphTrain, varietyTrain, 
+                method="knn",
+                preProcess = c("center", "scale", "corr"),
+                tuneGrid=tuneParam,
+                trControl=train_ctrl)
+knnFit
+```
+
+Plot cross validation accuracy as a function of _k_
+```{r cvAccuracyMorphTrain, fig.cap='Accuracy (repeated cross-validation) as a function of neighbourhood size for the wheat seeds data set.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+plot(knnFit)
+```
+
+Predict the class (wheat variety) of the observations in the test set.
+```{r echo=T}
+test_pred <- predict(knnFit, morphTest)
+confusionMatrix(test_pred, varietyTest)
+```
+
+

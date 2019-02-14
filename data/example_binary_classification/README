@@ -1,0 +1,10 @@
+# 2D simulated data with two classes
+
+x - training data (400 rows and two columns; rows are objects and columns variables)
+y - vector of class membership (0,1) for x
+xtest - test data
+ytest - class membership for xtest
+
+## Source
+https://github.com/genomicsclass/labs/blob/master/ml/machine_learning.Rmd
+

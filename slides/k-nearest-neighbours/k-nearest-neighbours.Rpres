@@ -1,0 +1,125 @@
+k-nearest neighbours
+========================================================
+#author:
+#date:
+autosize: true
+transition: rotate
+css: custom.css
+
+
+k-NN Classification
+=====================================================
+![](img/knn_classification.svg)
+***
+Two classes: blue squares & red triangles
+
+Test object: green circle
+
+k=3: solid line circle
+
+k=5: dashed line circle
+
+
+k-NN characteristics
+=====================================================
+- simplest method of supervised learning we will cover in this course.
+- non-parametric
+- instance (memory) based learning, because all computation is deferred until prediction
+- most computationally demanding aspects of knn are finding neighbours and storing the learning set
+
+
+k-NN Regression example
+====================================================
+```{r echo=F, eval=T}
+library(FNN)
+library(MASS)
+data(Boston)
+
+set.seed(42)
+
+X_boston = Boston["lstat"]
+y_boston = Boston$medv
+
+lstat_grid = data.frame(lstat = seq(range(X_boston$lstat)[1], range(X_boston$lstat)[2], by = 0.01))
+pred_001 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 1)
+pred_005 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 5)
+pred_010 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 10)
+pred_050 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 50)
+pred_100 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 100)
+pred_506 = FNN::knn.reg(train = X_boston, test = lstat_grid, y = y_boston, k = 506)
+
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue")
+```
+***
+Socioeconomic data for 506 neighbourhoods around Boston.
+
+**medv**: median house value
+
+**lstat**: percent of households with low economic status
+
+k=1
+===========
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue")
+lines(lstat_grid$lstat, pred_001$pred, col = "darkorange", lwd = 0.25)
+```
+
+k=5
+=========
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue")
+lines(lstat_grid$lstat, pred_005$pred, col = "darkorange", lwd = 0.75)
+```
+
+k=10
+=========
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue")
+lines(lstat_grid$lstat, pred_010$pred, col = "darkorange", lwd = 1)
+```
+
+k=25
+============
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue")
+lines(lstat_grid$lstat, pred_050$pred, col = "darkorange", lwd = 1.5)
+```
+
+k=50
+==============
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue", main = "k = 50")
+lines(lstat_grid$lstat, pred_100$pred, col = "darkorange", lwd = 2)
+```
+
+k=506
+=================
+```{r echo=F, eval=T}
+plot(medv ~ lstat, data = Boston, cex = .8, col = "dodgerblue", main = "k = 506")
+lines(lstat_grid$lstat, pred_506$pred, col = "darkorange", lwd = 2)
+```
+
+
+Choosing k
+========================================================
+
+- The number of neighbours *k* can have a considerable impact on the predictive performance of k-NN in both classification and regression.
+
+- The optimal value of *k* should be chosen using cross-validation.
+
+
+k-fold cross-validation
+=========================
+![](img/cross-validation.png)
+
+
+Bias-variance tradeoff
+==========================================================
+
+The bias–variance tradeoff is the problem of simultaneously minimizing two sources of error that prevent supervised learning algorithms from generalizing beyond their training set:
+
+- The **bias** is error from erroneous assumptions in the learning algorithm. High bias can cause an algorithm to miss the relevant relations between features and target outputs (underfitting).
+
+- The **variance** is error from sensitivity to small fluctuations in the training set. High variance can cause an algorithm to model the random noise in the training data, rather than the intended outputs (overfitting).
+
+

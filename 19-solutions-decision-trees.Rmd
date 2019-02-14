@@ -1,0 +1,80 @@
+# Solutions ch. 9 - Decision trees and random forests {#solutions-decision-trees}
+
+Solutions to exercises of chapter \@ref(decision-trees).
+
+## Exercise 1
+
+**Load the necessary packages**\
+readr to read in the data\
+dplyr to process data\
+party and rpart for the classification tree algorithms 
+
+```{r}
+library(readr)
+library(dplyr)
+library(party)
+library(rpart)
+library(rpart.plot)
+library(ROCR)
+set.seed(100)
+```
+
+**Select features that may explain survival**
+
+Each row in the data is a passenger. Columns are features:
+
+survived: 0 if died, 1 if survived\
+embarked: Port of Embarkation (Cherbourg, Queenstown,Southampton)\
+sex: Gender\
+sibsp: Number of Siblings/Spouses Aboard\
+parch: Number of Parents/Children Aboard\
+fare: Fare Payed
+
+**Make categorical features should be made into factors**
+
+```{r}
+titanic3 <- "https://goo.gl/At238b" %>%
+  read_csv %>% # read in the data
+  select(survived, embarked, sex, 
+         sibsp, parch, fare) %>%
+  mutate(embarked = factor(embarked),
+         sex = factor(sex))
+#load("/Users/robertness/Downloads/titanic.Rdata")
+```
+
+**Split data into training and test sets**
+
+```{r}
+.data <- c("training", "test") %>%
+  sample(nrow(titanic3), replace = T) %>%
+  split(titanic3, .)
+```
+
+**Recursive partitioning is implemented in "rpart" package**
+
+```{r}
+rtree_fit <- rpart(survived ~ ., 
+          .data$training) 
+rpart.plot(rtree_fit)
+```
+
+**Conditional partitioning is implemented in the "ctree" method**
+
+```{r}
+tree_fit <- ctree(survived ~ ., 
+                  data = .data$training)
+plot(tree_fit)
+```
+
+**Use ROCR package to visualize ROC Curve and compare methods**
+
+```{r}
+tree_roc <- tree_fit %>%
+  predict(newdata = .data$test) %>%
+  prediction(.data$test$survived) %>%
+  performance("tpr", "fpr")
+plot(tree_roc)
+```
+
+
+Acknowledgement: the code for this excersise is from  http://bit.ly/2fqWKvK

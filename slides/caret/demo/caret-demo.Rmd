@@ -1,0 +1,222 @@
+---
+title: "CARET demo"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+##Installation
+```{r eval=F}
+install.packages("caret", dependencies = c("Depends", "Suggests"))
+```
+
+##Load required libraries
+```{r}
+library(caret)
+library(doMC)
+library(corrplot)
+```
+
+##Load data
+```{r}
+load("malaria.RData")
+```
+
+Inspect objects that have been loaded into R session
+```{r}
+ls()
+class(morphology)
+dim(morphology)
+class(infectionStatus)
+summary(as.factor(infectionStatus))
+class(stage)
+summary(as.factor(stage))
+```
+
+##Data splitting
+Partition data into a training and test set using the **createDataPartition** function
+```{r}
+set.seed(42)
+trainIndex <- createDataPartition(y=stage, times=1, p=0.7, list=F)
+stageTrain <- stage[trainIndex]
+morphologyTrain <- morphology[trainIndex,]
+stageTest <- stage[-trainIndex]
+morphologyTest <- morphology[-trainIndex,]
+```
+
+The proportions of the classes in the training and test sets are the same
+```{r}
+summary(stageTrain)/sum(summary(stageTrain))
+summary(stageTest)/sum(summary(stageTest))
+```
+
+##Check data quality
+CARET provides functions for assessing data quality. The function **nearZeroVar** identifies predictors that have one unique value. It also diagnoses predictors having both of the following characteristics:
+
+* very few unique values relative to the number of samples
+* the ratio of the frequency of the most common value to the frequency of the 2nd most common value is large.
+
+Such zero and near zero-variance predictors have a deleterious impact on modelling and may lead to unstable fits.
+```{r}
+nearZeroVar(morphologyTrain, saveMetrics = T)
+```
+
+There are no zero variance or near zero variance predictors in our data set. Here is a synthetic example of a near zero variance predictor:
+```{r}
+x <- c(rep(1, 960), rep(2, 40))
+nearZeroVar(x, saveMetrics=T)
+```
+
+Are all predictors on the same scale?
+```{r out.width='100%', fig.asp=2, fig.align='center', fig.show='hold', echo=T}
+featurePlot(x = morphologyTrain,
+            y = stageTrain,
+            plot = "box",
+            ## Pass in options to bwplot()
+            scales = list(y = list(relation="free"),
+                          x = list(rot = 90)),
+            layout = c(5,5))
+```
+The variables in this data set are on different scales. In this situation it is important to centre and scale each predictor. A predictor variable is centered by subtracting the mean of the predictor from each value. To scale a predictor variable, each value is divided by its standard deviation. After centring and scaling the predictor variable has a mean of 0 and a standard deviation of 1.
+
+Examine pairwise correlations of predictors to identify redundancy in data set
+```{r}
+corMat <- cor(morphologyTrain)
+corrplot(corMat, order="hclust", tl.cex=1)
+```
+
+Find highly correlated predictors
+```{r}
+highCorr <- findCorrelation(corMat, cutoff=0.75)
+length(highCorr)
+names(morphologyTrain)[highCorr]
+```
+
+The box plots above can be used to examine each predictor for skewness. Alternatively, a density plot can be used
+```{r}
+featurePlot(x = morphologyTrain[,1:4],
+            y = stageTrain,
+            plot = "density",
+            ## Pass in options to xyplot() to
+            ## make it prettier
+            scales = list(x = list(relation="free"),
+                          y = list(relation="free")),
+            adjust = 1.5,
+            pch = "|",
+            layout = c(2, 2),
+            auto.key = list(columns = 2))
+```
+
+##Model training and parameter tuning
+*k*-NN has only one parameter: the number of nearest neighbours *k*.
+
+We will use repeated cross-validation to find the best value of *k* and we will try 10 different values of *k*. Repeated cross-validation can readily be parallelized to increase speed of execution. All we need to do is create a local cluster - **caret** will then use this cluster to parallelize the cross-validation.
+
+```{r}
+registerDoMC(detectCores())
+getDoParWorkers()
+```
+
+The resampling method is specified using the **trainControl** function. To repeat five-fold cross validation a total of five times we would use:
+```{r eval=F}
+train_ctrl <- trainControl(method="repeatedcv",
+                           number = 5,
+                           repeats = 5)
+```
+
+To make the analysis reproducible we need to specify the seed for each resampling iteration.
+```{r}
+set.seed(42)
+seeds <- vector(mode = "list", length = 26)
+for(i in 1:25) seeds[[i]] <- sample.int(1000, 10)
+seeds[[26]] <- sample.int(1000,1)
+
+train_ctrl <- trainControl(method="repeatedcv",
+                           number = 5,
+                           repeats = 5,
+                           seeds = seeds)
+```
+
+The **train** function is used to tune a model
+```{r}
+knnFit <- train(morphologyTrain, stageTrain,
+                method="knn",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl)
+
+knnFit
+```
+
+Plot the results of the cross-validation
+```{r}
+plot(knnFit)
+```
+
+The model fit object contains much information
+```{r}
+names(knnFit)
+```
+
+##Try other models
+###Random Forest
+```{r}
+rfFit <- train(morphologyTrain, stageTrain,
+                method="rf",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl)
+rfFit
+
+plot(rfFit)
+```
+
+###Support Vector Machine
+```{r}
+svmFit <- train(morphologyTrain, stageTrain,
+                method="svmRadialCost",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl)
+
+svmFit
+```
+
+```{r}
+plot(svmFit)
+```
+
+##Compare models
+Make a list of our models
+```{r}
+model_list <- list(knn=knnFit,
+                   randomForest=rfFit,
+                   svm=svmFit)
+```
+
+Collect resampling results for each model
+```{r}
+resamps <- resamples(model_list)
+resamps
+summary(resamps)
+```
+```{r}
+bwplot(resamps)
+```
+
+
+##Predict test set using our best model
+```{r}
+test_pred <- predict(rfFit, morphologyTest)
+confusionMatrix(test_pred, stageTest)
+```
+
+
+

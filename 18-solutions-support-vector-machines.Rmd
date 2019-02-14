@@ -1,0 +1,181 @@
+# Solutions ch. 8 - Support vector machines {#solutions-svm}
+
+Solutions to exercises of chapter \@ref(svm).
+
+## Exercise 1
+
+Load required libraries
+```{r echo=T}
+library(caret)
+library(doMC)
+library(pROC)
+library(e1071)
+```
+
+Define a radial SVM using the e1071 library
+```{r echo=T}
+svmRadialE1071 <- list(
+  label = "Support Vector Machines with Radial Kernel - e1071",
+  library = "e1071",
+  type = c("Regression", "Classification"),
+  parameters = data.frame(parameter="cost",
+                          class="numeric",
+                          label="Cost"),
+  grid = function (x, y, len = NULL, search = "grid") 
+    {
+      if (search == "grid") {
+        out <- expand.grid(cost = 2^((1:len) - 3))
+      }
+      else {
+        out <- data.frame(cost = 2^runif(len, min = -5, max = 10))
+      }
+      out
+    },
+  loop=NULL,
+  fit=function (x, y, wts, param, lev, last, classProbs, ...) 
+    {
+      if (any(names(list(...)) == "probability") | is.numeric(y)) {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, ...)
+      }
+      else {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, probability = classProbs, ...)
+      }
+      out
+    },
+  predict = function (modelFit, newdata, submodels = NULL) 
+    {
+      predict(modelFit, newdata)
+    },
+  prob = function (modelFit, newdata, submodels = NULL) 
+    {
+      out <- predict(modelFit, newdata, probability = TRUE)
+      attr(out, "probabilities")
+    },
+  predictors = function (x, ...) 
+    {
+      out <- if (!is.null(x$terms)) 
+        predictors.terms(x$terms)
+      else x$xNames
+      if (is.null(out)) 
+        out <- names(attr(x, "scaling")$x.scale$`scaled:center`)
+      if (is.null(out)) 
+        out <- NA
+      out
+    },
+  tags = c("Kernel Methods", "Support Vector Machines", "Regression", "Classifier", "Robust Methods"),
+  levels = function(x) x$levels,
+  sort = function(x)
+  {
+    x[order(x$cost), ]
+  }
+)
+
+```
+
+Setup parallel processing
+```{r echo=T}
+registerDoMC(detectCores())
+getDoParWorkers()
+```
+
+Load data
+```{r echo=T}
+data(segmentationData)
+```
+
+```{r echo=T}
+segClass <- segmentationData$Class
+```
+
+Extract predictors from segmentationData
+```{r echo=T}
+segData <- segmentationData[,4:59]
+```
+
+Partition data
+```{r echo=T}
+set.seed(42)
+trainIndex <- createDataPartition(y=segClass, times=1, p=0.5, list=F)
+segDataTrain <- segData[trainIndex,]
+segDataTest <- segData[-trainIndex,]
+segClassTrain <- segClass[trainIndex]
+segClassTest <- segClass[-trainIndex]
+```
+
+Set seeds for reproducibility (optional). We will be trying 9 values of the tuning parameter with 5 repeats of 10 fold cross-validation, so we need the following list of seeds.
+```{r echo=T}
+set.seed(42)
+seeds <- vector(mode = "list", length = 51)
+for(i in 1:50) seeds[[i]] <- sample.int(1000, 9)
+seeds[[51]] <- sample.int(1000,1)
+```
+
+We will pass the twoClassSummary function into model training through **trainControl**. Additionally we would like the model to predict class probabilities so that we can calculate the ROC curve, so we use the **classProbs** option. 
+```{r echo=T}
+cvCtrl <- trainControl(method = "repeatedcv", 
+                       repeats = 5,
+                       number = 10,
+                       summaryFunction = twoClassSummary,
+                       classProbs = TRUE,
+                       seeds=seeds)
+```
+
+Tune SVM over the cost parameter. The default grid of cost parameters start at 0.25 and double at each iteration. Choosing ```tuneLength = 9``` will give us cost parameters of 0.25, 0.5, 1, 2, 4, 8, 16, 32 and 64. The train function will calculate an appropriate value of sigma (the kernel parameter) from the data.
+```{r echo=T}
+svmTune <- train(x = segDataTrain,
+                 y = segClassTrain,
+                 method = svmRadialE1071,
+                 tuneLength = 9,
+                 preProc = c("center", "scale"),
+                 metric = "ROC",
+                 trControl = cvCtrl)
+
+svmTune
+
+```
+
+```{r echo=T}
+svmTune$finalModel
+```
+
+SVM accuracy profile
+```{r svmAccuracyProfileCellSegment, fig.cap='SVM accuracy profile.', out.width='80%', fig.asp=0.7, fig.align='center', echo=T}
+plot(svmTune, metric = "ROC", scales = list(x = list(log =2)))
+```
+
+Test set results
+```{r echo=T}
+#segDataTest <- predict(transformations, segDataTest)
+svmPred <- predict(svmTune, segDataTest)
+confusionMatrix(svmPred, segClassTest)
+```
+
+Get predicted class probabilities
+```{r echo=T}
+svmProbs <- predict(svmTune, segDataTest, type="prob")
+head(svmProbs)
+```
+
+Build a ROC curve
+```{r echo=T}
+svmROC <- roc(segClassTest, svmProbs[,"PS"])
+auc(svmROC)
+```
+
+Plot ROC curve.
+```{r svmROCcurveCellSegment, fig.cap='SVM ROC curve for cell segmentation data set.', out.width='80%', fig.asp=1, fig.align='center', echo=T}
+plot(svmROC, type = "S", 
+     print.thres = 0.5,
+     print.thres.col = "blue",
+     print.thres.pch = 19,
+     print.thres.cex=1.5)
+```
+
+Calculate area under ROC curve
+```{r echo=T}
+auc(svmROC)
+```
+
+

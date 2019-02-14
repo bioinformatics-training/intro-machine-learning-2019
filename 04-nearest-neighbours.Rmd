@@ -1,0 +1,694 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Nearest neighbours {#nearest-neighbours}
+
+<!-- Matt -->
+
+## Introduction
+_k_-NN is by far the simplest method of supervised learning we will cover in this course. It is a non-parametric method that can be used for both classification (predicting class membership) and regression (estimating continuous variables). _k_-NN is categorized as instance based (memory based) learning, because all computation is deferred until classification. The most computationally demanding aspects of _k_-NN are finding neighbours and storing the entire learning set.
+
+A simple _k_-NN classification rule (figure \@ref(fig:knnClassification)) would proceed as follows:
+
+1. when presented with a new observation, find the _k_ closest samples in the learning set
+2. predict the class by majority vote
+
+```{r knnClassification, echo=FALSE, out.width='75%', fig.align='center', fig.cap="Illustration of _k_-nn classification. In this example we have two classes: blue squares and red triangles. The green circle represents a test object. If k=3 (solid line circle) the test object is assigned to the red triangle class. If k=5 the test object is assigned to the blue square class.  By Antti Ajanki AnAj - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=2170282"}
+knitr::include_graphics("images/knn_classification.svg")
+```
+
+A basic implementation of _k_-NN regression would calculate the average of the numerical outcome of the _k_ nearest neighbours. 
+
+The number of neighbours _k_ can have a considerable impact on the predictive performance of _k_-NN in both classification and regression. The optimal value of _k_ should be chosen using cross-validation.
+
+Euclidean distance is the most widely used distance metric in _k_-nn, and will be used in the examples and exercises in this chapter. However, other distance metrics can be used.
+
+**Euclidean distance:**
+\begin{equation}
+  distance\left(p,q\right)=\sqrt{\sum_{i=1}^{n} (p_i-q_i)^2}
+  (\#eq:euclidean)
+\end{equation}
+
+
+```{r euclideanDistanceDiagram, fig.cap='Euclidean distance.', out.width='75%', fig.asp=0.9, fig.align='center', echo=F}
+par(mai=c(0.8,0.8,0.1,0.1))
+x <- c(0.75,4.5)
+y <- c(2.5,4.5)
+plot(x, y, xlim=range(0,5), ylim=range(0,5), cex=5, col="steelblue", pch=16, cex.lab=1.5)
+segments(x[1], y[1], x[2], y[2], lwd=4, col="grey30")
+text(0.75,2, expression(paste('p(x'[1],'y'[1],')')), cex=1.7)
+text(4.5,4, expression(paste('q(x'[2],'y'[2],')')), cex=1.7)
+text(2.5,0.5, expression(paste('dist(p,q)'==sqrt((x[2]-x[1])^2 + (y[2]-y[1])^2))), cex=1.7)
+```
+
+
+## Classification: simulated data
+
+A simulated data set will be used to demonstrate:
+
+* bias-variance trade-off
+* the knn function in R
+* plotting decision boundaries
+* choosing the optimum value of _k_
+
+The dataset has been partitioned into training and test sets.
+
+Load data
+```{r echo=T}
+load("data/example_binary_classification/bin_class_example.rda")
+str(xtrain)
+str(xtest)
+summary(as.factor(ytrain))
+summary(as.factor(ytest))
+```
+
+```{r simDataBinClassTrainTest, fig.cap='Scatterplots of the simulated training and test data sets that will be used in the demonstration of binary classification using _k_-nn', out.width='50%', fig.asp=1, fig.align='center', fig.show='hold', echo=T}
+library(ggplot2)
+library(GGally)
+library(RColorBrewer)
+point_shapes <- c(15,17)
+point_colours <- brewer.pal(3,"Dark2")
+point_size = 2
+
+ggplot(xtrain, aes(V1,V2)) + 
+  geom_point(col=point_colours[ytrain+1], shape=point_shapes[ytrain+1], 
+             size=point_size) + 
+  ggtitle("train") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+
+ggplot(xtest, aes(V1,V2)) + 
+  geom_point(col=point_colours[ytest+1], shape=point_shapes[ytest+1], 
+             size=point_size) + 
+  ggtitle("test") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+
+```
+
+
+### knn function
+For _k_-nn classification and regression we will use the **knn** function in the package **class**.
+```{r echo=T}
+library(class)
+```
+
+**Arguments to knn**
+
+* ```train``` : matrix or data frame of training set cases.
+* ```test``` : matrix or data frame of test set cases. A vector will be interpreted as a row vector for a single case.
+* ```cl``` : factor of true classifications of training set
+* ```k``` : number of neighbours considered.
+* ```l``` : minimum vote for definite decision, otherwise doubt. (More precisely, less than k-l dissenting votes are allowed, even if k is increased by ties.)
+* ```prob``` : If this is true, the proportion of the votes for the winning class are returned as attribute prob.
+* ```use.all``` : controls handling of ties. If true, all distances equal to the kth largest are included. If false, a random selection of distances equal to the kth is chosen to use exactly k neighbours.
+
+Let us perform _k_-nn on the training set with _k_=1. We will use the **confusionMatrix** function from the [caret](http://cran.r-project.org/web/packages/caret/index.html) package to summarize performance of the classifier.
+```{r echo=T}
+library(caret)
+knn1train <- class::knn(train=xtrain, test=xtrain, cl=ytrain, k=1)
+confusionMatrix(knn1train, as.factor(ytrain))
+```
+The classifier performs perfectly on the training set, because with _k_=1, each observation is being predicted by itself!
+<!--
+table(ytrain,knn1train)
+cat("KNN prediction error for training set: ", 1-mean(as.numeric(as.vector(knn1train))==ytrain), "\n")
+-->
+
+Now let use the training set to predict on the test set.
+```{r echo=T}
+knn1test <- class::knn(train=xtrain, test=xtest, cl=ytrain, k=1)
+confusionMatrix(knn1test, as.factor(ytest))
+```
+Performance on the test set is not so good. This is an example of a classifier being over-fitted to the training set. 
+<!--
+table(ytest, knn1test)
+cat("KNN prediction error for test set: ", 1-mean(as.numeric(as.vector(knn1test))==ytest), "\n")
+-->
+
+### Plotting decision boundaries
+Since we have just two dimensions we can visualize the decision boundary generated by the _k_-nn classifier in a 2D scatterplot. Situations where your original data set contains only two variables will be rare, but it is not unusual to reduce a high-dimensional data set to just two dimensions using the methods that will be discussed in chapter \@ref(dimensionality-reduction). Therefore, knowing how to plot decision boundaries will potentially be helpful for many different datasets and classifiers.
+
+Create a grid so we can predict across the full range of our variables V1 and V2.
+```{r echo=T}
+gridSize <- 150 
+v1limits <- c(min(c(xtrain[,1],xtest[,1])),max(c(xtrain[,1],xtest[,1])))
+tmpV1 <- seq(v1limits[1],v1limits[2],len=gridSize)
+v2limits <- c(min(c(xtrain[,2],xtest[,2])),max(c(xtrain[,2],xtest[,2])))
+tmpV2 <- seq(v2limits[1],v2limits[2],len=gridSize)
+xgrid <- expand.grid(tmpV1,tmpV2)
+names(xgrid) <- names(xtrain)
+```
+
+Predict values of all elements of grid.
+```{r echo=T}
+knn1grid <- class::knn(train=xtrain, test=xgrid, cl=ytrain, k=1)
+V3 <- as.numeric(as.vector(knn1grid))
+xgrid <- cbind(xgrid, V3)
+```
+
+Plot
+```{r simDataBinClassDecisionBoundaryK1, fig.cap='Binary classification of the simulated training and test sets with _k_=1.', out.width='50%', fig.asp=1, fig.align='center', fig.show='hold', echo=T}
+point_shapes <- c(15,17)
+point_colours <- brewer.pal(3,"Dark2")
+point_size = 2
+
+ggplot(xgrid, aes(V1,V2)) +
+  geom_point(col=point_colours[knn1grid], shape=16, size=0.3) +
+  geom_point(data=xtrain, aes(V1,V2), col=point_colours[ytrain+1],
+             shape=point_shapes[ytrain+1], size=point_size) +
+  geom_contour(data=xgrid, aes(x=V1, y=V2, z=V3), breaks=0.5, col="grey30") +
+  ggtitle("train") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+
+ggplot(xgrid, aes(V1,V2)) +
+  geom_point(col=point_colours[knn1grid], shape=16, size=0.3) +
+  geom_point(data=xtest, aes(V1,V2), col=point_colours[ytest+1],
+             shape=point_shapes[ytrain+1], size=point_size) +
+  geom_contour(data=xgrid, aes(x=V1, y=V2, z=V3), breaks=0.5, col="grey30") +
+  ggtitle("test") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+```
+
+### Bias-variance tradeoff
+The bias–variance tradeoff is the problem of simultaneously minimizing two sources of error that prevent supervised learning algorithms from generalizing beyond their training set:
+
+* The bias is error from erroneous assumptions in the learning algorithm. High bias can cause an algorithm to miss the relevant relations between features and target outputs (underfitting).
+* The variance is error from sensitivity to small fluctuations in the training set. High variance can cause an algorithm to model the random noise in the training data, rather than the intended outputs (overfitting).
+
+To demonstrate this phenomenon, let us look at the performance of the _k_-nn classifier over a range of values of _k_.  First we will define a function to create a sequence of log spaced values. This is the **lseq** function from the [emdbook](https://cran.r-project.org/package=emdbook) package:
+```{r echo=T}
+lseq <- function(from, to, length.out) {
+  exp(seq(log(from), log(to), length.out = length.out))
+}
+```
+
+Get log spaced sequence of length 20, round and then remove any duplicates resulting from rounding.
+```{r echo=T}
+s <- unique(round(lseq(1,400,20)))
+length(s)
+```
+
+```{r echo=T}
+train_error <- sapply(s, function(i){
+  yhat <- knn(xtrain, xtrain, ytrain, i)
+  return(1-mean(as.numeric(as.vector(yhat))==ytrain))
+})
+
+test_error <- sapply(s, function(i){
+  yhat <- knn(xtrain, xtest, ytrain, i)
+  return(1-mean(as.numeric(as.vector(yhat))==ytest))
+})
+
+k <- rep(s, 2)
+set <- c(rep("train", length(s)), rep("test", length(s)))
+error <- c(train_error, test_error)
+misclass_errors <- data.frame(k, set, error)
+```
+
+```{r misclassErrorsFunK, fig.cap='Misclassification errors as a function of neighbourhood size.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+ggplot(misclass_errors, aes(x=k, y=error, group=set)) + 
+  geom_line(aes(colour=set, linetype=set), size=1.5) +
+  scale_x_log10() +
+  ylab("Misclassification Errors") +
+  theme_bw() +
+  theme(legend.position = c(0.5, 0.25), legend.title=element_blank(),
+        legend.text=element_text(size=12), 
+        axis.title.x=element_text(face="italic", size=12))
+```
+We see excessive variance (overfitting) at low values of _k_, and bias (underfitting) at high values of _k_.
+
+### Choosing _k_
+
+We will use the caret library. Caret provides a unified interface to a huge range of supervised learning packages in R. The design of its tools encourages best practice, especially in relation to cross-validation and testing. Additionally, it has automatic parallel processing built in, which is a significant advantage when dealing with large data sets.
+```{r echo=T}
+library(caret)
+```
+
+To take advantage of Caret's parallel processing functionality, we simply need to load the [doMC](http://cran.r-project.org/web/packages/doMC/index.html) package and register workers: 
+```{r echo=T}
+library(doMC)
+registerDoMC(detectCores())
+```
+
+To find out how many cores we have registered we can use:
+```{r echo=T}
+getDoParWorkers()
+```
+
+The [caret](http://cran.r-project.org/web/packages/caret/index.html) function **train** is used to fit predictive models over different values of _k_. The function **trainControl** is used to specify a list of computational and resampling options, which will be passed to **train**. We will start by configuring our cross-validation procedure using **trainControl**.
+
+We would like to make this demonstration reproducible and because we will be running the models in parallel, using the **set.seed** function alone is not sufficient. In addition to using **set.seed** we have to make use of the optional **seeds** argument to **trainControl**. We need to supply **seeds** with a list of integers that will be used to set the seed at each sampling iteration. The list is required to have a length of B+1, where B is the number of resamples. We will be repeating 10-fold cross-validation a total of ten times and so our list must have a length of 101. The first B elements of the list are required to be vectors of integers of length M, where M is the number of models being evaluated (in this case 19). The last element of the list only needs to be a single integer, which will be used for the final model.
+
+First we generate our list of seeds.
+```{r echo=T}
+set.seed(42)
+seeds <- vector(mode = "list", length = 101)
+for(i in 1:100) seeds[[i]] <- sample.int(1000, 19)
+seeds[[101]] <- sample.int(1000,1)
+```
+
+We can now use **trainControl** to create a list of computational options for resampling.
+```{r echo=T}
+tc <- trainControl(method="repeatedcv",
+                   number = 10,
+                   repeats = 10,
+                   seeds = seeds)
+```
+
+There are two options for choosing the values of _k_ to be evaluated by the **train** function:
+
+1. Pass a data.frame of values of _k_ to the **tuneGrid** argument of **train**.
+2. Specify the number of different levels of _k_ using the **tuneLength** function and allow **train** to pick the actual values.
+
+We will use the first option, so that we can try the values of _k_ we examined earlier. The vector of values of _k_ we created earlier should be converted into a data.frame.
+
+```{r echo=T}
+s <- data.frame(s)
+names(s) <- "k"
+```
+
+We are now ready to run the cross-validation.
+```{r echo=T}
+knnFit <- train(xtrain, as.factor(ytrain), 
+                method="knn",
+                tuneGrid=s,
+                trControl=tc)
+
+knnFit
+```
+
+**Cohen's Kappa:**
+\begin{equation}
+  Kappa = \frac{O-E}{1-E}
+  (\#eq:kappa)
+\end{equation}
+
+where _O_ is the observed accuracy and _E_ is the expected accuracy based on the marginal totals of the confusion matrix. Cohen's Kappa takes values between -1 and 1; a value of zero indicates no agreement between the observed and predicted classes, while a value of one shows perfect concordance of the model prediction and the observed classes. If the prediction is in the opposite direction of the truth, a negative value will be obtained, but large negative values are rare in practice [@Kuhn2013].
+
+We can plot accuracy (determined from repeated cross-validation) as a function of neighbourhood size.
+```{r cvAccuracyFunK, fig.cap='Accuracy (repeated cross-validation) as a function of neighbourhood size.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+plot(knnFit)
+```
+
+We can also plot other performance metrics, such as Cohen's Kappa, using the **metric** argument.
+```{r cvKappaFunK, fig.cap='Cohen\'s Kappa (repeated cross-validation) as a function of neighbourhood size.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+plot(knnFit, metric="Kappa")
+```
+
+Let us now evaluate how our classifier performs on the test set.
+```{r echo=T}
+test_pred <- predict(knnFit, xtest)
+confusionMatrix(test_pred, as.factor(ytest))
+
+```
+
+Scatterplots with decision boundaries can be plotted using the methods described earlier. First create a grid so we can predict across the full range of our variables V1 and V2:
+```{r echo=T}
+gridSize <- 150 
+v1limits <- c(min(c(xtrain[,1],xtest[,1])),max(c(xtrain[,1],xtest[,1])))
+tmpV1 <- seq(v1limits[1],v1limits[2],len=gridSize)
+v2limits <- c(min(c(xtrain[,2],xtest[,2])),max(c(xtrain[,2],xtest[,2])))
+tmpV2 <- seq(v2limits[1],v2limits[2],len=gridSize)
+xgrid <- expand.grid(tmpV1,tmpV2)
+names(xgrid) <- names(xtrain)
+```
+
+Predict values of all elements of grid.
+```{r echo=T}
+knn1grid <- predict(knnFit, xgrid)
+V3 <- as.numeric(as.vector(knn1grid))
+xgrid <- cbind(xgrid, V3)
+```
+
+Plot
+```{r simDataBinClassDecisionBoundaryK83, fig.cap='Binary classification of the simulated training and test sets with _k_=83.', out.width='50%', fig.asp=1, fig.align='center', fig.show='hold', echo=T}
+point_shapes <- c(15,17)
+point_colours <- brewer.pal(3,"Dark2")
+point_size = 2
+
+ggplot(xgrid, aes(V1,V2)) +
+  geom_point(col=point_colours[knn1grid], shape=16, size=0.3) +
+  geom_point(data=xtrain, aes(V1,V2), col=point_colours[ytrain+1],
+             shape=point_shapes[ytrain+1], size=point_size) +
+  geom_contour(data=xgrid, aes(x=V1, y=V2, z=V3), breaks=0.5, col="grey30") +
+  ggtitle("train") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+
+ggplot(xgrid, aes(V1,V2)) +
+  geom_point(col=point_colours[knn1grid], shape=16, size=0.3) +
+  geom_point(data=xtest, aes(V1,V2), col=point_colours[ytest+1],
+             shape=point_shapes[ytrain+1], size=point_size) +
+  geom_contour(data=xgrid, aes(x=V1, y=V2, z=V3), breaks=0.5, col="grey30") +
+  ggtitle("test") +
+  theme_bw() +
+  theme(plot.title = element_text(size=25, face="bold"), axis.text=element_text(size=15),
+        axis.title=element_text(size=20,face="bold"))
+```
+
+## Classification: cell segmentation {#knn-cell-segmentation}
+
+The simulated data in our previous example were randomly sampled from a normal (Gaussian) distribution and so did not require pre-processing. In practice, data collected in real studies often require transformation and/or filtering. Furthermore, the simulated data contained only two predictors; in practice, you are likely to have many variables. For example, in a gene expression study you might have thousands of variables. When using _k_-nn for classification or regression, removing variables that are not associated with the outcome of interest may improve the predictive power of the model. The process of choosing the best predictors from the available variables is known as *feature selection*. For honest estimates of model performance, pre-processing and feature selection should be performed within the loops of the cross validation process.
+
+### Cell segmentation data set 
+Pre-processing and feature selection will be demonstrated using the cell segmentation data of (@Hill2007). High Content Screening (HCS) automates the collection and analysis of biological images of cultured cells. However, image segmentation algorithms are not perfect and sometimes do not reliably quantitate the morphology of cells. Hill et al. sought to differentiate between well- and poorly-segmented cells based on the morphometric data collected in HCS. If poorly-segmented cells can be automatically detected and eliminated, then the accuracy of studies using HCS will be improved. Hill et al. collected morphometric data on 2019 cells and asked human reviewers to classify the cells as well- or poorly-segmented.
+
+```{r imageSegmentationHCS, echo=FALSE, out.width='75%', fig.align='center', fig.cap="Image segmentation in high content screening. Images **b** and **c** are examples of well-segmented cells; **d** and **e** show poor-segmentation. Source: Hill(2007) https://doi.org/10.1186/1471-2105-8-340"}
+knitr::include_graphics("images/Hill_2007_cell_segmentation.jpg")
+```
+
+This data set is one of several included in [caret](http://cran.r-project.org/web/packages/caret/index.html).
+```{r echo=T}
+data(segmentationData)
+str(segmentationData)
+```
+The first column of **segmentationData** is a unique identifier for each cell and the second column is a factor indicating how the observations were characterized into training and test sets in the original study; these two variables are irrelevant for the purposes of this demonstration and so can be discarded. 
+
+The third column *Class* contains the class labels: *PS* (poorly-segmented) and *WS* (well-segmented). The last two columns are cell centroids and can be ignored. Columns 4-59 are the 58 morphological measurements available to be used as predictors. Let's put the class labels in a vector and the predictors in their own data.frame.
+```{r echo=T}
+segClass <- segmentationData$Class
+segData <- segmentationData[,4:59]
+```
+
+### Data splitting
+Before starting analysis we must partition the data into training and test sets, using the **createDataPartition** function in [caret](http://cran.r-project.org/web/packages/caret/index.html).
+```{r echo=T}
+set.seed(42)
+trainIndex <- createDataPartition(y=segClass, times=1, p=0.5, list=F)
+segDataTrain <- segData[trainIndex,]
+segDataTest <- segData[-trainIndex,]
+segClassTrain <- segClass[trainIndex]
+segClassTest <- segClass[-trainIndex]
+```
+
+This results in balanced class distributions within the splits:
+```{r echo=T}
+summary(segClassTrain)
+summary(segClassTest)
+```
+
+_**N.B. The test set is set aside for now. It will be used only ONCE, to test the final model.**_
+
+### Identification of data quality issues
+
+Let's check our training data set for some undesirable characteristics which may impact model performance and should be addressed through pre-processing. 
+
+#### Zero and near zero-variance predictors
+The function **nearZeroVar** identifies predictors that have one unique value. It also diagnoses predictors having both of the following characteristics:
+
+* very few unique values relative to the number of samples
+* the ratio of the frequency of the most common value to the frequency of the 2nd most common value is large.
+
+Such _zero and near zero-variance predictors_ have a deleterious impact on modelling and may lead to unstable fits.
+
+```{r echo=T}
+nzv <- nearZeroVar(segDataTrain, saveMetrics=T)
+nzv
+```
+
+#### Scaling
+The variables in this data set are on different scales, for example:
+```{r echo=T}
+summary(segDataTrain$IntenCoocASMCh4)
+summary(segDataTrain$TotalIntenCh2)
+```
+
+In this situation it is important to centre and scale each predictor. A predictor variable is centered by subtracting the mean of the predictor from each value. To scale a predictor variable, each value is divided by its standard deviation. After centring and scaling the predictor variable has a mean of 0 and a standard deviation of 1. 
+
+
+#### Skewness
+Many of the predictors in the segmentation data set exhibit skewness, _i.e._ the distribution of their values is asymmetric, for example:
+```{r segDataSkewness, fig.cap='Example of a predictor from the segmentation data set showing skewness.', out.width='75%', fig.asp=0.9, fig.align='center', echo=T}
+qplot(segDataTrain$IntenCoocASMCh3, binwidth=0.1) + 
+  xlab("IntenCoocASMCh3") +
+  theme_bw()
+```
+
+[caret](http://cran.r-project.org/web/packages/caret/index.html) provides various methods for transforming skewed variables to normality, including the Box-Cox [@BoxCox] and Yeo-Johnson [@YeoJohnson] transformations.
+
+#### Correlated predictors
+
+Many of the variables in the segmentation data set are highly correlated.
+
+A correlogram provides a helpful visualization of the patterns of pairwise correlation within the data set.
+
+```{r segDataCorrelogram, fig.cap='Correlogram of the segmentation data set.', out.width='75%', fig.asp=1, fig.align='center', echo=T}
+library(corrplot)
+corMat <- cor(segDataTrain)
+corrplot(corMat, order="hclust", tl.cex=0.4)
+```
+
+The **preProcess** function in [caret](http://cran.r-project.org/web/packages/caret/index.html) has an option, **corr** to remove highly correlated variables. It considers the absolute values of pair-wise correlations. If two variables are highly correlated, **preProcess** looks at the mean absolute correlation of each variable and removes the variable with the largest mean absolute correlation. 
+
+In the case of data-sets comprised of many highly correlated variables, an alternative to removing correlated predictors is the transformation of the entire data set to a lower dimensional space, using a technique such as principal component analysis (PCA). Methods for dimensionality reduction will be explored in chapter \@ref(dimensionality-reduction).
+
+<!--
+```{r echo=T}
+highCorr <- findCorrelation(corMat, cutoff=0.75)
+length(highCorr)
+segDataTrain <- segDataTrain[,-highCorr]
+```
+-->
+
+
+### Fit model
+
+<!-- original settings:
+set.seed(42)
+seeds <- vector(mode = "list", length = 101)
+for(i in 1:100) seeds[[i]] <- sample.int(1000, 50)
+seeds[[101]] <- sample.int(1000,1)
+-->
+Generate a list of seeds.
+```{r echo=T}
+set.seed(42)
+seeds <- vector(mode = "list", length = 26)
+for(i in 1:25) seeds[[i]] <- sample.int(1000, 50)
+seeds[[26]] <- sample.int(1000,1)
+```
+
+Create a list of computational options for resampling. In the interest of speed for this demonstration, we will perform 5-fold cross-validation a total of 5 times. In practice we would use a larger number of folds and repetitions.
+```{r echo=T}
+train_ctrl <- trainControl(method="repeatedcv",
+                   number = 5,
+                   repeats = 5,
+                   #preProcOptions=list(cutoff=0.75),
+                   seeds = seeds)
+```
+
+Create a grid of values of _k_ for evaluation.
+```{r echo=T}
+tuneParam <- data.frame(k=seq(5,500,10))
+```
+
+To deal with the issues of scaling, skewness and highly correlated predictors identified earlier, we need to pre-process the data. We will use the Yeo-Johnson transformation to reduce skewness, because it can deal with the zero values present in some of the predictors. Ideally the pre-processing procedures would be performed within each cross-validation loop, using the following command:
+```
+knnFit <- train(segDataTrain, segClassTrain, 
+                method="knn",
+                preProcess = c("YeoJohnson", "center", "scale", "corr"),
+                tuneGrid=tuneParam,
+                trControl=train_ctrl)
+```
+
+However, this is time-consuming, so for the purposes of this demonstration we will pre-process the entire training data-set before proceeding with training and cross-validation.
+```{r echo=T, message=F, warning=F}
+transformations <- preProcess(segDataTrain, 
+                              method=c("YeoJohnson", "center", "scale", "corr"),
+                              cutoff=0.75)
+segDataTrain <- predict(transformations, segDataTrain)
+```
+
+The ```cutoff``` refers to the correlation coefficient threshold.
+
+```{r echo=T}
+str(segDataTrain)
+```
+
+Perform cross validation to find best value of _k_.
+```{r echo=T}
+knnFit <- train(segDataTrain, segClassTrain, 
+                method="knn",
+                tuneGrid=tuneParam,
+                trControl=train_ctrl)
+knnFit
+
+```
+
+```{r cvAccuracySegDataHighCorRem, fig.cap='Accuracy (repeated cross-validation) as a function of neighbourhood size for the segmentation training data with highly correlated predictors removed.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+plot(knnFit)
+```
+
+Let's retrieve some information on the final model. To see the optimum value of _k_ found during the grid search, run either of the following lines:
+```{r echo=T}
+knnFit$finalModel$k
+knnFit$finalModel$tuneValue
+```
+
+To find out which variables have been used in the final model, run:
+```{r echo=T}
+knnFit$finalModel$xNames
+```
+
+Let's predict our test set using our final model.
+```{r echo=T}
+segDataTest <- predict(transformations, segDataTest)
+test_pred <- predict(knnFit, segDataTest)
+confusionMatrix(test_pred, segClassTest)
+
+```
+
+
+
+
+
+## Regression {#knn-regression}
+
+_k_-nn can also be applied to the problem of regression as we will see in the following example. The **BloodBrain** dataset in the [caret](http://cran.r-project.org/web/packages/caret/index.html) package contains data on 208 chemical compounds, organized in two objects:
+
+* **logBBB** - a vector of the log ratio of the concentration of a chemical compound in the brain and the concentration in the blood.
+* **bbbDescr** - a data frame of 134 molecular descriptors of the compounds.
+
+We'll start by loading the data.
+```{r echo=T}
+data(BloodBrain)
+str(bbbDescr)
+str(logBBB)
+```
+Evidently the variables are on different scales which is problematic for _k_-nn.
+
+### Partition data
+Before proceeding the data set must be partitioned into a training and a test set.
+```{r echo=T}
+set.seed(42)
+trainIndex <- createDataPartition(y=logBBB, times=1, p=0.8, list=F)
+descrTrain <- bbbDescr[trainIndex,]
+concRatioTrain <- logBBB[trainIndex]
+descrTest <- bbbDescr[-trainIndex,]
+concRatioTest <- logBBB[-trainIndex]
+```
+
+### Data pre-processing
+Are there any issues with the data that might affect model fitting? Let's start by considering correlation.
+
+```{r compoundDescriptorsCorrelogram, fig.cap='Correlogram of the chemical compound descriptors.', out.width='80%', fig.asp=1, fig.align='center', echo=T}
+cm <- cor(descrTrain)
+corrplot(cm, order="hclust", tl.pos="n")
+```
+
+The number of variables exhibiting a pair-wise correlation coefficient above 0.75 can be determined:
+```{r echo=T}
+highCorr <- findCorrelation(cm, cutoff=0.75)
+length(highCorr)
+```
+
+A check for the presence of missing values:
+```{r echo=T}
+anyNA(descrTrain)
+```
+
+Detection of near zero variance predictors:
+```{r echo=T}
+nearZeroVar(descrTrain)
+```
+
+We know there are issues with scaling, and the presence of highly correlated predictors and near zero variance predictors. These problems are resolved by pre-processing. First we define the procesing steps.
+```{r echo=T}
+transformations <- preProcess(descrTrain,
+                              method=c("center", "scale", "corr", "nzv"),
+                              cutoff=0.75)
+```
+Then this transformation can be applied to the compound descriptor data set.
+```{r echo=T}
+descrTrain <- predict(transformations, descrTrain)
+```
+
+### Search for optimum _k_
+The optimum value of _k_ can be found by cross-validation, following similar methodology to that used to find the best _k_ for classification. We'll start by generating seeds to make this example reproducible.
+```{r echo=T}
+set.seed(42)
+seeds <- vector(mode = "list", length = 26)
+for(i in 1:25) seeds[[i]] <- sample.int(1000, 10)
+seeds[[26]] <- sample.int(1000,1)
+```
+
+Ten values of _k_ will be evaluated using 5 repeats of 5-fold cross-validation.
+```{r echo=T}
+knnTune <- train(descrTrain,
+                 concRatioTrain,
+                 method="knn",
+                 tuneGrid = data.frame(.k=1:10),
+                 trControl = trainControl(method="repeatedcv",
+                                          number = 5,
+                                          repeats = 5,
+                                          seeds=seeds,
+                                          preProcOptions=list(cutoff=0.75))
+                 )
+
+knnTune
+```
+
+The Root Mean Squared Error (RMSE) measures the differences between the values predicted by the model and the values actually observed. More specifically, it represents the sample standard deviation of the difference between the predicted values and observed values. 
+```{r rmseFunK, fig.cap='Root Mean Squared Error as a function of neighbourhood size.', out.width='100%', fig.asp=0.6, fig.align='center', echo=T}
+plot(knnTune)
+```
+
+### Use model to make predictions
+Before attempting to predict the blood/brain concentration ratios of the test samples, the descriptors in the test set must be transformed using the same pre-processing procedure that was applied to the descriptors in the training set.
+```{r echo=T}
+descrTest <- predict(transformations, descrTest)
+```
+
+Use model to predict outcomes (concentration ratios) of the test set.
+```{r echo=T}
+test_pred <- predict(knnTune, descrTest)
+```
+
+Prediction performance can be visualized in a scatterplot.
+
+```{r obsPredConcRatios, fig.cap='Concordance between observed concentration ratios and those predicted by _k_-nn regression.', out.width='80%', fig.asp=0.8, fig.align='center', echo=T}
+qplot(concRatioTest, test_pred) + 
+  xlab("observed") +
+  ylab("predicted") +
+  theme_bw()
+```
+
+We can also measure correlation between observed and predicted values.
+```{r echo=T}
+cor(concRatioTest, test_pred)
+```
+
+
+
+## Exercises
+
+### Exercise 1 {#knnEx1}
+The seeds data set [https://archive.ics.uci.edu/ml/datasets/seeds](https://archive.ics.uci.edu/ml/datasets/seeds) contains morphological measurements on the kernels of three varieties of wheat: Kama, Rosa and Canadian.
+
+Load the data into your R session using:
+```{r echo=T}
+load("data/wheat_seeds/wheat_seeds.Rda")
+```
+
+The data are split into two objects. **morphometrics** is a data.frame containing the morphological measurements:
+```{r echo=T}
+str(morphometrics)
+```
+
+**variety** is a factor containing the corresponding classes:
+```{r echo=T}
+str(variety)
+```
+
+Your task is to build a _k_-nn classifier which will predict the variety of wheat from a seeds morphological measurements. You do not need to perform feature selection, but you will want to pre-process the data.
+
+Solutions to exercises can be found in appendix \@ref(solutions-nearest-neighbours).
