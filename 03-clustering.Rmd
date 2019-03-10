@@ -201,221 +201,7 @@ p_average
 
 ```
 
-### Example: clustering synthetic data sets
 
-#### Step-by-step instructions
-1. Load required packages.
-```{r, echo=T}
-library(RColorBrewer)
-library(dendextend)
-library(ggplot2)
-library(GGally)
-```
-
-2. Retrieve a palette of eight colours.
-```{r, echo=T}
-cluster_colours <- brewer.pal(8,"Dark2")
-```
-
-3. Read in data for **blobs** example.
-```{r, echo=T}
-blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
-```
-
-4. Create distance matrix using Euclidean distance metric.
-```{r, echo=T}
-d <- dist(blobs[,1:2])
-```
-
-5. Perform hierarchical clustering using the **average** agglomeration method and convert the result to an object of class **dendrogram**. A **dendrogram** object can be edited using the advanced features of the **dendextend** package.
-```{r, echo=T}
-dend <- as.dendrogram(hclust(d, method="average"))
-```
-
-6. Cut the tree into three clusters
-```{r, echo=T}
-clusters <- cutree(dend,3,order_clusters_as_data=F)
-```
-
-7. The vector **clusters** contains the cluster membership (in this case *1*, *2* or *3*) of each observation (data point) in the order they appear on the dendrogram. We can use this vector to colour the branches of the dendrogram by cluster.
-```{r, echo=T}
-dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:3])
-```
-
-8. We can use the **labels** function to annotate the leaves of the dendrogram. However, it is not possible to create legible labels for the 1,500 leaves in our example dendrogram, so we will set the label for each leaf to an empty string.
-```{r, echo=T}
-labels(dend) <- rep("", length(blobs[,1]))
-```
-
-9. If we want to plot the dendrogram using **ggplot**, we must convert it to an object of class **ggdend**.
-```{r, echo=T}
-ggd <- as.ggdend(dend)
-```
-
-10. The **nodes** attribute of **ggd** is a data.frame of parameters related to the plotting of dendogram nodes. The **nodes** data.frame contains some NAs which will generate warning messages when **ggd** is processed by **ggplot**. Since we are not interested in annotating dendrogram nodes, the easiest option here is to delete all of the rows of **nodes**.
-```{r, echo=T}
-ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
-```
-
-11. We can use the cluster membership of each observation contained in the vector **clusters** to assign colours to the data points of a scatterplot. However, first we need to reorder the vector so that the cluster memberships are in the same order that the observations appear in the data.frame of observations. Fortunately the names of the elements of the vector are the indices of the observations in the data.frame and so reordering can be accomplished in one line.
-```{r, echo=T}
-clusters <- clusters[order(as.numeric(names(clusters)))]
-```
-
-12. We are now ready to plot a dendrogram and scatterplot. We will use the **ggmatrix** function from the **GGally** package to place the plots side-by-side. 
-
-```{r hclustBlobs, fig.cap='Hierarchical clustering of the blobs data set.', out.width='80%', fig.asp=0.5, fig.align='center', echo=T}
-plotList <- list(ggplot(ggd),
-                 ggplot(blobs, aes(V1,V2)) + 
-                   geom_point(col=cluster_colours[clusters], size=0.2)
-                 )
-
-pm <- ggmatrix(
-  plotList, nrow=1, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F, 
-  xAxisLabels=c("dendrogram", "scatter plot")
-) + theme_bw()
-
-pm
-```
-
-#### Clustering of other synthetic data sets
-
-```{r hclustToyData, fig.cap='Hierarchical clustering of synthetic data-sets. ', out.width='75%', fig.asp=2.2, fig.align='center',echo=T}
-
-aggregation <- read.table("data/example_clusters/aggregation.txt")
-noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
-diff_density <- read.csv("data/example_clusters/different_density.csv", header=F)
-aniso <- read.csv("data/example_clusters/aniso.csv", header=F)
-no_structure <- read.csv("data/example_clusters/no_structure.csv", header=F)
-
-hclust_plots <- function(data_set, n){
-  d <- dist(data_set[,1:2])
-  dend <- as.dendrogram(hclust(d, method="average"))
-  clusters <- cutree(dend,n,order_clusters_as_data=F)
-  dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:n])
-  clusters <- clusters[order(as.numeric(names(clusters)))]
-  labels(dend) <- rep("", length(data_set[,1]))
-  ggd <- as.ggdend(dend)
-  ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
-  plotPair <- list(ggplot(ggd),
-    ggplot(data_set, aes(V1,V2)) + 
-      geom_point(col=cluster_colours[clusters], size=0.2))
-  return(plotPair)
-}
-
-plotList <- c(
-  hclust_plots(aggregation, 7),
-  hclust_plots(noisy_moons, 2),
-  hclust_plots(diff_density, 2),
-  hclust_plots(aniso, 3),
-  hclust_plots(no_structure, 3)
-)
-
-pm <- ggmatrix(
-  plotList, nrow=5, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F,
-  xAxisLabels=c("dendrogram", "scatter plot"), 
-  yAxisLabels=c("aggregation", "noisy moons", "different density", "anisotropic", "no structure")
-) + theme_bw()
-
-pm
-
-```
-
-### Example: gene expression profiling of human tissues
-
-#### Basics
-Load required libraries
-```{r echo=T}
-library(RColorBrewer)
-library(dendextend)
-```
-
-Load data
-```{r echo=T}
-load("data/tissues_gene_expression/tissuesGeneExpression.rda")
-```
-
-Inspect data
-```{r echo=T}
-table(tissue)
-dim(e)
-```
-
-Compute distance between each sample
-```{r echo=T} 
-d <- dist(t(e))
-```
-
-perform hierarchical clustering
-```{r tissueDendrogram, fig.cap='Clustering of tissue samples based on gene expression profiles. ', out.width='100%', fig.asp=0.7, fig.align='center', echo=T}
-hc <- hclust(d, method="average")
-plot(hc, labels=tissue, cex=0.5, hang=-1, xlab="", sub="")
-```
-
-
-#### Colour labels
-
-The dendextend library can be used to plot dendrogram with colour labels
-```{r tissueDendrogramColour, fig.cap='Clustering of tissue samples based on gene expression profiles with labels coloured by tissue type. ', out.width='100%', fig.asp=3, fig.align='center', echo=T}
-tissue_type <- unique(tissue)
-dend <- as.dendrogram(hc)
-dend_colours <- brewer.pal(length(unique(tissue)),"Dark2")
-names(dend_colours) <- tissue_type
-labels(dend) <- tissue[order.dendrogram(dend)]
-labels_colors(dend) <- dend_colours[tissue][order.dendrogram(dend)]
-labels_cex(dend) = 0.5
-plot(dend, horiz=T)
-```
-
-#### Defining clusters by cutting tree
-
-Define clusters by cutting tree at a specific height
-```{r tissueDendrogramCutHeight, fig.cap='Clusters found by cutting tree at a height of 125', out.width='100%', fig.asp=3, fig.align='center', echo=T}
-plot(dend, horiz=T)
-abline(v=125, lwd=2, lty=2, col="blue")
-hclusters <- cutree(dend, h=125)
-table(tissue, cluster=hclusters)
-```
-
-Select a specific number of clusters.
-```{r tissueDendrogramEightClusters, fig.cap='Selection of eight clusters from the dendogram', out.width='100%', fig.asp=3, fig.align='center', echo=T}
-plot(dend, horiz=T)
-abline(v = heights_per_k.dendrogram(dend)["8"], lwd = 2, lty = 2, col = "blue")
-hclusters <- cutree(dend, k=8)
-table(tissue, cluster=hclusters)
-```
-
-#### Heatmap
-Base R provides a **heatmap** function, but we will use the more advanced **heatmap.2** from the **gplots** package.
-```{r echo=T}
-library(gplots)
-```
-
-Define a colour palette (also known as a lookup table).
-```{r echo=T}
-heatmap_colours <- colorRampPalette(brewer.pal(9, "PuBuGn"))(100)
-```
-
-Calculate the variance of each gene.
-```{r echo=T}
-geneVariance <- apply(e,1,var)
-```
-
-Find the row numbers of the 40 genes with the highest variance.
-```{r echo=T}
-idxTop40 <- order(-geneVariance)[1:40]
-```
-
-Define colours for tissues.
-```{r echo=T}
-tissueColours <- palette(brewer.pal(8, "Dark2"))[as.numeric(as.factor(tissue))]
-```
-
-Plot heatmap.
-```{r heatmapTissueExpression, fig.cap='Heatmap of the expression of the 40 genes with the highest variance.', out.width='100%', fig.asp=0.8, fig.align='center', echo=T}
-heatmap.2(e[idxTop40,], labCol=tissue, trace="none",
-          ColSideColors=tissueColours, col=heatmap_colours)
-```
 
 
 ## K-means
@@ -540,8 +326,204 @@ qplot(k, tot_withinss, geom=c("point", "line"),
 *N.B.* we have set ```nstart=50``` to run the algorithm 50 times, starting from different, random sets of centroids.
 
 
-### Example: clustering synthetic data sets
-Let's see how k-means performs on the other toy data sets. First we will define some variables and functions we will use in the analysis of all data sets.
+
+
+## DBSCAN
+Density-based spatial clustering of applications with noise
+
+### Algorithm
+
+
+Abstract DBSCAN algorithm in pseudocode [@Schubert2017]
+
+```
+1 Compute neighbours of each point and identify core points   // Identify core points
+2 Join neighbouring core points into clusters                 // Assign core points
+3 foreach non-core point do
+      Add to a neighbouring core point if possible            // Assign border points
+      Otherwise, add to noise                                 // Assign noise points
+```
+
+
+
+```{r dbscanIllustration, echo=FALSE, out.width='75%', fig.align='center', fig.cap="Illustration of the DBSCAN algorithm. By Chire (Own work) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons."}
+knitr::include_graphics("images/DBSCAN_Illustration.svg")
+```
+
+The method requires two parameters; MinPts that is the minimum number of samples in any cluster; Eps that is the maximum distance of the sample to at least one other sample within the same cluster.
+
+This algorithm works on a parametric approach. The two parameters involved in this algorithm are:
+
+* e (eps) is the radius of our neighborhoods around a data point p.
+* minPts is the minimum number of data points we want in a neighborhood to define a cluster.
+
+
+
+### Implementation in R
+DBSCAN is implemented in two R packages: [dbscan](https://cran.r-project.org/package=dbscan) and [fpc](https://cran.r-project.org/package=fpc). We will use the package [dbscan](https://cran.r-project.org/package=dbscan), because it is significantly faster and can handle larger data sets than [fpc](https://cran.r-project.org/package=fpc). The function has the same name in both packages and so if for any reason both packages have been loaded into our current workspace, there is a danger of calling the wrong implementation. To avoid this we can specify the package name when calling the function, e.g.:
+```
+dbscan::dbscan
+```
+
+We load the dbscan package in the usual way:
+```{r echo=T}
+library(dbscan)
+
+```
+
+### Choosing parameters
+The algorithm only needs parameteres **eps** and **minPts**.
+
+Read in data and use **kNNdist** function from [dbscan](https://cran.r-project.org/package=dbscan) package to plot the distances of the 10-nearest neighbours for each observation (figure \@ref(fig:blobsKNNdist)).
+
+```{r blobsKNNdist, fig.cap='10-nearest neighbour distances for the blobs data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
+kNNdistplot(blobs[,1:2], k=10)
+abline(h=0.6)
+```
+<!-- dist2knn <- kNNdist(blobs, 10) -->
+
+```{r echo=T}
+res <- dbscan::dbscan(blobs[,1:2], eps=0.6, minPts = 10)
+table(res$cluster)
+```
+
+
+```{r blobsDBSCANscatter, fig.cap='DBSCAN clustering (eps=0.6, minPts=10) of the blobs data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+ggplot(blobs, aes(V1,V2)) + 
+  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1],
+             shape=c(4,15,17,19)[res$cluster+1],
+             size=1.5) +
+  theme_bw()
+```
+
+
+
+
+## Example: clustering synthetic data sets
+
+### Hierarchic agglomerative
+#### Step-by-step instructions
+1. Load required packages.
+```{r, echo=T}
+library(RColorBrewer)
+library(dendextend)
+library(ggplot2)
+library(GGally)
+```
+
+2. Retrieve a palette of eight colours.
+```{r, echo=T}
+cluster_colours <- brewer.pal(8,"Dark2")
+```
+
+3. Read in data for **blobs** example.
+```{r, echo=T}
+blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
+```
+
+4. Create distance matrix using Euclidean distance metric.
+```{r, echo=T}
+d <- dist(blobs[,1:2])
+```
+
+5. Perform hierarchical clustering using the **average** agglomeration method and convert the result to an object of class **dendrogram**. A **dendrogram** object can be edited using the advanced features of the **dendextend** package.
+```{r, echo=T}
+dend <- as.dendrogram(hclust(d, method="average"))
+```
+
+6. Cut the tree into three clusters
+```{r, echo=T}
+clusters <- cutree(dend,3,order_clusters_as_data=F)
+```
+
+7. The vector **clusters** contains the cluster membership (in this case *1*, *2* or *3*) of each observation (data point) in the order they appear on the dendrogram. We can use this vector to colour the branches of the dendrogram by cluster.
+```{r, echo=T}
+dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:3])
+```
+
+8. We can use the **labels** function to annotate the leaves of the dendrogram. However, it is not possible to create legible labels for the 1,500 leaves in our example dendrogram, so we will set the label for each leaf to an empty string.
+```{r, echo=T}
+labels(dend) <- rep("", length(blobs[,1]))
+```
+
+9. If we want to plot the dendrogram using **ggplot**, we must convert it to an object of class **ggdend**.
+```{r, echo=T}
+ggd <- as.ggdend(dend)
+```
+
+10. The **nodes** attribute of **ggd** is a data.frame of parameters related to the plotting of dendogram nodes. The **nodes** data.frame contains some NAs which will generate warning messages when **ggd** is processed by **ggplot**. Since we are not interested in annotating dendrogram nodes, the easiest option here is to delete all of the rows of **nodes**.
+```{r, echo=T}
+ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
+```
+
+11. We can use the cluster membership of each observation contained in the vector **clusters** to assign colours to the data points of a scatterplot. However, first we need to reorder the vector so that the cluster memberships are in the same order that the observations appear in the data.frame of observations. Fortunately the names of the elements of the vector are the indices of the observations in the data.frame and so reordering can be accomplished in one line.
+```{r, echo=T}
+clusters <- clusters[order(as.numeric(names(clusters)))]
+```
+
+12. We are now ready to plot a dendrogram and scatterplot. We will use the **ggmatrix** function from the **GGally** package to place the plots side-by-side. 
+
+```{r hclustBlobs, fig.cap='Hierarchical clustering of the blobs data set.', out.width='80%', fig.asp=0.5, fig.align='center', echo=T}
+plotList <- list(ggplot(ggd),
+                 ggplot(blobs, aes(V1,V2)) + 
+                   geom_point(col=cluster_colours[clusters], size=0.2)
+                 )
+
+pm <- ggmatrix(
+  plotList, nrow=1, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F, 
+  xAxisLabels=c("dendrogram", "scatter plot")
+) + theme_bw()
+
+pm
+```
+
+#### Clustering of other synthetic data sets
+
+```{r hclustToyData, fig.cap='Hierarchical clustering of synthetic data-sets. ', out.width='75%', fig.asp=2.2, fig.align='center',echo=T}
+
+aggregation <- read.table("data/example_clusters/aggregation.txt")
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+diff_density <- read.csv("data/example_clusters/different_density.csv", header=F)
+aniso <- read.csv("data/example_clusters/aniso.csv", header=F)
+no_structure <- read.csv("data/example_clusters/no_structure.csv", header=F)
+
+hclust_plots <- function(data_set, n){
+  d <- dist(data_set[,1:2])
+  dend <- as.dendrogram(hclust(d, method="average"))
+  clusters <- cutree(dend,n,order_clusters_as_data=F)
+  dend <- color_branches(dend, clusters=clusters, col=cluster_colours[1:n])
+  clusters <- clusters[order(as.numeric(names(clusters)))]
+  labels(dend) <- rep("", length(data_set[,1]))
+  ggd <- as.ggdend(dend)
+  ggd$nodes <- ggd$nodes[!(1:length(ggd$nodes[,1])),]
+  plotPair <- list(ggplot(ggd),
+    ggplot(data_set, aes(V1,V2)) + 
+      geom_point(col=cluster_colours[clusters], size=0.2))
+  return(plotPair)
+}
+
+plotList <- c(
+  hclust_plots(aggregation, 7),
+  hclust_plots(noisy_moons, 2),
+  hclust_plots(diff_density, 2),
+  hclust_plots(aniso, 3),
+  hclust_plots(no_structure, 3)
+)
+
+pm <- ggmatrix(
+  plotList, nrow=5, ncol=2, showXAxisPlotLabels = F, showYAxisPlotLabels = F,
+  xAxisLabels=c("dendrogram", "scatter plot"), 
+  yAxisLabels=c("aggregation", "noisy moons", "different density", "anisotropic", "no structure")
+) + theme_bw()
+
+pm
+
+```
+
+
+### K-means
+Earlier we saw how k-means performed on the blobs data set. Let's see how k-means performs on the other toy data sets. First we will define some variables and functions we will use in the analysis of all data sets.
 ```{r echo=T}
 k=1:9
 point_shapes <- c(15,17,19,5,6,0,1)
@@ -643,137 +625,9 @@ plot_tot_withinss(res)
 plot_clusters(no_structure, res, 4)
 ```
 
-### Example: gene expression profiling of human tissues
-Let's return to the data on gene expression of human tissues.
-Load data
-```{r echo=T}
-load("data/tissues_gene_expression/tissuesGeneExpression.rda")
-```
 
-As we saw earlier, the data set contains expression levels for over 22,000 transcripts in seven tissues.
-```{r echo=T}
-table(tissue)
-dim(e)
-```
-
-First we will examine the total intra-cluster variance with different values of *k*. Our data-set is fairly large, so clustering it for several values or *k* and with multiple random starting centres is computationally quite intensive. Fortunately the task readily lends itself to parallelization; we can assign the analysis of each 'k' to a different processing core. As we have seen in the previous chapters on supervised learning, [caret](http://cran.r-project.org/web/packages/caret/index.html) has parallel processing built in and we simply have to load a package for multicore processing, such as [doMC](http://cran.r-project.org/web/packages/doMC/index.html), and then register the number of cores we would like to use. Running **kmeans** in parallel is slightly more involved, but still very easy. We will start by loading [doMC](http://cran.r-project.org/web/packages/doMC/index.html) and registering all available cores:
-```{r echo=T}
-library(doMC)
-registerDoMC(detectCores())
-```
-To find out how many cores we have registered we can use:
-```{r echo=T}
-getDoParWorkers()
-```
-
-Instead of using the **lapply** function to vectorize our code, we will instead use the parallel equivalent, **foreach**. Like **lapply**, **foreach** returns a list by default. For this example we have set a seed, rather than generate a random number, for the sake of reproducibility. Ordinarily we would omit ```set.seed(42)``` and ```.options.multicore=list(set.seed=FALSE)```.
-```{r tissueExpressionElbow, fig.cap='K-means clustering of human tissue gene expression: variance within clusters.', out.width='100%', fig.asp=0.5, fig.align='center', echo=T}
-k<-1:15
-set.seed(42)
-res_k_15 <- foreach(
-  i=k, 
-  .options.multicore=list(set.seed=FALSE)) %dopar% kmeans(t(e), i, nstart=10)
-plot_tot_withinss(res_k_15)
-```
-<!--
-set.seed(42)
-res_k_15 <- lapply(k, function(i){kmeans(t(e), i, nstart=10)})
--->
-There is no obvious elbow, but since we know that there are seven tissues in the data set we will try k=7. 
-<!--
-```{r echo=T}
-set.seed(42)
-res <- kmeans(t(e), 7, nstart=10)
-table(tissue, res$cluster)
-```
--->
-```{r echo=T}
-table(tissue, res_k_15[[7]]$cluster)
-```
-The analysis has found a distinct cluster for each tissue and therefore performed slightly better than the earlier hierarchical clustering analysis, which placed endometrium and kidney observations in the same cluster.
-
-To visualize the result in a 2D scatter plot we first need to apply dimensionality reduction. We will use principal component analysis (PCA), which was described in chapter \@ref(dimensionality-reduction).
-
-```{r tissueExpressionPCA, fig.cap='K-means clustering of human gene expression (k=7): scatterplot of first two principal components.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
-pca <- prcomp(t(e))
-ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
-  geom_point(col=brewer.pal(7,"Dark2")[res_k_15[[7]]$cluster], 
-             shape=c(49:55)[res_k_15[[7]]$cluster], size=5) + 
-  theme_bw()
-```
-
-## DBSCAN
-Density-based spatial clustering of applications with noise
-
-### Algorithm
-
-
-Abstract DBSCAN algorithm in pseudocode [@Schubert2017]
-
-```
-1 Compute neighbours of each point and identify core points   // Identify core points
-2 Join neighbouring core points into clusters                 // Assign core points
-3 foreach non-core point do
-      Add to a neighbouring core point if possible            // Assign border points
-      Otherwise, add to noise                                 // Assign noise points
-```
-
-
-
-```{r dbscanIllustration, echo=FALSE, out.width='75%', fig.align='center', fig.cap="Illustration of the DBSCAN algorithm. By Chire (Own work) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons."}
-knitr::include_graphics("images/DBSCAN_Illustration.svg")
-```
-
-The method requires two parameters; MinPts that is the minimum number of samples in any cluster; Eps that is the maximum distance of the sample to at least one other sample within the same cluster.
-
-This algorithm works on a parametric approach. The two parameters involved in this algorithm are:
-
-* e (eps) is the radius of our neighborhoods around a data point p.
-* minPts is the minimum number of data points we want in a neighborhood to define a cluster.
-
-
-
-### Implementation in R
-DBSCAN is implemented in two R packages: [dbscan](https://cran.r-project.org/package=dbscan) and [fpc](https://cran.r-project.org/package=fpc). We will use the package [dbscan](https://cran.r-project.org/package=dbscan), because it is significantly faster and can handle larger data sets than [fpc](https://cran.r-project.org/package=fpc). The function has the same name in both packages and so if for any reason both packages have been loaded into our current workspace, there is a danger of calling the wrong implementation. To avoid this we can specify the package name when calling the function, e.g.:
-```
-dbscan::dbscan
-```
-
-We load the dbscan package in the usual way:
-```{r echo=T}
-library(dbscan)
-
-```
-
-### Choosing parameters
-The algorithm only needs parameteres **eps** and **minPts**.
-
-Read in data and use **kNNdist** function from [dbscan](https://cran.r-project.org/package=dbscan) package to plot the distances of the 10-nearest neighbours for each observation (figure \@ref(fig:blobsKNNdist)).
-
-```{r blobsKNNdist, fig.cap='10-nearest neighbour distances for the blobs data set', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
-blobs <- read.csv("data/example_clusters/blobs.csv", header=F)
-kNNdistplot(blobs[,1:2], k=10)
-abline(h=0.6)
-```
-<!-- dist2knn <- kNNdist(blobs, 10) -->
-
-```{r echo=T}
-res <- dbscan::dbscan(blobs[,1:2], eps=0.6, minPts = 10)
-table(res$cluster)
-```
-
-
-```{r blobsDBSCANscatter, fig.cap='DBSCAN clustering (eps=0.6, minPts=10) of the blobs data set. Outlier observations are shown as grey crosses.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
-ggplot(blobs, aes(V1,V2)) + 
-  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1],
-             shape=c(4,15,17,19)[res$cluster+1],
-             size=1.5) +
-  theme_bw()
-```
-
-
-### Example: clustering synthetic data sets
-
+### DBSCAN
+Prepare by defining some variables and a plotting function.
 ```{r echo=T}
 point_shapes <- c(4,15,17,19,5,6,0,1)
 point_colours <- brewer.pal(8,"Dark2")[c(8,1:7)]
@@ -886,38 +740,6 @@ table(res$cluster)
 
 <!--No need for scatter plot-->
 
-
-### Example: gene expression profiling of human tissues
-Returning again to the data on gene expression of human tissues.
-```{r echo=T}
-load("data/tissues_gene_expression/tissuesGeneExpression.rda")
-```
-
-```{r echo=T}
-table(tissue)
-```
-
-We'll try k=5 (default for dbscan), because there are only six observations for placenta.
-
-```{r tissueExpressionKNNdist, fig.cap='Five-nearest neighbour distances for the gene expression profiling of human tissues data set.', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
-kNNdistplot(t(e), k=5)
-abline(h=85)
-```
-
-```{r echo=T}
-set.seed(42)
-res <- dbscan::dbscan(t(e), eps=85, minPts=5)
-table(res$cluster)
-table(tissue, res$cluster)
-```
-
-```{r tissueExpressionDBSCANscatter, fig.cap='Clustering of human tissue gene expression: scatterplot of first two principal components.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
-pca <- prcomp(t(e))
-ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
-  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1], 
-             shape=c(48:55)[res$cluster+1], size=5) + 
-  theme_bw()
-```
 
 
 ## Evaluating cluster quality
@@ -1045,6 +867,197 @@ plot(sil, border=NA, col=clusterColours[sort(clusters)], main="")
 ```
 
 The silhouette analysis suggests that DBSCAN has found clusters of poor quality in the noisy moons data set. However, we saw by eye that it it did a good job of deliminiting the two clusters. The result demonstrates that the silhouette method is less useful when dealing with clusters that are defined by density, rather than inertia.
+
+
+
+
+## Example: gene expression profiling of human tissues
+### Hierarchic agglomerative
+
+#### Basics
+Load required libraries
+```{r echo=T}
+library(RColorBrewer)
+library(dendextend)
+```
+
+Load data
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+Inspect data
+```{r echo=T}
+table(tissue)
+dim(e)
+```
+
+Compute distance between each sample
+```{r echo=T} 
+d <- dist(t(e))
+```
+
+perform hierarchical clustering
+```{r tissueDendrogram, fig.cap='Clustering of tissue samples based on gene expression profiles. ', out.width='100%', fig.asp=0.7, fig.align='center', echo=T}
+hc <- hclust(d, method="average")
+plot(hc, labels=tissue, cex=0.5, hang=-1, xlab="", sub="")
+```
+
+
+#### Colour labels
+
+The dendextend library can be used to plot dendrogram with colour labels
+```{r tissueDendrogramColour, fig.cap='Clustering of tissue samples based on gene expression profiles with labels coloured by tissue type. ', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+tissue_type <- unique(tissue)
+dend <- as.dendrogram(hc)
+dend_colours <- brewer.pal(length(unique(tissue)),"Dark2")
+names(dend_colours) <- tissue_type
+labels(dend) <- tissue[order.dendrogram(dend)]
+labels_colors(dend) <- dend_colours[tissue][order.dendrogram(dend)]
+labels_cex(dend) = 0.5
+plot(dend, horiz=T)
+```
+
+#### Defining clusters by cutting tree
+
+Define clusters by cutting tree at a specific height
+```{r tissueDendrogramCutHeight, fig.cap='Clusters found by cutting tree at a height of 125', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+plot(dend, horiz=T)
+abline(v=125, lwd=2, lty=2, col="blue")
+hclusters <- cutree(dend, h=125)
+table(tissue, cluster=hclusters)
+```
+
+Select a specific number of clusters.
+```{r tissueDendrogramEightClusters, fig.cap='Selection of eight clusters from the dendogram', out.width='100%', fig.asp=3, fig.align='center', echo=T}
+plot(dend, horiz=T)
+abline(v = heights_per_k.dendrogram(dend)["8"], lwd = 2, lty = 2, col = "blue")
+hclusters <- cutree(dend, k=8)
+table(tissue, cluster=hclusters)
+```
+
+#### Heatmap
+Base R provides a **heatmap** function, but we will use the more advanced **heatmap.2** from the **gplots** package.
+```{r echo=T}
+library(gplots)
+```
+
+Define a colour palette (also known as a lookup table).
+```{r echo=T}
+heatmap_colours <- colorRampPalette(brewer.pal(9, "PuBuGn"))(100)
+```
+
+Calculate the variance of each gene.
+```{r echo=T}
+geneVariance <- apply(e,1,var)
+```
+
+Find the row numbers of the 40 genes with the highest variance.
+```{r echo=T}
+idxTop40 <- order(-geneVariance)[1:40]
+```
+
+Define colours for tissues.
+```{r echo=T}
+tissueColours <- palette(brewer.pal(8, "Dark2"))[as.numeric(as.factor(tissue))]
+```
+
+Plot heatmap.
+```{r heatmapTissueExpression, fig.cap='Heatmap of the expression of the 40 genes with the highest variance.', out.width='100%', fig.asp=0.8, fig.align='center', echo=T}
+heatmap.2(e[idxTop40,], labCol=tissue, trace="none",
+          ColSideColors=tissueColours, col=heatmap_colours)
+```
+
+### K-means
+Load data if not already in workspace.
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+As we saw earlier, the data set contains expression levels for over 22,000 transcripts in seven tissues.
+```{r echo=T}
+table(tissue)
+dim(e)
+```
+
+First we will examine the total intra-cluster variance with different values of *k*. Our data-set is fairly large, so clustering it for several values or *k* and with multiple random starting centres is computationally quite intensive. Fortunately the task readily lends itself to parallelization; we can assign the analysis of each 'k' to a different processing core. As we have seen in the previous chapters on supervised learning, [caret](http://cran.r-project.org/web/packages/caret/index.html) has parallel processing built in and we simply have to load a package for multicore processing, such as [doMC](http://cran.r-project.org/web/packages/doMC/index.html), and then register the number of cores we would like to use. Running **kmeans** in parallel is slightly more involved, but still very easy. We will start by loading [doMC](http://cran.r-project.org/web/packages/doMC/index.html) and registering all available cores:
+```{r echo=T}
+library(doMC)
+registerDoMC(detectCores())
+```
+To find out how many cores we have registered we can use:
+```{r echo=T}
+getDoParWorkers()
+```
+
+Instead of using the **lapply** function to vectorize our code, we will instead use the parallel equivalent, **foreach**. Like **lapply**, **foreach** returns a list by default. For this example we have set a seed, rather than generate a random number, for the sake of reproducibility. Ordinarily we would omit ```set.seed(42)``` and ```.options.multicore=list(set.seed=FALSE)```.
+```{r tissueExpressionElbow, fig.cap='K-means clustering of human tissue gene expression: variance within clusters.', out.width='100%', fig.asp=0.5, fig.align='center', echo=T}
+k<-1:15
+set.seed(42)
+res_k_15 <- foreach(
+  i=k, 
+  .options.multicore=list(set.seed=FALSE)) %dopar% kmeans(t(e), i, nstart=10)
+plot_tot_withinss(res_k_15)
+```
+<!--
+set.seed(42)
+res_k_15 <- lapply(k, function(i){kmeans(t(e), i, nstart=10)})
+-->
+There is no obvious elbow, but since we know that there are seven tissues in the data set we will try k=7. 
+<!--
+```{r echo=T}
+set.seed(42)
+res <- kmeans(t(e), 7, nstart=10)
+table(tissue, res$cluster)
+```
+-->
+```{r echo=T}
+table(tissue, res_k_15[[7]]$cluster)
+```
+The analysis has found a distinct cluster for each tissue and therefore performed slightly better than the earlier hierarchical clustering analysis, which placed endometrium and kidney observations in the same cluster.
+
+To visualize the result in a 2D scatter plot we first need to apply dimensionality reduction. We will use principal component analysis (PCA), which was described in chapter \@ref(dimensionality-reduction).
+
+```{r tissueExpressionPCA, fig.cap='K-means clustering of human gene expression (k=7): scatterplot of first two principal components.', out.width='50%', fig.asp=1, fig.align='center', echo=T}
+pca <- prcomp(t(e))
+ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
+  geom_point(col=brewer.pal(7,"Dark2")[res_k_15[[7]]$cluster], 
+             shape=c(49:55)[res_k_15[[7]]$cluster], size=5) + 
+  theme_bw()
+```
+
+### DBSCAN
+Load data if not already in workspace.
+```{r echo=T}
+load("data/tissues_gene_expression/tissuesGeneExpression.rda")
+```
+
+Get a summary of the data set.
+```{r echo=T}
+table(tissue)
+```
+
+We'll try k=5 (default for dbscan), because there are only six observations for placenta.
+
+```{r tissueExpressionKNNdist, fig.cap='Five-nearest neighbour distances for the gene expression profiling of human tissues data set.', out.width='75%', fig.asp=0.7, fig.align='center', echo=T}
+kNNdistplot(t(e), k=5)
+abline(h=85)
+```
+
+```{r echo=T}
+set.seed(42)
+res <- dbscan::dbscan(t(e), eps=85, minPts=5)
+table(res$cluster)
+table(tissue, res$cluster)
+```
+
+```{r tissueExpressionDBSCANscatter, fig.cap='Clustering of human tissue gene expression: scatterplot of first two principal components.', out.width='60%', fig.asp=1, fig.align='center', echo=T}
+pca <- prcomp(t(e))
+ggplot(data=as.data.frame(pca$x), aes(PC1,PC2)) + 
+  geom_point(col=brewer.pal(8,"Dark2")[c(8,1:7)][res$cluster+1], 
+             shape=c(48:55)[res$cluster+1], size=5) + 
+  theme_bw()
+```
 
 
 
