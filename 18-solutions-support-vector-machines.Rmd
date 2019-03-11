@@ -1,4 +1,4 @@
-# Solutions ch. 8 - Support vector machines {#solutions-svm}
+# Solutions ch. 6 - Support vector machines {#solutions-svm}
 
 Solutions to exercises of chapter \@ref(svm).
 

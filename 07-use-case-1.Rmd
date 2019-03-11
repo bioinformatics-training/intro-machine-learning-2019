@@ -1,0 +1,75 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Use case 1 {#use-case-1}
+
+## Introduction
+In the preceding chapters we have looked at four methods for supervised learning: Nearest Neighbours (chapter \@ref(nearest-neighbours)), Support Vector Machines (chapter \@ref(svm)), Decision Trees (chapter \@ref(decision-trees)) and Random Forests (chapter \@ref(decision-trees)). In this chapter we will consider how we choose the best method for a particular data set.
+
+## Problem: automated detection of malaria
+
+(@Park2016)
+
+[https://doi.org/10.1371/journal.pone.0163045](https://doi.org/10.1371/journal.pone.0163045)
+
+Variables:
+
+* Max optical path length (OPL)
+* Mean OPL
+* Median OPL
+* Optical volume
+* Minor axis length
+* Major axis length
+* Perimeter
+* Area
+* Elongation
+* Equivalent diameter
+* Eccentricity
+* Standard deviation OPL
+* Variance OPL
+* Interquartile range OPL
+* Skewness
+* Kurtosis
+* Mean symmetry
+* Min symmetry
+* Maximum gradient
+* Mean gradient
+* Centroid vs centre of mass
+* Upper quartile mean OPL
+* Upper quartile mean gradient
+
+## Challenges
+
+
+
+## Getting started
+
+### Load data
+```{r}
+load("data/malaria/malaria.RData")
+```
+
+Inspect objects that have been loaded into R session
+```{r}
+ls()
+class(morphology)
+dim(morphology)
+names(morphology)
+class(infectionStatus)
+summary(as.factor(infectionStatus))
+class(stage)
+summary(as.factor(stage))
+```
+
+**morphology** is a data.frame of the morphological parameters from the red blood cells.
+
+**infectionStatus** a factor identifying a red blood cell as either infected or uninfected.
+
+**stage** a factor giving the stage of infection: early trophozoite, late trophozoite, schizont or uninfected.
+
+
+## Solutions
+We have provided worked examples in appendix \@ref(use-case-1-solutions). Can you come up with better solutions?
+

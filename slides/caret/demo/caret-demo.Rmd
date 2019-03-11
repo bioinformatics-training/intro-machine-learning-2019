@@ -21,9 +21,72 @@ library(doMC)
 library(corrplot)
 ```
 
+##Define SVM model
+```{r echo=T}
+svmRadialE1071 <- list(
+  label = "Support Vector Machines with Radial Kernel - e1071",
+  library = "e1071",
+  type = c("Regression", "Classification"),
+  parameters = data.frame(parameter="cost",
+                          class="numeric",
+                          label="Cost"),
+  grid = function (x, y, len = NULL, search = "grid") 
+    {
+      if (search == "grid") {
+        out <- expand.grid(cost = 2^((1:len) - 3))
+      }
+      else {
+        out <- data.frame(cost = 2^runif(len, min = -5, max = 10))
+      }
+      out
+    },
+  loop=NULL,
+  fit=function (x, y, wts, param, lev, last, classProbs, ...) 
+    {
+      if (any(names(list(...)) == "probability") | is.numeric(y)) {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, ...)
+      }
+      else {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, probability = classProbs, ...)
+      }
+      out
+    },
+  predict = function (modelFit, newdata, submodels = NULL) 
+    {
+      predict(modelFit, newdata)
+    },
+  prob = function (modelFit, newdata, submodels = NULL) 
+    {
+      out <- predict(modelFit, newdata, probability = TRUE)
+      attr(out, "probabilities")
+    },
+  predictors = function (x, ...) 
+    {
+      out <- if (!is.null(x$terms)) 
+        predictors.terms(x$terms)
+      else x$xNames
+      if (is.null(out)) 
+        out <- names(attr(x, "scaling")$x.scale$`scaled:center`)
+      if (is.null(out)) 
+        out <- NA
+      out
+    },
+  tags = c("Kernel Methods", "Support Vector Machines", "Regression", "Classifier", "Robust Methods"),
+  levels = function(x) x$levels,
+  sort = function(x)
+  {
+    x[order(x$cost), ]
+  }
+)
+
+```
+
+
 ##Load data
 ```{r}
-load("malaria.RData")
+load("data/malaria/malaria.RData")
 ```
 
 Inspect objects that have been loaded into R session
@@ -180,7 +243,7 @@ plot(rfFit)
 ###Support Vector Machine
 ```{r}
 svmFit <- train(morphologyTrain, stageTrain,
-                method="svmRadialCost",
+                method=svmRadialE1071,
                 preProcess = c("center", "scale"),
                 #tuneGrid=tuneParam,
                 tuneLength=10,

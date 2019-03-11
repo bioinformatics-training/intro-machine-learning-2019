@@ -1,4 +1,4 @@
-# Solutions ch. 6 - Clustering {#solutions-clustering}
+# Solutions ch. 4 - Clustering {#solutions-clustering}
 
 Solutions to exercises of chapter \@ref(clustering). 
 

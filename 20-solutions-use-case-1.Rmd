@@ -1,0 +1,237 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Solutions chapter 8 - use case 1 {#use-case-1-solutions}
+
+Solutions to exercises of chapter \@ref(use-case-1).
+
+## Preparation
+
+### Load required libraries
+```{r}
+library(caret)
+library(doMC)
+library(corrplot)
+```
+
+### Define SVM model
+```{r echo=T}
+svmRadialE1071 <- list(
+  label = "Support Vector Machines with Radial Kernel - e1071",
+  library = "e1071",
+  type = c("Regression", "Classification"),
+  parameters = data.frame(parameter="cost",
+                          class="numeric",
+                          label="Cost"),
+  grid = function (x, y, len = NULL, search = "grid") 
+    {
+      if (search == "grid") {
+        out <- expand.grid(cost = 2^((1:len) - 3))
+      }
+      else {
+        out <- data.frame(cost = 2^runif(len, min = -5, max = 10))
+      }
+      out
+    },
+  loop=NULL,
+  fit=function (x, y, wts, param, lev, last, classProbs, ...) 
+    {
+      if (any(names(list(...)) == "probability") | is.numeric(y)) {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, ...)
+      }
+      else {
+        out <- e1071::svm(x = as.matrix(x), y = y, kernel = "radial", 
+                          cost = param$cost, probability = classProbs, ...)
+      }
+      out
+    },
+  predict = function (modelFit, newdata, submodels = NULL) 
+    {
+      predict(modelFit, newdata)
+    },
+  prob = function (modelFit, newdata, submodels = NULL) 
+    {
+      out <- predict(modelFit, newdata, probability = TRUE)
+      attr(out, "probabilities")
+    },
+  predictors = function (x, ...) 
+    {
+      out <- if (!is.null(x$terms)) 
+        predictors.terms(x$terms)
+      else x$xNames
+      if (is.null(out)) 
+        out <- names(attr(x, "scaling")$x.scale$`scaled:center`)
+      if (is.null(out)) 
+        out <- NA
+      out
+    },
+  tags = c("Kernel Methods", "Support Vector Machines", "Regression", "Classifier", "Robust Methods"),
+  levels = function(x) x$levels,
+  sort = function(x)
+  {
+    x[order(x$cost), ]
+  }
+)
+
+```
+
+### Setup parallel processing
+```{r}
+registerDoMC(detectCores())
+getDoParWorkers()
+```
+
+### Load data
+```{r}
+load("data/malaria/malaria.RData")
+```
+
+Inspect objects that have been loaded into R session
+```{r}
+ls()
+class(morphology)
+dim(morphology)
+names(morphology)
+class(infectionStatus)
+summary(as.factor(infectionStatus))
+class(stage)
+summary(as.factor(stage))
+```
+
+###Data splitting
+Partition data into a training and test set using the **createDataPartition** function
+```{r}
+set.seed(42)
+trainIndex <- createDataPartition(y=stage, times=1, p=0.7, list=F)
+infectionStatusTrain <- infectionStatus[trainIndex]
+stageTrain <- stage[trainIndex]
+morphologyTrain <- morphology[trainIndex,]
+infectionStatusTest <- infectionStatus[-trainIndex]
+stageTest <- stage[-trainIndex]
+morphologyTest <- morphology[-trainIndex,]
+```
+
+
+## Assess data quality
+
+### Zero and near-zero variance predictors
+The function **nearZeroVar** identifies predictors that have one unique value. It also diagnoses predictors having both of the following characteristics:
+
+* very few unique values relative to the number of samples
+* the ratio of the frequency of the most common value to the frequency of the 2nd most common value is large.
+
+Such zero and near zero-variance predictors have a deleterious impact on modelling and may lead to unstable fits.
+
+```{r}
+nearZeroVar(morphologyTrain, saveMetrics = T)
+```
+
+There are no zero variance or near zero variance predictors in our data set.
+
+### Are all predictors on the same scale?
+```{r out.width='100%', fig.asp=2, fig.align='center', fig.show='hold', echo=T}
+featurePlot(x = morphologyTrain,
+            y = stageTrain,
+            plot = "box",
+            ## Pass in options to bwplot()
+            scales = list(y = list(relation="free"),
+                          x = list(rot = 90)),
+            layout = c(5,5))
+```
+The variables in this data set are on different scales. In this situation it is important to centre and scale each predictor. A predictor variable is centered by subtracting the mean of the predictor from each value. To scale a predictor variable, each value is divided by its standard deviation. After centring and scaling the predictor variable has a mean of 0 and a standard deviation of 1.
+
+### Redundancy from correlated variables
+Examine pairwise correlations of predictors to identify redundancy in data set
+```{r}
+corMat <- cor(morphologyTrain)
+corrplot(corMat, order="hclust", tl.cex=1)
+```
+
+Find highly correlated predictors
+```{r}
+highCorr <- findCorrelation(corMat, cutoff=0.75)
+length(highCorr)
+names(morphologyTrain)[highCorr]
+```
+
+
+### Skewness
+Observations grouped by infection status:
+```{r}
+featurePlot(x = morphologyTrain,
+            y = infectionStatusTrain,
+            plot = "density",
+            ## Pass in options to xyplot() to
+            ## make it prettier
+            scales = list(x = list(relation="free"),
+                          y = list(relation="free")),
+            adjust = 1.5,
+            pch = "|",
+            layout = c(5, 5),
+            auto.key = list(columns = 2))
+```
+
+Observations grouped by infection stage:
+```{r}
+featurePlot(x = morphologyTrain,
+            y = stageTrain,
+            plot = "density",
+            ## Pass in options to xyplot() to
+            ## make it prettier
+            scales = list(x = list(relation="free"),
+                          y = list(relation="free")),
+            adjust = 1.5,
+            pch = "|",
+            layout = c(5, 5),
+            auto.key = list(columns = 2))
+```
+
+
+## Infection status (two-class problem)
+
+### Model training and parameter tuning
+All of the models we are going to use have a single tuning parameter. For each model we will use repeated cross validation to try 10 different values of the tuning parameter. 
+
+For each model let's do five-fold cross-validation a total of five times:
+```{r eval=F}
+train_ctrl <- trainControl(method="repeatedcv",
+                           number = 5,
+                           repeats = 5)
+```
+
+To make the analysis reproducible we need to specify the seed for each resampling iteration.
+```{r}
+set.seed(42)
+seeds <- vector(mode = "list", length = 26)
+for(i in 1:25) seeds[[i]] <- sample.int(1000, 10)
+seeds[[26]] <- sample.int(1000,1)
+
+train_ctrl <- trainControl(method="repeatedcv",
+                           number = 5,
+                           repeats = 5,
+                           seeds = seeds)
+```
+
+### KNN
+
+### SVM
+
+### Decision tree
+
+### Random forest
+
+
+## Discrimination of infective stages (multi-class problem)
+
+### KNN
+
+### SVM
+
+### Decision tree
+
+### Random forest
+
+
