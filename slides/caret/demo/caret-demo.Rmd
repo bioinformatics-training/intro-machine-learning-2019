@@ -206,14 +206,14 @@ train_ctrl <- trainControl(method="repeatedcv",
 
 The **train** function is used to tune a model
 ```{r}
-knnFit <- train(morphologyTrain, stageTrain,
-                method="knn",
+svmlFit <- train(morphTrain, stageTrain,
+                method="svmLinear",
                 preProcess = c("center", "scale"),
                 #tuneGrid=tuneParam,
                 tuneLength=10,
                 trControl=train_ctrl)
 
-knnFit
+svmlFit
 ```
 
 Plot the results of the cross-validation

@@ -75,114 +75,6 @@ Building a dendrogram continued
 
 
 
-Linkage algorithms
-========================================================
-type: sub-section
-
-
-========================================================
-```{r echo=F}
-m <- matrix(c(rep(NA,5),
-       2,rep(NA,4),
-       6,5,rep(NA,3),
-       10,10,5,rep(NA,2),
-       9,8,3,4,NA),ncol=5,byrow=T,
-       dimnames=list(LETTERS[1:5], LETTERS[1:5])
-)
-
-mDisplay <- matrix(c(
-       2,rep("",3),
-       6,5,rep("",2),
-       10,10,5,rep("",1),
-       9,8,3,4),ncol=4,byrow=T,
-       dimnames=list(LETTERS[2:5], LETTERS[1:4])
-)
-
-d <- as.dist(m)
-```
-
-Distance matrix
-
-```{r distance-matrix, tidy=FALSE, echo=F}
-knitr::kable(
-  mDisplay, caption = 'Example distance matrix',
-  booktabs = TRUE
-)
-```
-
-
-```{r echo=F}
-hclustSingle <- hclust(d, method="single")
-hclustComplete <- hclust(d, method="complete")
-hclustAverage <- hclust(d, method="average")
-```
-
-Merge distances
-
-```{r distance-merge, tidy=FALSE, echo=F}
-Single <- c(0,hclustSingle$height)
-Complete <- c(0,hclustComplete$height)
-Average <- c(0,hclustAverage$height)
-Groups <- c("A,B,C,D,E", "(A,B),C,D,E", "(A,B),(C,E),D", "(A,B)(C,D,E)", "(A,B,C,D,E)")
-distanceMerge <- data.frame(Groups,Single,Complete,Average)
-knitr::kable(
-  distanceMerge, caption = 'Merge distances for objects in the example distance matrix using three different linkage methods.',
-  booktabs = TRUE
-)
-
-```
-
-==================================
-
-```{r linkageComparison, fig.cap='Dendrograms for the example distance matrix using three different linkage methods. ', out.width='100%', fig.asp=0.3, fig.align='center', fig.show='hold',echo=F}
-library(ggplot2)
-library(ggdendro)
-
-dend_single <- as.dendrogram(hclustSingle)
-dend_complete <- as.dendrogram(hclustComplete)
-dend_average <- as.dendrogram(hclustAverage)
-
-dd_single <- dendro_data(dend_single, type="rectangle")
-dd_complete <- dendro_data(dend_complete, type="rectangle")
-dd_average <- dendro_data(dend_average, type="rectangle")
-
-p_single <- ggplot(segment(dd_single)) +
-  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
-  coord_flip() +
-  scale_y_reverse(expand=c(0.05,0)) +
-  ggtitle("Single linkage") +
-  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_single)) +
-  ylab("Distance") +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-p_single
-
-p_complete <- ggplot(segment(dd_complete)) +
-  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
-  coord_flip() +
-  scale_y_reverse(expand=c(0.05,0)) +
-  ggtitle("Complete linkage") +
-  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_complete)) +
-  ylab("Distance") +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-p_complete
-
-p_average <- ggplot(segment(dd_average)) +
-  geom_segment(aes(x=x, y=y, xend=xend, yend=yend)) +
-  coord_flip() +
-  scale_y_reverse(expand=c(0.05,0)) +
-  ggtitle("Average linkage") +
-  geom_text(aes(x = x, y = y, label = label, angle = 0, hjust = -1), data= label(dd_average)) +
-  ylab("Distance") +
-  theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank())
-p_average
-
-```
 
 
 K-means clustering
@@ -210,6 +102,7 @@ Randomly choose initial centroids
 ===================================
 
 ```{r echo=F}
+library(ggplot2)
 library(RColorBrewer)
 point_shapes <- c(17,19)
 point_colours <- brewer.pal(3,"Dark2")

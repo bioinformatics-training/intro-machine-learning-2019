@@ -1,0 +1,9 @@
+base
+knitr
+lattice
+ggplot2
+caret
+foreach
+iterators
+doMC
+corrplot

@@ -2,7 +2,7 @@
 Clustering
 ========================================================
 #author: Matt Wayland
-#date: 27 September, 2018
+#date: 12 March, 2019
 autosize: true
 transition: rotate
 css: custom.css
@@ -81,41 +81,6 @@ Building a dendrogram continued
 
 
 
-Linkage algorithms
-========================================================
-type: sub-section
-
-
-========================================================
-
-
-Distance matrix
-
-
-|   |A  |B  |C  |D  |
-|:--|:--|:--|:--|:--|
-|B  |2  |   |   |   |
-|C  |6  |5  |   |   |
-|D  |10 |10 |5  |   |
-|E  |9  |8  |3  |4  |
-
-
-
-
-Merge distances
-
-
-|Groups        | Single| Complete| Average|
-|:-------------|------:|--------:|-------:|
-|A,B,C,D,E     |      0|        0|     0.0|
-|(A,B),C,D,E   |      2|        2|     2.0|
-|(A,B),(C,E),D |      3|        3|     3.0|
-|(A,B)(C,D,E)  |      4|        5|     4.5|
-|(A,B,C,D,E)   |      5|       10|     8.0|
-
-==================================
-
-<img src="clustering-figure/linkageComparison-1.png" title="Dendrograms for the example distance matrix using three different linkage methods. " alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" style="display: block; margin: auto;" /><img src="clustering-figure/linkageComparison-2.png" title="Dendrograms for the example distance matrix using three different linkage methods. " alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" style="display: block; margin: auto;" /><img src="clustering-figure/linkageComparison-3.png" title="Dendrograms for the example distance matrix using three different linkage methods. " alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" style="display: block; margin: auto;" />
 
 
 K-means clustering
@@ -142,43 +107,43 @@ while true:
 Randomly choose initial centroids
 ===================================
 
-![plot of chunk unnamed-chunk-5](clustering-figure/unnamed-chunk-5-1.png)
+![plot of chunk unnamed-chunk-3](clustering-figure/unnamed-chunk-3-1.png)
 
 First iteration
+========================================================
+
+![plot of chunk unnamed-chunk-4](clustering-figure/unnamed-chunk-4-1.png)
+***
+![plot of chunk unnamed-chunk-5](clustering-figure/unnamed-chunk-5-1.png)
+
+Second iteration
 ========================================================
 
 ![plot of chunk unnamed-chunk-6](clustering-figure/unnamed-chunk-6-1.png)
 ***
 ![plot of chunk unnamed-chunk-7](clustering-figure/unnamed-chunk-7-1.png)
 
-Second iteration
+Third iteration
 ========================================================
 
 ![plot of chunk unnamed-chunk-8](clustering-figure/unnamed-chunk-8-1.png)
 ***
 ![plot of chunk unnamed-chunk-9](clustering-figure/unnamed-chunk-9-1.png)
 
-Third iteration
+Fourth and final iteration
 ========================================================
 
 ![plot of chunk unnamed-chunk-10](clustering-figure/unnamed-chunk-10-1.png)
 ***
 ![plot of chunk unnamed-chunk-11](clustering-figure/unnamed-chunk-11-1.png)
 
-Fourth and final iteration
-========================================================
-
-![plot of chunk unnamed-chunk-12](clustering-figure/unnamed-chunk-12-1.png)
-***
-![plot of chunk unnamed-chunk-13](clustering-figure/unnamed-chunk-13-1.png)
-
 Choosing initial cluster centres
 ==============================================
 
 
-![plot of chunk unnamed-chunk-15](clustering-figure/unnamed-chunk-15-1.png)
+![plot of chunk unnamed-chunk-13](clustering-figure/unnamed-chunk-13-1.png)
 ***
-![plot of chunk unnamed-chunk-16](clustering-figure/unnamed-chunk-16-1.png)
+![plot of chunk unnamed-chunk-14](clustering-figure/unnamed-chunk-14-1.png)
 
 
 Avoid convergence to suboptimal solution
@@ -264,7 +229,7 @@ pm
 
 Clustering using a range of values of k
 ======================================================
-![plot of chunk unnamed-chunk-23](clustering-figure/unnamed-chunk-23-1.png)
+![plot of chunk unnamed-chunk-21](clustering-figure/unnamed-chunk-21-1.png)
 
 Choosing k
 ================================================================
@@ -278,7 +243,7 @@ qplot(k, tot_withinss, geom=c("point", "line"),
 
 Elbow plot
 ================================================================
-![plot of chunk unnamed-chunk-25](clustering-figure/unnamed-chunk-25-1.png)
+![plot of chunk unnamed-chunk-23](clustering-figure/unnamed-chunk-23-1.png)
 
 
 
@@ -331,7 +296,7 @@ kNNdistplot(blobs[,1:2], k=10)
 
 10-nearest neighbour distances for the blobs data
 =========================================================
-![plot of chunk unnamed-chunk-28](clustering-figure/unnamed-chunk-28-1.png)
+![plot of chunk unnamed-chunk-26](clustering-figure/unnamed-chunk-26-1.png)
 
 
 ```r
@@ -366,7 +331,7 @@ ggplot(blobs, aes(V1,V2)) +
 
 Clusters and noise points
 =======================================================
-![plot of chunk unnamed-chunk-32](clustering-figure/unnamed-chunk-32-1.png)
+![plot of chunk unnamed-chunk-30](clustering-figure/unnamed-chunk-30-1.png)
 
 
 Examples
