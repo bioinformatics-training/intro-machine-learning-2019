@@ -83,6 +83,12 @@ summary(as.factor(stage))
 
 **stage** a factor giving the stage of infection: early trophozoite, late trophozoite, schizont or uninfected.
 
+### Model comparison
+Explore how CARET's **resamples** function can help you compare models:
+```{r}
+?resamples
+```
+
 
 ## Solutions
 We have provided worked examples in appendix \@ref(use-case-1-solutions). Can you come up with better solutions?

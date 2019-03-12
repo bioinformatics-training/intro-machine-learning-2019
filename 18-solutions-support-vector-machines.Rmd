@@ -166,11 +166,7 @@ auc(svmROC)
 
 Plot ROC curve.
 ```{r svmROCcurveCellSegment, fig.cap='SVM ROC curve for cell segmentation data set.', out.width='80%', fig.asp=1, fig.align='center', echo=T}
-plot(svmROC, type = "S", 
-     print.thres = 0.5,
-     print.thres.col = "blue",
-     print.thres.pch = 19,
-     print.thres.cex=1.5)
+plot(svmROC, type = "S")
 ```
 
 Calculate area under ROC curve
