@@ -7,7 +7,15 @@ Solutions to exercises of chapter \@ref(dimensionality-reduction).
 We will first run PCA on the data. Recall that the data is already log_2 normalised, with expression values beginning from row 4. Within R we would run:
 
 ```{r echo=T}
-pcaresult <- prcomp(t(D[4:nrow(D),1:ncol(D)]), center = TRUE, scale. = FALSE)
+set.seed(12345)
+D <- read.csv(file = "data/PGC_transcriptomics/PGC_transcriptomics.csv", header = TRUE, sep = ",", row.names=1)
+genenames <- rownames(D)
+genenames <- genenames[4:nrow(D)]
+```
+
+
+```{r echo=T}
+pcaresult <- prcomp(t(D[4:nrow(D),1:ncol(D)]), center = TRUE, scale = FALSE)
 ```
 
 Here we have opted to centre the data, but have not normalised each gene to be zero-mean. This is beacuse we are dealing entirely with gene expression, rather than a variety of variables that may exist on different scales. 

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>B Solutions ch. 2 - Dimensionality reduction | An Introduction to Machine Learning</title>
+  <meta name="description" content="Course materials for An Introduction to Machine Learning">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="B Solutions ch. 2 - Dimensionality reduction | An Introduction to Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="figures/cover_image.png" />
+  <meta property="og:description" content="Course materials for An Introduction to Machine Learning" />
+  <meta name="github-repo" content="bioinformatics-training/intro-machine-learning-2018" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="B Solutions ch. 2 - Dimensionality reduction | An Introduction to Machine Learning" />
+  
+  <meta name="twitter:description" content="Course materials for An Introduction to Machine Learning" />
+  <meta name="twitter:image" content="figures/cover_image.png" />
+
+<meta name="author" content="Sudhakaran Prabakaran, Matt Wayland and Chris Penfold">
+
+
+<meta name="date" content="2019-03-12">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="resources.html">
+<link rel="next" href="solutions-clustering.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> About the course</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#overview"><i class="fa fa-check"></i><b>1.1</b> Overview</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#registration"><i class="fa fa-check"></i><b>1.2</b> Registration</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#prerequisites"><i class="fa fa-check"></i><b>1.3</b> Prerequisites</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#github"><i class="fa fa-check"></i><b>1.4</b> Github</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#license"><i class="fa fa-check"></i><b>1.5</b> License</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#contact"><i class="fa fa-check"></i><b>1.6</b> Contact</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#colophon"><i class="fa fa-check"></i><b>1.7</b> Colophon</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a><ul>
+<li class="chapter" data-level="2.1" data-path="intro.html"><a href="intro.html#what-is-machine-learning"><i class="fa fa-check"></i><b>2.1</b> What is machine learning?</a></li>
+<li class="chapter" data-level="2.2" data-path="intro.html"><a href="intro.html#aspects-of-ml"><i class="fa fa-check"></i><b>2.2</b> Aspects of ML</a></li>
+<li class="chapter" data-level="2.3" data-path="intro.html"><a href="intro.html#what-actually-happened-under-the-hood"><i class="fa fa-check"></i><b>2.3</b> What actually happened under the hood</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html"><i class="fa fa-check"></i><b>3</b> Dimensionality reduction</a><ul>
+<li class="chapter" data-level="3.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#linear-dimensionality-reduction"><i class="fa fa-check"></i><b>3.1</b> Linear Dimensionality Reduction</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#interpreting-the-principle-component-axes"><i class="fa fa-check"></i><b>3.1.1</b> Interpreting the Principle Component Axes</a></li>
+<li class="chapter" data-level="3.1.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#horseshoe-effect"><i class="fa fa-check"></i><b>3.1.2</b> Horseshoe effect</a></li>
+<li class="chapter" data-level="3.1.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#pca-analysis-of-mammalian-development"><i class="fa fa-check"></i><b>3.1.3</b> PCA analysis of mammalian development</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#nonlinear-dimensionality-reduction"><i class="fa fa-check"></i><b>3.2</b> Nonlinear Dimensionality Reduction</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#stochasticity"><i class="fa fa-check"></i><b>3.2.1</b> Stochasticity</a></li>
+<li class="chapter" data-level="3.2.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#analysis-of-mammalian-development"><i class="fa fa-check"></i><b>3.2.2</b> Analysis of mammalian development</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#other-dimensionality-reduction-techniques"><i class="fa fa-check"></i><b>3.3</b> Other dimensionality reduction techniques</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="clustering.html"><a href="clustering.html"><i class="fa fa-check"></i><b>4</b> Clustering</a><ul>
+<li class="chapter" data-level="4.1" data-path="clustering.html"><a href="clustering.html#introduction"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="clustering.html"><a href="clustering.html#distance-metrics"><i class="fa fa-check"></i><b>4.2</b> Distance metrics</a></li>
+<li class="chapter" data-level="4.3" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative"><i class="fa fa-check"></i><b>4.3</b> Hierarchic agglomerative</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="clustering.html"><a href="clustering.html#linkage-algorithms"><i class="fa fa-check"></i><b>4.3.1</b> Linkage algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="clustering.html"><a href="clustering.html#k-means"><i class="fa fa-check"></i><b>4.4</b> K-means</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="clustering.html"><a href="clustering.html#algorithm"><i class="fa fa-check"></i><b>4.4.1</b> Algorithm</a></li>
+<li class="chapter" data-level="4.4.2" data-path="clustering.html"><a href="clustering.html#choosing-initial-cluster-centres"><i class="fa fa-check"></i><b>4.4.2</b> Choosing initial cluster centres</a></li>
+<li class="chapter" data-level="4.4.3" data-path="clustering.html"><a href="clustering.html#choosingK"><i class="fa fa-check"></i><b>4.4.3</b> Choosing k</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="clustering.html"><a href="clustering.html#dbscan"><i class="fa fa-check"></i><b>4.5</b> DBSCAN</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="clustering.html"><a href="clustering.html#algorithm-1"><i class="fa fa-check"></i><b>4.5.1</b> Algorithm</a></li>
+<li class="chapter" data-level="4.5.2" data-path="clustering.html"><a href="clustering.html#implementation-in-r"><i class="fa fa-check"></i><b>4.5.2</b> Implementation in R</a></li>
+<li class="chapter" data-level="4.5.3" data-path="clustering.html"><a href="clustering.html#choosing-parameters"><i class="fa fa-check"></i><b>4.5.3</b> Choosing parameters</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="clustering.html"><a href="clustering.html#example-clustering-synthetic-data-sets"><i class="fa fa-check"></i><b>4.6</b> Example: clustering synthetic data sets</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative-1"><i class="fa fa-check"></i><b>4.6.1</b> Hierarchic agglomerative</a></li>
+<li class="chapter" data-level="4.6.2" data-path="clustering.html"><a href="clustering.html#k-means-1"><i class="fa fa-check"></i><b>4.6.2</b> K-means</a></li>
+<li class="chapter" data-level="4.6.3" data-path="clustering.html"><a href="clustering.html#dbscan-1"><i class="fa fa-check"></i><b>4.6.3</b> DBSCAN</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="clustering.html"><a href="clustering.html#evaluating-cluster-quality"><i class="fa fa-check"></i><b>4.7</b> Evaluating cluster quality</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="clustering.html"><a href="clustering.html#silhouetteMethod"><i class="fa fa-check"></i><b>4.7.1</b> Silhouette method</a></li>
+<li class="chapter" data-level="4.7.2" data-path="clustering.html"><a href="clustering.html#example---k-means-clustering-of-blobs-data-set"><i class="fa fa-check"></i><b>4.7.2</b> Example - k-means clustering of blobs data set</a></li>
+<li class="chapter" data-level="4.7.3" data-path="clustering.html"><a href="clustering.html#example---dbscan-clustering-of-noisy-moons"><i class="fa fa-check"></i><b>4.7.3</b> Example - DBSCAN clustering of noisy moons</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="clustering.html"><a href="clustering.html#example-gene-expression-profiling-of-human-tissues"><i class="fa fa-check"></i><b>4.8</b> Example: gene expression profiling of human tissues</a><ul>
+<li class="chapter" data-level="4.8.1" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative-2"><i class="fa fa-check"></i><b>4.8.1</b> Hierarchic agglomerative</a></li>
+<li class="chapter" data-level="4.8.2" data-path="clustering.html"><a href="clustering.html#k-means-2"><i class="fa fa-check"></i><b>4.8.2</b> K-means</a></li>
+<li class="chapter" data-level="4.8.3" data-path="clustering.html"><a href="clustering.html#dbscan-2"><i class="fa fa-check"></i><b>4.8.3</b> DBSCAN</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="clustering.html"><a href="clustering.html#exercises"><i class="fa fa-check"></i><b>4.9</b> Exercises</a><ul>
+<li class="chapter" data-level="4.9.1" data-path="clustering.html"><a href="clustering.html#clusteringEx1"><i class="fa fa-check"></i><b>4.9.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html"><i class="fa fa-check"></i><b>5</b> Nearest neighbours</a><ul>
+<li class="chapter" data-level="5.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#introduction-1"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#classification-simulated-data"><i class="fa fa-check"></i><b>5.2</b> Classification: simulated data</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-function"><i class="fa fa-check"></i><b>5.2.1</b> knn function</a></li>
+<li class="chapter" data-level="5.2.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#plotting-decision-boundaries"><i class="fa fa-check"></i><b>5.2.2</b> Plotting decision boundaries</a></li>
+<li class="chapter" data-level="5.2.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#bias-variance-tradeoff"><i class="fa fa-check"></i><b>5.2.3</b> Bias-variance tradeoff</a></li>
+<li class="chapter" data-level="5.2.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#choosing-k"><i class="fa fa-check"></i><b>5.2.4</b> Choosing <em>k</em></a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-cell-segmentation"><i class="fa fa-check"></i><b>5.3</b> Classification: cell segmentation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#cell-segmentation-data-set"><i class="fa fa-check"></i><b>5.3.1</b> Cell segmentation data set</a></li>
+<li class="chapter" data-level="5.3.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#data-splitting"><i class="fa fa-check"></i><b>5.3.2</b> Data splitting</a></li>
+<li class="chapter" data-level="5.3.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#identification-of-data-quality-issues"><i class="fa fa-check"></i><b>5.3.3</b> Identification of data quality issues</a></li>
+<li class="chapter" data-level="5.3.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#fit-model"><i class="fa fa-check"></i><b>5.3.4</b> Fit model</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-regression"><i class="fa fa-check"></i><b>5.4</b> Regression</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#partition-data"><i class="fa fa-check"></i><b>5.4.1</b> Partition data</a></li>
+<li class="chapter" data-level="5.4.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#data-pre-processing"><i class="fa fa-check"></i><b>5.4.2</b> Data pre-processing</a></li>
+<li class="chapter" data-level="5.4.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#search-for-optimum-k"><i class="fa fa-check"></i><b>5.4.3</b> Search for optimum <em>k</em></a></li>
+<li class="chapter" data-level="5.4.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#use-model-to-make-predictions"><i class="fa fa-check"></i><b>5.4.4</b> Use model to make predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#exercises-1"><i class="fa fa-check"></i><b>5.5</b> Exercises</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knnEx1"><i class="fa fa-check"></i><b>5.5.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="svm.html"><a href="svm.html"><i class="fa fa-check"></i><b>6</b> Support vector machines</a><ul>
+<li class="chapter" data-level="6.1" data-path="svm.html"><a href="svm.html#introduction-2"><i class="fa fa-check"></i><b>6.1</b> Introduction</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="svm.html"><a href="svm.html#maximum-margin-classifier"><i class="fa fa-check"></i><b>6.1.1</b> Maximum margin classifier</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="svm.html"><a href="svm.html#support-vector-classifier"><i class="fa fa-check"></i><b>6.2</b> Support vector classifier</a></li>
+<li class="chapter" data-level="6.3" data-path="svm.html"><a href="svm.html#support-vector-machine"><i class="fa fa-check"></i><b>6.3</b> Support Vector Machine</a></li>
+<li class="chapter" data-level="6.4" data-path="svm.html"><a href="svm.html#example---training-a-classifier"><i class="fa fa-check"></i><b>6.4</b> Example - training a classifier</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="svm.html"><a href="svm.html#setup-environment"><i class="fa fa-check"></i><b>6.4.1</b> Setup environment</a></li>
+<li class="chapter" data-level="6.4.2" data-path="svm.html"><a href="svm.html#partition-data-1"><i class="fa fa-check"></i><b>6.4.2</b> Partition data</a></li>
+<li class="chapter" data-level="6.4.3" data-path="svm.html"><a href="svm.html#visualize-training-data"><i class="fa fa-check"></i><b>6.4.3</b> Visualize training data</a></li>
+<li class="chapter" data-level="6.4.4" data-path="svm.html"><a href="svm.html#define-a-custom-model"><i class="fa fa-check"></i><b>6.4.4</b> Define a custom model</a></li>
+<li class="chapter" data-level="6.4.5" data-path="svm.html"><a href="svm.html#model-cross-validation-and-tuning"><i class="fa fa-check"></i><b>6.4.5</b> Model cross-validation and tuning</a></li>
+<li class="chapter" data-level="6.4.6" data-path="svm.html"><a href="svm.html#prediction-performance-measures"><i class="fa fa-check"></i><b>6.4.6</b> Prediction performance measures</a></li>
+<li class="chapter" data-level="6.4.7" data-path="svm.html"><a href="svm.html#plot-decision-boundary"><i class="fa fa-check"></i><b>6.4.7</b> Plot decision boundary</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="svm.html"><a href="svm.html#example---regression"><i class="fa fa-check"></i><b>6.5</b> Example - regression</a></li>
+<li class="chapter" data-level="6.6" data-path="svm.html"><a href="svm.html#further-reading"><i class="fa fa-check"></i><b>6.6</b> Further reading</a></li>
+<li class="chapter" data-level="6.7" data-path="svm.html"><a href="svm.html#exercises-2"><i class="fa fa-check"></i><b>6.7</b> Exercises</a><ul>
+<li class="chapter" data-level="6.7.1" data-path="svm.html"><a href="svm.html#exercise-1"><i class="fa fa-check"></i><b>6.7.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>7</b> Decision trees and random forests</a><ul>
+<li class="chapter" data-level="7.1" data-path="decision-trees.html"><a href="decision-trees.html#decision-trees"><i class="fa fa-check"></i><b>7.1</b> Decision Trees</a></li>
+<li class="chapter" data-level="7.2" data-path="decision-trees.html"><a href="decision-trees.html#random-forest"><i class="fa fa-check"></i><b>7.2</b> Random Forest</a></li>
+<li class="chapter" data-level="7.3" data-path="decision-trees.html"><a href="decision-trees.html#exercises-3"><i class="fa fa-check"></i><b>7.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="use-case-1.html"><a href="use-case-1.html"><i class="fa fa-check"></i><b>8</b> Use case 1</a><ul>
+<li class="chapter" data-level="8.1" data-path="use-case-1.html"><a href="use-case-1.html#introduction-3"><i class="fa fa-check"></i><b>8.1</b> Introduction</a></li>
+<li class="chapter" data-level="8.2" data-path="use-case-1.html"><a href="use-case-1.html#problem-automated-detection-of-malaria"><i class="fa fa-check"></i><b>8.2</b> Problem: automated detection of malaria</a></li>
+<li class="chapter" data-level="8.3" data-path="use-case-1.html"><a href="use-case-1.html#challenges"><i class="fa fa-check"></i><b>8.3</b> Challenges</a></li>
+<li class="chapter" data-level="8.4" data-path="use-case-1.html"><a href="use-case-1.html#getting-started"><i class="fa fa-check"></i><b>8.4</b> Getting started</a><ul>
+<li class="chapter" data-level="8.4.1" data-path="use-case-1.html"><a href="use-case-1.html#load-data"><i class="fa fa-check"></i><b>8.4.1</b> Load data</a></li>
+<li class="chapter" data-level="8.4.2" data-path="use-case-1.html"><a href="use-case-1.html#model-comparison"><i class="fa fa-check"></i><b>8.4.2</b> Model comparison</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="use-case-1.html"><a href="use-case-1.html#solutions"><i class="fa fa-check"></i><b>8.5</b> Solutions</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="linear-models.html"><a href="linear-models.html"><i class="fa fa-check"></i><b>9</b> Linear models and matrix algebra</a><ul>
+<li class="chapter" data-level="9.1" data-path="linear-models.html"><a href="linear-models.html#linear-models"><i class="fa fa-check"></i><b>9.1</b> Linear models</a></li>
+<li class="chapter" data-level="9.2" data-path="linear-models.html"><a href="linear-models.html#matrix-algebra"><i class="fa fa-check"></i><b>9.2</b> Matrix algebra</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>10</b> Supervised learning</a><ul>
+<li class="chapter" data-level="10.1" data-path="logistic-regression.html"><a href="logistic-regression.html#regression"><i class="fa fa-check"></i><b>10.1</b> Regression</a><ul>
+<li class="chapter" data-level="10.1.1" data-path="logistic-regression.html"><a href="logistic-regression.html#linear-regression"><i class="fa fa-check"></i><b>10.1.1</b> Linear regression</a></li>
+<li class="chapter" data-level="10.1.2" data-path="logistic-regression.html"><a href="logistic-regression.html#polynomial-regression"><i class="fa fa-check"></i><b>10.1.2</b> Polynomial regression</a></li>
+<li class="chapter" data-level="10.1.3" data-path="logistic-regression.html"><a href="logistic-regression.html#distributions-of-fits"><i class="fa fa-check"></i><b>10.1.3</b> Distributions of fits</a></li>
+<li class="chapter" data-level="10.1.4" data-path="logistic-regression.html"><a href="logistic-regression.html#gaussian-process-regression"><i class="fa fa-check"></i><b>10.1.4</b> Gaussian process regression</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="logistic-regression.html"><a href="logistic-regression.html#classification"><i class="fa fa-check"></i><b>10.2</b> Classification</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="logistic-regression.html"><a href="logistic-regression.html#logistic-regression"><i class="fa fa-check"></i><b>10.2.1</b> Logistic regression</a></li>
+<li class="chapter" data-level="10.2.2" data-path="logistic-regression.html"><a href="logistic-regression.html#gp-classification"><i class="fa fa-check"></i><b>10.2.2</b> GP classification</a></li>
+<li class="chapter" data-level="10.2.3" data-path="logistic-regression.html"><a href="logistic-regression.html#other-classification-approaches."><i class="fa fa-check"></i><b>10.2.3</b> Other classification approaches.</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="logistic-regression.html"><a href="logistic-regression.html#resources"><i class="fa fa-check"></i><b>10.3</b> Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="ann.html"><a href="ann.html"><i class="fa fa-check"></i><b>11</b> Artificial neural networks</a><ul>
+<li class="chapter" data-level="11.1" data-path="ann.html"><a href="ann.html#neural-networks"><i class="fa fa-check"></i><b>11.1</b> Neural Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="use-case-2.html"><a href="use-case-2.html"><i class="fa fa-check"></i><b>12</b> Use case 2</a></li>
+<li class="chapter" data-level="13" data-path="mlnn.html"><a href="mlnn.html"><i class="fa fa-check"></i><b>13</b> Deep Learning</a><ul>
+<li class="chapter" data-level="13.1" data-path="mlnn.html"><a href="mlnn.html#multilayer-neural-networks"><i class="fa fa-check"></i><b>13.1</b> Multilayer Neural Networks</a><ul>
+<li class="chapter" data-level="13.1.1" data-path="mlnn.html"><a href="mlnn.html#reading-in-images"><i class="fa fa-check"></i><b>13.1.1</b> Reading in images</a></li>
+<li class="chapter" data-level="13.1.2" data-path="mlnn.html"><a href="mlnn.html#constructing-layers-in-kerasr"><i class="fa fa-check"></i><b>13.1.2</b> Constructing layers in kerasR</a></li>
+<li class="chapter" data-level="13.1.3" data-path="mlnn.html"><a href="mlnn.html#rick-and-morty-classifier-using-deep-learning"><i class="fa fa-check"></i><b>13.1.3</b> Rick and Morty classifier using Deep Learning</a></li>
+</ul></li>
+<li class="chapter" data-level="13.2" data-path="mlnn.html"><a href="mlnn.html#convolutional-neural-networks"><i class="fa fa-check"></i><b>13.2</b> Convolutional neural networks</a><ul>
+<li class="chapter" data-level="13.2.1" data-path="mlnn.html"><a href="mlnn.html#checking-the-models"><i class="fa fa-check"></i><b>13.2.1</b> Checking the models</a></li>
+<li class="chapter" data-level="13.2.2" data-path="mlnn.html"><a href="mlnn.html#data-augmentation"><i class="fa fa-check"></i><b>13.2.2</b> Data augmentation</a></li>
+<li class="chapter" data-level="13.2.3" data-path="mlnn.html"><a href="mlnn.html#asking-more-precise-questions"><i class="fa fa-check"></i><b>13.2.3</b> Asking more precise questions</a></li>
+<li class="chapter" data-level="13.2.4" data-path="mlnn.html"><a href="mlnn.html#more-complex-networks"><i class="fa fa-check"></i><b>13.2.4</b> More complex networks</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="mlnn.html"><a href="mlnn.html#further-reading-1"><i class="fa fa-check"></i><b>13.3</b> Further reading</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="logistic-regression.html"><a href="logistic-regression.html#resources"><i class="fa fa-check"></i><b>A</b> Resources</a><ul>
+<li class="chapter" data-level="A.1" data-path="resources.html"><a href="resources.html"><i class="fa fa-check"></i><b>A.1</b> Python</a></li>
+<li class="chapter" data-level="A.2" data-path="resources.html"><a href="resources.html#machine-learning-data-set-repositories"><i class="fa fa-check"></i><b>A.2</b> Machine learning data set repositories</a><ul>
+<li class="chapter" data-level="A.2.1" data-path="resources.html"><a href="resources.html#mldata"><i class="fa fa-check"></i><b>A.2.1</b> MLDATA</a></li>
+<li class="chapter" data-level="A.2.2" data-path="resources.html"><a href="resources.html#uci-machine-learning-repository"><i class="fa fa-check"></i><b>A.2.2</b> UCI Machine Learning Repository</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="B" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html"><i class="fa fa-check"></i><b>B</b> Solutions ch. 2 - Dimensionality reduction</a><ul>
+<li class="chapter" data-level="B.1" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.1"><i class="fa fa-check"></i><b>B.1</b> Exercise 2.1</a></li>
+<li class="chapter" data-level="B.2" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.2."><i class="fa fa-check"></i><b>B.2</b> Exercise 2.2.</a></li>
+<li class="chapter" data-level="B.3" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.3."><i class="fa fa-check"></i><b>B.3</b> Exercise 2.3.</a></li>
+<li class="chapter" data-level="B.4" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.4"><i class="fa fa-check"></i><b>B.4</b> Exercise 2.4</a></li>
+<li class="chapter" data-level="B.5" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.5."><i class="fa fa-check"></i><b>B.5</b> Exercise 2.5.</a></li>
+<li class="chapter" data-level="B.6" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.6."><i class="fa fa-check"></i><b>B.6</b> Exercise 2.6.</a></li>
+</ul></li>
+<li class="chapter" data-level="C" data-path="solutions-clustering.html"><a href="solutions-clustering.html"><i class="fa fa-check"></i><b>C</b> Solutions ch. 4 - Clustering</a><ul>
+<li class="chapter" data-level="C.1" data-path="solutions-clustering.html"><a href="solutions-clustering.html#exercise-1-1"><i class="fa fa-check"></i><b>C.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="D" data-path="solutions-nearest-neighbours.html"><a href="solutions-nearest-neighbours.html"><i class="fa fa-check"></i><b>D</b> Solutions ch. 7 - Nearest neighbours</a><ul>
+<li class="chapter" data-level="D.1" data-path="solutions-nearest-neighbours.html"><a href="solutions-nearest-neighbours.html#exercise-1-2"><i class="fa fa-check"></i><b>D.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="E" data-path="solutions-svm.html"><a href="solutions-svm.html"><i class="fa fa-check"></i><b>E</b> Solutions ch. 6 - Support vector machines</a><ul>
+<li class="chapter" data-level="E.1" data-path="solutions-svm.html"><a href="solutions-svm.html#exercise-1-3"><i class="fa fa-check"></i><b>E.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="F" data-path="solutions-decision-trees.html"><a href="solutions-decision-trees.html"><i class="fa fa-check"></i><b>F</b> Solutions ch. 9 - Decision trees and random forests</a><ul>
+<li class="chapter" data-level="F.1" data-path="solutions-decision-trees.html"><a href="solutions-decision-trees.html#exercise-1-4"><i class="fa fa-check"></i><b>F.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="G" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html"><i class="fa fa-check"></i><b>G</b> Solutions chapter 8 - use case 1</a><ul>
+<li class="chapter" data-level="G.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#preparation"><i class="fa fa-check"></i><b>G.1</b> Preparation</a><ul>
+<li class="chapter" data-level="G.1.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#load-required-libraries"><i class="fa fa-check"></i><b>G.1.1</b> Load required libraries</a></li>
+<li class="chapter" data-level="G.1.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#define-svm-model"><i class="fa fa-check"></i><b>G.1.2</b> Define SVM model</a></li>
+<li class="chapter" data-level="G.1.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#setup-parallel-processing"><i class="fa fa-check"></i><b>G.1.3</b> Setup parallel processing</a></li>
+<li class="chapter" data-level="G.1.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#load-data-1"><i class="fa fa-check"></i><b>G.1.4</b> Load data</a></li>
+<li class="chapter" data-level="G.1.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#data-splitting-1"><i class="fa fa-check"></i><b>G.1.5</b> Data splitting</a></li>
+</ul></li>
+<li class="chapter" data-level="G.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#assess-data-quality"><i class="fa fa-check"></i><b>G.2</b> Assess data quality</a><ul>
+<li class="chapter" data-level="G.2.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#zero-and-near-zero-variance-predictors-1"><i class="fa fa-check"></i><b>G.2.1</b> Zero and near-zero variance predictors</a></li>
+<li class="chapter" data-level="G.2.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#are-all-predictors-on-the-same-scale"><i class="fa fa-check"></i><b>G.2.2</b> Are all predictors on the same scale?</a></li>
+<li class="chapter" data-level="G.2.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#redundancy-from-correlated-variables"><i class="fa fa-check"></i><b>G.2.3</b> Redundancy from correlated variables</a></li>
+<li class="chapter" data-level="G.2.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#skewness-1"><i class="fa fa-check"></i><b>G.2.4</b> Skewness</a></li>
+</ul></li>
+<li class="chapter" data-level="G.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#infection-status-two-class-problem"><i class="fa fa-check"></i><b>G.3</b> Infection status (two-class problem)</a><ul>
+<li class="chapter" data-level="G.3.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#model-training-and-parameter-tuning"><i class="fa fa-check"></i><b>G.3.1</b> Model training and parameter tuning</a></li>
+<li class="chapter" data-level="G.3.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#knn"><i class="fa fa-check"></i><b>G.3.2</b> KNN</a></li>
+<li class="chapter" data-level="G.3.3" data-path="svm.html"><a href="svm.html#svm"><i class="fa fa-check"></i><b>G.3.3</b> SVM</a></li>
+<li class="chapter" data-level="G.3.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#decision-tree"><i class="fa fa-check"></i><b>G.3.4</b> Decision tree</a></li>
+<li class="chapter" data-level="G.3.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#random-forest-1"><i class="fa fa-check"></i><b>G.3.5</b> Random forest</a></li>
+<li class="chapter" data-level="G.3.6" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#compare-models"><i class="fa fa-check"></i><b>G.3.6</b> Compare models</a></li>
+<li class="chapter" data-level="G.3.7" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#predict-test-set-using-our-best-model"><i class="fa fa-check"></i><b>G.3.7</b> Predict test set using our best model</a></li>
+<li class="chapter" data-level="G.3.8" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#roc-curve"><i class="fa fa-check"></i><b>G.3.8</b> ROC curve</a></li>
+</ul></li>
+<li class="chapter" data-level="G.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#discrimination-of-infective-stages-multi-class-problem"><i class="fa fa-check"></i><b>G.4</b> Discrimination of infective stages (multi-class problem)</a><ul>
+<li class="chapter" data-level="G.4.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#define-cross-validation-procedure"><i class="fa fa-check"></i><b>G.4.1</b> Define cross-validation procedure</a></li>
+<li class="chapter" data-level="G.4.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#knn-1"><i class="fa fa-check"></i><b>G.4.2</b> KNN</a></li>
+<li class="chapter" data-level="G.4.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#svm-1"><i class="fa fa-check"></i><b>G.4.3</b> SVM</a></li>
+<li class="chapter" data-level="G.4.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#decision-tree-1"><i class="fa fa-check"></i><b>G.4.4</b> Decision tree</a></li>
+<li class="chapter" data-level="G.4.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#random-forest-2"><i class="fa fa-check"></i><b>G.4.5</b> Random forest</a></li>
+<li class="chapter" data-level="G.4.6" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#compare-models-1"><i class="fa fa-check"></i><b>G.4.6</b> Compare models</a></li>
+<li class="chapter" data-level="G.4.7" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#predict-test-set-using-our-best-model-1"><i class="fa fa-check"></i><b>G.4.7</b> Predict test set using our best model</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="H" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html"><i class="fa fa-check"></i><b>H</b> Solutions ch. 3 - Linear models and matrix algebra</a><ul>
+<li class="chapter" data-level="H.1" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html#example-2"><i class="fa fa-check"></i><b>H.1</b> Example 2</a></li>
+<li class="chapter" data-level="H.2" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html#example-2-1"><i class="fa fa-check"></i><b>H.2</b> Example 2</a></li>
+</ul></li>
+<li class="chapter" data-level="I" data-path="solutions-logistic-regression.html"><a href="solutions-logistic-regression.html"><i class="fa fa-check"></i><b>I</b> Solutions ch. 4 - Linear and non-linear (logistic) regression</a></li>
+<li class="chapter" data-level="J" data-path="solutions-ann.html"><a href="solutions-ann.html"><i class="fa fa-check"></i><b>J</b> Solutions ch. 10 - Artificial neural networks</a><ul>
+<li class="chapter" data-level="J.1" data-path="solutions-ann.html"><a href="solutions-ann.html#exercise-1-5"><i class="fa fa-check"></i><b>J.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="K" data-path="use-case-2-solutions.html"><a href="use-case-2-solutions.html"><i class="fa fa-check"></i><b>K</b> Solutions for use case 2</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">An Introduction to Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="solutions-dimensionality-reduction" class="section level1">
+<h1><span class="header-section-number">B</span> Solutions ch. 2 - Dimensionality reduction</h1>
+<p>Solutions to exercises of chapter <a href="dimensionality-reduction.html#dimensionality-reduction">3</a>.</p>
+<div id="exercise-2.1" class="section level2">
+<h2><span class="header-section-number">B.1</span> Exercise 2.1</h2>
+<p>We will first run PCA on the data. Recall that the data is already log_2 normalised, with expression values beginning from row 4. Within R we would run:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">12345</span>)
+D &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="dt">file =</span> <span class="st">&quot;data/PGC_transcriptomics/PGC_transcriptomics.csv&quot;</span>, <span class="dt">header =</span> <span class="ot">TRUE</span>, <span class="dt">sep =</span> <span class="st">&quot;,&quot;</span>, <span class="dt">row.names=</span><span class="dv">1</span>)
+genenames &lt;-<span class="st"> </span><span class="kw">rownames</span>(D)
+genenames &lt;-<span class="st"> </span>genenames[<span class="dv">4</span><span class="op">:</span><span class="kw">nrow</span>(D)]</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pcaresult &lt;-<span class="st"> </span><span class="kw">prcomp</span>(<span class="kw">t</span>(D[<span class="dv">4</span><span class="op">:</span><span class="kw">nrow</span>(D),<span class="dv">1</span><span class="op">:</span><span class="kw">ncol</span>(D)]), <span class="dt">center =</span> <span class="ot">TRUE</span>, <span class="dt">scale =</span> <span class="ot">FALSE</span>)</code></pre></div>
+<p>Here we have opted to centre the data, but have not normalised each gene to be zero-mean. This is beacuse we are dealing entirely with gene expression, rather than a variety of variables that may exist on different scales.</p>
+<p>We can extract the positions of individual cells from the  variable. In the snipped below we index the different cells types (ESC, pre-implantation cells, primordial germ cells and somatic cells) for easier plotting.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y1 &lt;-<span class="st"> </span>pcaresult<span class="op">$</span>x[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==-</span><span class="dv">1</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>] <span class="co"># PCA</span>
+y2 &lt;-<span class="st"> </span>pcaresult<span class="op">$</span>x[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]  <span class="co">#</span>
+y3 &lt;-<span class="st"> </span>pcaresult<span class="op">$</span>x[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">1</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]  <span class="co">#</span>
+y4 &lt;-<span class="st"> </span>pcaresult<span class="op">$</span>x[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">2</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]  <span class="co">#</span></code></pre></div>
+<p>Finally, we can plot the data as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">100</span>, <span class="dv">100</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">50</span>, <span class="dv">50</span>))
+<span class="kw">points</span>(y2,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;black&quot;</span>)
+<span class="kw">points</span>(y3,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)
+<span class="kw">points</span>(y4,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;green&quot;</span>)
+<span class="kw">legend</span>(<span class="op">-</span><span class="dv">95</span>, <span class="dv">50</span>, <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;ESC&quot;</span>, <span class="st">&quot;preimp&quot;</span>, <span class="st">&quot;PGC&quot;</span>, <span class="st">&quot;soma&quot;</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;green&quot;</span>), <span class="dt">pch=</span><span class="st">&quot;o&quot;</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>From the plot, we can see PCA has done a reasonable job of separating out various cells. For example, a cluster of PGCs appears at the top of the plot, with somatic cells towards the lower right hand side. Pre-implantation embryos and ESCs appear to cluster together: perhaps this is not surprising as ESCs are derived from blastocyst cells. Loosely, we can interpret PC1 as dividing pre-implantation cells from somatic cells, with PC2 separating out PGCs.</p>
+</div>
+<div id="exercise-2.2." class="section level2">
+<h2><span class="header-section-number">B.2</span> Exercise 2.2.</h2>
+<p>In the previous exercise we used PCA to reduce the dimensionality of our data from thousands of genes down to two principle components. By eye, PCA appeared to do a reasonable job separating out different cell types. A useful next step might therefore be to perform clustering on the reduced dimensional space, which can be done using:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clust &lt;-<span class="st"> </span><span class="kw">kmeans</span>(pcaresult<span class="op">$</span>x[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dv">4</span>, <span class="dt">iter.max =</span> <span class="dv">1000</span>)</code></pre></div>
+<p>We can now compare the cluster assignment to the known cell types:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Labels &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;character&quot;</span>, <span class="kw">ncol</span>(D))
+Labels[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==-</span><span class="dv">1</span>)] =<span class="st"> &quot;ESC&quot;</span>
+Labels[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span>)] =<span class="st"> &quot;preimp&quot;</span>
+Labels[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">1</span>)] =<span class="st"> &quot;PGC&quot;</span>
+Labels[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">2</span>)] =<span class="st"> &quot;soma&quot;</span>
+
+clusterresults &lt;-<span class="st"> </span><span class="kw">rbind</span>(Labels,clust<span class="op">$</span>cluster)</code></pre></div>
+<p>We note that, in general PGCs fall into one or more separate clusters, with soma also separating out well. ESCs and pre-implantation tend to fall into identical clusters. We can take a look at what cell types fall into a specific cluster:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterresults[<span class="dv">1</span>,<span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">1</span>)]</code></pre></div>
+<pre><code>##     PGC   PGC.1   PGC.2   PGC.3   PGC.4   PGC.5   PGC.6   PGC.7   PGC.8 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##   PGC.9  PGC.10  PGC.11  PGC.12  PGC.13  PGC.14  PGC.15  PGC.16  PGC.17 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.18  PGC.19  PGC.20  PGC.21  PGC.22  PGC.23  PGC.24  PGC.25  PGC.26 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.27  PGC.28  PGC.29  PGC.30  PGC.31  PGC.32  PGC.33  PGC.34  PGC.35 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.36  PGC.37  PGC.38  PGC.39  PGC.40  PGC.41  PGC.42  PGC.43  PGC.44 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.45  PGC.46  PGC.47  PGC.48  PGC.49  PGC.50  PGC.51  PGC.52  PGC.53 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.54  PGC.55  PGC.56  PGC.57  PGC.58  PGC.59  PGC.60  PGC.61  PGC.62 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.63  PGC.64  PGC.65  PGC.66  PGC.67  PGC.68  PGC.69  PGC.70  PGC.71 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.72  PGC.73  PGC.74  PGC.75  PGC.76  PGC.77  PGC.78  PGC.79  PGC.80 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.81  PGC.82  PGC.83  PGC.84  PGC.85  PGC.86  PGC.87  PGC.88  PGC.89 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.90  PGC.91  PGC.92  PGC.93  PGC.94  PGC.95  PGC.96  PGC.97  PGC.98 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+##  PGC.99 PGC.100 PGC.101 PGC.102 PGC.103 PGC.104 PGC.105 PGC.106 PGC.107 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.108 PGC.109 PGC.110 PGC.111 PGC.112 PGC.113 PGC.114 PGC.115 PGC.116 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.117 PGC.118 PGC.119 PGC.120 PGC.121 PGC.122 PGC.123 PGC.124 PGC.125 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.126 PGC.127 PGC.128 PGC.129 PGC.130 PGC.131 PGC.132 PGC.133 PGC.134 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.135 PGC.136 PGC.137 PGC.138 PGC.139 PGC.140 PGC.141 PGC.142 PGC.143 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.144 PGC.146 PGC.147 PGC.148 PGC.149 PGC.150 PGC.151 PGC.152 PGC.153 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.154 PGC.155 PGC.156 PGC.157 PGC.158 PGC.159 PGC.160 PGC.161 PGC.162 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.163 PGC.164 PGC.165 PGC.166 PGC.167 PGC.168 PGC.169 PGC.170 PGC.171 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.172 PGC.173 PGC.174 PGC.175 PGC.176 PGC.177 PGC.178 PGC.179 PGC.180 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.181 PGC.182 PGC.183 PGC.184 PGC.185 PGC.186 PGC.187 PGC.188 PGC.189 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.190 PGC.191 PGC.195 PGC.198 PGC.205 PGC.207 PGC.217 PGC.231 PGC.233 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot; 
+## PGC.234 PGC.235 PGC.236 PGC.237 PGC.238 PGC.239 PGC.240 PGC.241 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterresults[<span class="dv">1</span>,<span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">2</span>)]</code></pre></div>
+<pre><code>## preimp.46 preimp.51 preimp.82 preimp.87    ESC.16    ESC.18    ESC.31 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+##    ESC.33    soma.3    soma.4    soma.6    soma.8   soma.12   soma.13 
+##     &quot;ESC&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot; 
+##   soma.14   soma.15   soma.20   soma.23   soma.25   soma.27   soma.48 
+##    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot; 
+##   soma.49   soma.50   soma.51   soma.52   soma.53   soma.54   soma.58 
+##    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot;    &quot;soma&quot; 
+##   soma.70   soma.81 
+##    &quot;soma&quot;    &quot;soma&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterresults[<span class="dv">1</span>,<span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">3</span>)]</code></pre></div>
+<pre><code>##    preimp  preimp.1  preimp.2  preimp.3  preimp.4  preimp.5  preimp.6 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+##  preimp.7  preimp.8  preimp.9 preimp.10 preimp.11       ESC     ESC.1 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+## preimp.12 preimp.13 preimp.14 preimp.15 preimp.16 preimp.17 preimp.18 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.19 preimp.20 preimp.21 preimp.22 preimp.23 preimp.24 preimp.25 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.26 preimp.27 preimp.28 preimp.29 preimp.30 preimp.31 preimp.32 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.33 preimp.34 preimp.35 preimp.36 preimp.37 preimp.38 preimp.39 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.40 preimp.41 preimp.42 preimp.43 preimp.44 preimp.45 preimp.47 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.48 preimp.49 preimp.50 preimp.52 preimp.53 preimp.54 preimp.55 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.56 preimp.57 preimp.58 preimp.59 preimp.60 preimp.61 preimp.62 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.63 preimp.64 preimp.65 preimp.66 preimp.67 preimp.68 preimp.69 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.70 preimp.71 preimp.72 preimp.73 preimp.74 preimp.75 preimp.76 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.77 preimp.78 preimp.79 preimp.80 preimp.81 preimp.83 preimp.84 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot; 
+## preimp.85 preimp.86 preimp.88 preimp.89     ESC.2     ESC.3     ESC.4 
+##  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;  &quot;preimp&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+##     ESC.5     ESC.6     ESC.7     ESC.8     ESC.9    ESC.10    ESC.11 
+##     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+##    ESC.12    ESC.13    ESC.14    ESC.15    ESC.17    ESC.19    ESC.20 
+##     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+##    ESC.21    ESC.22    ESC.23    ESC.24    ESC.25    ESC.26    ESC.27 
+##     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot; 
+##    ESC.28    ESC.29    ESC.30    ESC.32   PGC.145   PGC.202   PGC.203 
+##     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;ESC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot; 
+##   PGC.204   PGC.206   PGC.208   PGC.209   PGC.210   PGC.211   PGC.212 
+##     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot; 
+##   PGC.213   PGC.214   PGC.215   PGC.216   PGC.218   PGC.219   PGC.220 
+##     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot; 
+##   PGC.221   PGC.222   PGC.223   PGC.224   PGC.225   PGC.226   PGC.227 
+##     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot; 
+##   PGC.228   PGC.229   PGC.230   PGC.232 
+##     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;     &quot;PGC&quot;</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterresults[<span class="dv">1</span>,<span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">4</span>)]</code></pre></div>
+<pre><code>## PGC.192 PGC.193 PGC.194 PGC.196 PGC.197 PGC.199 PGC.200 PGC.201    soma 
+##   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;   &quot;PGC&quot;  &quot;soma&quot; 
+##  soma.1  soma.2  soma.5  soma.7  soma.9 soma.10 soma.11 soma.16 soma.17 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.18 soma.19 soma.21 soma.22 soma.24 soma.26 soma.28 soma.29 soma.30 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.31 soma.32 soma.33 soma.34 soma.35 soma.36 soma.37 soma.38 soma.39 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.40 soma.41 soma.42 soma.43 soma.44 soma.45 soma.46 soma.47 soma.55 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.56 soma.57 soma.59 soma.60 soma.61 soma.62 soma.63 soma.64 soma.65 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.66 soma.67 soma.68 soma.69 soma.71 soma.72 soma.73 soma.74 soma.75 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot; 
+## soma.76 soma.77 soma.78 soma.79 soma.80 soma.82 soma.83 soma.84 soma.85 
+##  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;  &quot;soma&quot;</code></pre>
+</div>
+<div id="exercise-2.3." class="section level2">
+<h2><span class="header-section-number">B.3</span> Exercise 2.3.</h2>
+<p>In our previous section we identified clusters associated with various groups. In our application cluster 1 was associated primarily with pre-implantation cells, with cluster 3 associated with PGCs. We could therefore empirically look for genes that are differentially expressed. Since we know SOX17 is associated with PGC specification in humans <span class="citation">(Irie et al. <a href="#ref-irie2015sox17">2015</a>,<span class="citation">Tang et al. (<a href="#ref-tang2015unique">2015</a>)</span>)</span> let’s first compare the expression levels of SOX17 in the two groups:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">t.test</span>(D[<span class="kw">which</span>(genenames<span class="op">==</span><span class="st">&quot;SOX17&quot;</span>)<span class="op">+</span><span class="dv">3</span>, <span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">1</span>)],D[<span class="kw">which</span>(genenames<span class="op">==</span><span class="st">&quot;SOX17&quot;</span>)<span class="op">+</span><span class="dv">3</span>, <span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">3</span>)])</code></pre></div>
+<pre><code>## 
+##  Welch Two Sample t-test
+## 
+## data:  D[which(genenames == &quot;SOX17&quot;) + 3, which(clusterresults[2, ] ==  and D[which(genenames == &quot;SOX17&quot;) + 3, which(clusterresults[2, ] ==     1)] and     3)]
+## t = 11.069, df = 344.66, p-value &lt; 2.2e-16
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##  1.571663 2.250895
+## sample estimates:
+## mean of x mean of y 
+## 2.3323228 0.4210437</code></pre>
+<p>Typically we won’t always know the important genes, but can perform an unbiased analysis by testing all genes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pvalstore &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="dt">mode=</span><span class="st">&quot;numeric&quot;</span>, <span class="dt">length=</span><span class="kw">length</span>(genenames))
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(genenames))){
+pvals &lt;-<span class="st"> </span><span class="kw">t.test</span>(D[<span class="kw">which</span>(genenames<span class="op">==</span>genenames[i])<span class="op">+</span><span class="dv">3</span>, <span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">1</span>)],D[<span class="kw">which</span>(genenames<span class="op">==</span>genenames[i])<span class="op">+</span><span class="dv">3</span>, <span class="kw">which</span>(clusterresults[<span class="dv">2</span>,]<span class="op">==</span><span class="dv">3</span>)])
+pvalstore[i]  &lt;-<span class="st">  </span>pvals<span class="op">$</span>p.value
+}
+sortedgenes &lt;-<span class="st"> </span>genenames[<span class="kw">order</span>(pvalstore)]</code></pre></div>
+</div>
+<div id="exercise-2.4" class="section level2">
+<h2><span class="header-section-number">B.4</span> Exercise 2.4</h2>
+<p>Within our example, the original axes of our data have very obvious solutions: the axes represent the expression levels of individual genes. The PCs, however, represent linear combinations of various genes, and do not have obvious interpretations. To find an intuition, we can project the original axes (genes) into the new co-ordinate system. This is stored in  variable.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>],<span class="dt">type=</span><span class="st">&quot;n&quot;</span>)
+<span class="kw">text</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], genenames, <span class="dt">cex =</span> .<span class="dv">4</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Okay, this plot is a little busy, so let’s focus in on a particular region. Recall that PGCs seemed to lie towards the upper section of the plot (that is PC2 separated out PGCs from other cell types), so we’ll take a look at the top section:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>],<span class="dt">type=</span><span class="st">&quot;n&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.07</span>, <span class="fl">0.07</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="fl">0.04</span>, <span class="fl">0.1</span>))
+genenames &lt;-<span class="st"> </span><span class="kw">rownames</span>(D)
+genenames &lt;-<span class="st"> </span>genenames[<span class="dv">4</span><span class="op">:</span><span class="kw">nrow</span>(D)]
+<span class="kw">text</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], genenames, <span class="dt">cex =</span> .<span class="dv">4</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p>We now see a number of genes that are potentially associated with PGCs. These include a number of known PGCs, for example, both SOX17 and PRDM1 (which can be found at co-ordinates PC1=0, PC2= 0.04) represent two key specifiers of human PGC fate <span class="citation">(Irie et al. <a href="#ref-irie2015sox17">2015</a>,<span class="citation">Tang et al. (<a href="#ref-tang2015unique">2015</a>)</span>,<span class="citation">Kobayashi et al. (<a href="#ref-kobayashi2017principles">2017</a>)</span>)</span>. We further note a number of other key regulators, such as DAZL, have been implicated in germ cell development, with DAZL over expressed ESCs forming spermatogonia-like colonies in a rare instance upon xenotransplantation <span class="citation">(Panula et al. <a href="#ref-panula2016over">2016</a>)</span>.</p>
+<p>We can similarly look at regions associated with early embryogenesis by concentrating on the lower half of the plot:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>],<span class="dt">type=</span><span class="st">&quot;n&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="fl">0.0</span>, <span class="fl">0.07</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="fl">0.07</span>, <span class="op">-</span><span class="fl">0.03</span>))
+genenames &lt;-<span class="st"> </span><span class="kw">rownames</span>(D)
+genenames &lt;-<span class="st"> </span>genenames[<span class="dv">4</span><span class="op">:</span><span class="kw">nrow</span>(D)]
+<span class="kw">text</span>(pcaresult<span class="op">$</span>rotation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], genenames, <span class="dt">cex =</span> .<span class="dv">4</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+<p>This appears to identify a number of genes associated with embryogenesis, for example, DPPA3, which encodes for a maternally inherited factor, Stella, required for normal pre-implantation development <span class="citation">(Bortvin et al. <a href="#ref-bortvin2004dppa3">2004</a>,<span class="citation">Payer et al. (<a href="#ref-payer2003stella">2003</a>)</span>)</span> as well as regulation of transcriptional and endogenous retrovirus programs during maternal-to-zygotic transition <span class="citation">(Huang et al. <a href="#ref-Huang2017stella">2017</a>)</span>.</p>
+</div>
+<div id="exercise-2.5." class="section level2">
+<h2><span class="header-section-number">B.5</span> Exercise 2.5.</h2>
+<p>We can run tSNE using the following command:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(Rtsne)
+<span class="kw">set.seed</span>(<span class="dv">1</span>)
+tsne_model_<span class="dv">1</span> =<span class="st"> </span><span class="kw">Rtsne</span>(<span class="kw">as.matrix</span>(<span class="kw">t</span>(D)), <span class="dt">check_duplicates=</span><span class="ot">FALSE</span>, <span class="dt">pca=</span><span class="ot">TRUE</span>, <span class="dt">perplexity=</span><span class="dv">100</span>, <span class="dt">theta=</span><span class="fl">0.5</span>, <span class="dt">dims=</span><span class="dv">2</span>)</code></pre></div>
+<p>As we did previously, we can plot the results using:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y1 &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==-</span><span class="dv">1</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2 &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y3 &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">1</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y4 &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">2</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+
+<span class="kw">plot</span>(y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">20</span>, <span class="dv">20</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">20</span>, <span class="dv">20</span>))
+<span class="kw">points</span>(y2,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;black&quot;</span>)
+<span class="kw">points</span>(y3,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)
+<span class="kw">points</span>(y4,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;green&quot;</span>)
+<span class="kw">legend</span>(<span class="op">-</span><span class="dv">20</span>, <span class="dv">10</span>, <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;ESC&quot;</span>, <span class="st">&quot;preimp&quot;</span>, <span class="st">&quot;PGC&quot;</span>, <span class="st">&quot;soma&quot;</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;red&quot;</span>, <span class="st">&quot;black&quot;</span>, <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;green&quot;</span>),<span class="dt">pch=</span><span class="st">&quot;o&quot;</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-14-1.png" width="672" /></p>
+</div>
+<div id="exercise-2.6." class="section level2">
+<h2><span class="header-section-number">B.6</span> Exercise 2.6.</h2>
+<p>We can plot the expression patterns for pre-implantation embryos:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y2_<span class="dv">0</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">0</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">1</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">1</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">2</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">2</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">3</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">3</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">4</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">4</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">5</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">5</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+y2_<span class="dv">6</span> &lt;-<span class="st"> </span>tsne_model_<span class="dv">1</span><span class="op">$</span>Y[<span class="kw">which</span>(D[<span class="dv">1</span>,]<span class="op">==</span><span class="dv">0</span> <span class="op">&amp;</span><span class="st"> </span>D[<span class="dv">3</span>,]<span class="op">==</span><span class="dv">6</span>),<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]
+
+<span class="kw">plot</span>(y2_<span class="dv">0</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato&quot;</span>,<span class="dt">xlim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>),<span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">10</span>))
+<span class="kw">points</span>(y2_<span class="dv">2</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato&quot;</span>)
+<span class="kw">points</span>(y2_<span class="dv">2</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato1&quot;</span>)
+<span class="kw">points</span>(y2_<span class="dv">3</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato1&quot;</span>)
+<span class="kw">points</span>(y2_<span class="dv">4</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato2&quot;</span>)
+<span class="kw">points</span>(y2_<span class="dv">5</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato3&quot;</span>)
+<span class="kw">points</span>(y2_<span class="dv">6</span>,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">col=</span><span class="st">&quot;tomato4&quot;</span>)
+<span class="kw">legend</span>(<span class="op">-</span><span class="dv">10</span>, <span class="dv">10</span>, <span class="dt">legend=</span><span class="kw">c</span>(<span class="st">&quot;Ooc&quot;</span>, <span class="st">&quot;Zyg&quot;</span>, <span class="st">&quot;2C&quot;</span>, <span class="st">&quot;4C&quot;</span>,<span class="st">&quot;8C&quot;</span>,<span class="st">&quot;Mor&quot;</span>,<span class="st">&quot;Blast&quot;</span>), <span class="dt">col=</span><span class="kw">c</span>(<span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;tomato1&quot;</span>, <span class="st">&quot;tomato1&quot;</span>, <span class="st">&quot;tomato2&quot;</span>,<span class="st">&quot;tomato3&quot;</span>,<span class="st">&quot;tomato4&quot;</span>),<span class="dt">pch=</span><span class="st">&quot;o&quot;</span>, <span class="dt">bty=</span><span class="st">&quot;n&quot;</span>, <span class="dt">cex=</span><span class="fl">0.8</span>)</code></pre></div>
+<p><img src="15-solutions-dimensionality-reduction_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+
+</div>
+</div>
+<h3><span class="header-section-number">K</span> Solutions for use case 2</h3>
+<div id="refs" class="references">
+<div id="ref-irie2015sox17">
+<p>Irie, Naoko, Leehee Weinberger, Walfred WC Tang, Toshihiro Kobayashi, Sergey Viukov, Yair S Manor, Sabine Dietmann, Jacob H Hanna, and M Azim Surani. 2015. “SOX17 Is a Critical Specifier of Human Primordial Germ Cell Fate.” <em>Cell</em> 160 (1). Elsevier: 253–68.</p>
+</div>
+<div id="ref-tang2015unique">
+<p>Tang, Walfred WC, Sabine Dietmann, Naoko Irie, Harry G Leitch, Vasileios I Floros, Charles R Bradshaw, Jamie A Hackett, Patrick F Chinnery, and M Azim Surani. 2015. “A Unique Gene Regulatory Network Resets the Human Germline Epigenome for Development.” <em>Cell</em> 161 (6). Elsevier: 1453–67.</p>
+</div>
+<div id="ref-kobayashi2017principles">
+<p>Kobayashi, Toshihiro, Haixin Zhang, Walfred WC Tang, Naoko Irie, Sarah Withey, Doris Klisch, Anastasiya Sybirna, et al. 2017. “Principles of Early Human Development and Germ Cell Program from Conserved Model Systems.” <em>Nature</em> 546 (7658). Nature Research: 416–20.</p>
+</div>
+<div id="ref-panula2016over">
+<p>Panula, Sarita, Ahmed Reda, Jan-Bernd Stukenborg, Cyril Ramathal, Meena Sukhwani, Halima Albalushi, Daniel Edsgärd, et al. 2016. “Over Expression of Nanos3 and Dazl in Human Embryonic Stem Cells.” <em>PloS One</em> 11 (10). Public Library of Science: e0165268.</p>
+</div>
+<div id="ref-bortvin2004dppa3">
+<p>Bortvin, Alex, Mary Goodheart, Michelle Liao, and David C Page. 2004. “Dppa3/Pgc7/Stella Is a Maternal Factor and Is Not Required for Germ Cell Specification in Mice.” <em>BMC Developmental Biology</em> 4 (1). BioMed Central: 2.</p>
+</div>
+<div id="ref-payer2003stella">
+<p>Payer, Bernhard, Mitinori Saitou, Sheila C Barton, Rosemary Thresher, John PC Dixon, Dirk Zahn, William H Colledge, Mark BL Carlton, Toru Nakano, and M Azim Surani. 2003. “Stella Is a Maternal Effect Gene Required for Normal Early Development in Mice.” <em>Current Biology</em> 13 (23). Elsevier: 2110–7.</p>
+</div>
+<div id="ref-Huang2017stella">
+<p>Huang, Yun, Kyoung Kim Jong, Dang V Do, Caroline Lee, Christopher A. Penfold, Jan J Zylicz, John C. Marioni, Jamie A. Hackett, and M. Azim Surani. 2017. “Stella Controls Transcriptional and Endogenous Retrovirus Programmes During Maternal-to-Zygotic Transition.” <em>eLife</em> 1 (1). eLife: 1.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="resources.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="solutions-clustering.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

@@ -324,11 +324,12 @@ plot(svmROC)
 ## Discrimination of infective stages (multi-class problem)
 
 ### Define cross-validation procedure
+```{r}
 train_ctrl_stage <- trainControl(method="repeatedcv",
                            number = 5,
                            repeats = 5,
                            seeds = seeds)
-
+```
 
 ### KNN
 Train knn model with all variables:
@@ -344,20 +345,7 @@ knnFit
 
 plot(knnFit)
 ```
-<!--
-Train knn model excluding highly correlated variables:
-```{r}
-knnFitNoCorr <- train(morphologyTrain, stageTrain,
-                method="knn",
-                preProcess = c("center", "scale", "corr"),
-                preProcOptions=list(cutoff=0.75),
-                #tuneGrid=tuneParam,
-                tuneLength=10,
-                trControl=train_ctrl_stage)
 
-knnFitNoCorr
-```
--->
 
 ### SVM
 Train SVM model with all variables:

@@ -17,6 +17,8 @@ As with any machine learning application, it's important to both have some quest
 The image data can be found in the directory {data/RickandMorty/data/}. We begin by loading in some images of Rick using the {readJPEG} and {grid.raster} functions.
 
 ```{r}
+library(jpeg)
+library(grid)
 set.seed(12345) #Set random number generator for the session
 im <- readJPEG("data/RickandMorty/data/AllRickImages/Rick_1.jpg")
 grid.raster(im, interpolate=FALSE)
@@ -62,6 +64,7 @@ for (i in 1:length(files2)){
 Next we can construct a vector of length $5257$ containing the classification for each of the images e.g., a $0$ if the image is a *Rick* and $1$ if it is *not Rick*. This is simple enough using the function {rbind}, as we know the first $2211$ images were *Rick* and the second lot of images are *not Rick*. Since we are dealing with a classification algorithm, we next convert the data to binary categorical output (that is, a *Rick* is now represented as $[1, 0]$ and a *not Rick* is a $[0, 1]$), which we can do using the {to_categorical} conversion function:
 
 ```{r}
+library(kerasR)
 labels <- rbind(matrix(0, length(files1), 1), matrix(1, length(files2), 1))
 allY <- to_categorical(labels, num_classes = 2)
 ```

@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>4 Clustering | An Introduction to Machine Learning</title>
+  <meta name="description" content="Course materials for An Introduction to Machine Learning">
+  <meta name="generator" content="bookdown  and GitBook 2.6.7">
+
+  <meta property="og:title" content="4 Clustering | An Introduction to Machine Learning" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:image" content="figures/cover_image.png" />
+  <meta property="og:description" content="Course materials for An Introduction to Machine Learning" />
+  <meta name="github-repo" content="bioinformatics-training/intro-machine-learning-2018" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="4 Clustering | An Introduction to Machine Learning" />
+  
+  <meta name="twitter:description" content="Course materials for An Introduction to Machine Learning" />
+  <meta name="twitter:image" content="figures/cover_image.png" />
+
+<meta name="author" content="Sudhakaran Prabakaran, Matt Wayland and Chris Penfold">
+
+
+<meta name="date" content="2019-03-12">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="dimensionality-reduction.html">
+<link rel="next" href="nearest-neighbours.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> About the course</a><ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#overview"><i class="fa fa-check"></i><b>1.1</b> Overview</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#registration"><i class="fa fa-check"></i><b>1.2</b> Registration</a></li>
+<li class="chapter" data-level="1.3" data-path="index.html"><a href="index.html#prerequisites"><i class="fa fa-check"></i><b>1.3</b> Prerequisites</a></li>
+<li class="chapter" data-level="1.4" data-path="index.html"><a href="index.html#github"><i class="fa fa-check"></i><b>1.4</b> Github</a></li>
+<li class="chapter" data-level="1.5" data-path="index.html"><a href="index.html#license"><i class="fa fa-check"></i><b>1.5</b> License</a></li>
+<li class="chapter" data-level="1.6" data-path="index.html"><a href="index.html#contact"><i class="fa fa-check"></i><b>1.6</b> Contact</a></li>
+<li class="chapter" data-level="1.7" data-path="index.html"><a href="index.html#colophon"><i class="fa fa-check"></i><b>1.7</b> Colophon</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="intro.html"><a href="intro.html"><i class="fa fa-check"></i><b>2</b> Introduction</a><ul>
+<li class="chapter" data-level="2.1" data-path="intro.html"><a href="intro.html#what-is-machine-learning"><i class="fa fa-check"></i><b>2.1</b> What is machine learning?</a></li>
+<li class="chapter" data-level="2.2" data-path="intro.html"><a href="intro.html#aspects-of-ml"><i class="fa fa-check"></i><b>2.2</b> Aspects of ML</a></li>
+<li class="chapter" data-level="2.3" data-path="intro.html"><a href="intro.html#what-actually-happened-under-the-hood"><i class="fa fa-check"></i><b>2.3</b> What actually happened under the hood</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html"><i class="fa fa-check"></i><b>3</b> Dimensionality reduction</a><ul>
+<li class="chapter" data-level="3.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#linear-dimensionality-reduction"><i class="fa fa-check"></i><b>3.1</b> Linear Dimensionality Reduction</a><ul>
+<li class="chapter" data-level="3.1.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#interpreting-the-principle-component-axes"><i class="fa fa-check"></i><b>3.1.1</b> Interpreting the Principle Component Axes</a></li>
+<li class="chapter" data-level="3.1.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#horseshoe-effect"><i class="fa fa-check"></i><b>3.1.2</b> Horseshoe effect</a></li>
+<li class="chapter" data-level="3.1.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#pca-analysis-of-mammalian-development"><i class="fa fa-check"></i><b>3.1.3</b> PCA analysis of mammalian development</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#nonlinear-dimensionality-reduction"><i class="fa fa-check"></i><b>3.2</b> Nonlinear Dimensionality Reduction</a><ul>
+<li class="chapter" data-level="3.2.1" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#stochasticity"><i class="fa fa-check"></i><b>3.2.1</b> Stochasticity</a></li>
+<li class="chapter" data-level="3.2.2" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#analysis-of-mammalian-development"><i class="fa fa-check"></i><b>3.2.2</b> Analysis of mammalian development</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="dimensionality-reduction.html"><a href="dimensionality-reduction.html#other-dimensionality-reduction-techniques"><i class="fa fa-check"></i><b>3.3</b> Other dimensionality reduction techniques</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="clustering.html"><a href="clustering.html"><i class="fa fa-check"></i><b>4</b> Clustering</a><ul>
+<li class="chapter" data-level="4.1" data-path="clustering.html"><a href="clustering.html#introduction"><i class="fa fa-check"></i><b>4.1</b> Introduction</a></li>
+<li class="chapter" data-level="4.2" data-path="clustering.html"><a href="clustering.html#distance-metrics"><i class="fa fa-check"></i><b>4.2</b> Distance metrics</a></li>
+<li class="chapter" data-level="4.3" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative"><i class="fa fa-check"></i><b>4.3</b> Hierarchic agglomerative</a><ul>
+<li class="chapter" data-level="4.3.1" data-path="clustering.html"><a href="clustering.html#linkage-algorithms"><i class="fa fa-check"></i><b>4.3.1</b> Linkage algorithms</a></li>
+</ul></li>
+<li class="chapter" data-level="4.4" data-path="clustering.html"><a href="clustering.html#k-means"><i class="fa fa-check"></i><b>4.4</b> K-means</a><ul>
+<li class="chapter" data-level="4.4.1" data-path="clustering.html"><a href="clustering.html#algorithm"><i class="fa fa-check"></i><b>4.4.1</b> Algorithm</a></li>
+<li class="chapter" data-level="4.4.2" data-path="clustering.html"><a href="clustering.html#choosing-initial-cluster-centres"><i class="fa fa-check"></i><b>4.4.2</b> Choosing initial cluster centres</a></li>
+<li class="chapter" data-level="4.4.3" data-path="clustering.html"><a href="clustering.html#choosingK"><i class="fa fa-check"></i><b>4.4.3</b> Choosing k</a></li>
+</ul></li>
+<li class="chapter" data-level="4.5" data-path="clustering.html"><a href="clustering.html#dbscan"><i class="fa fa-check"></i><b>4.5</b> DBSCAN</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="clustering.html"><a href="clustering.html#algorithm-1"><i class="fa fa-check"></i><b>4.5.1</b> Algorithm</a></li>
+<li class="chapter" data-level="4.5.2" data-path="clustering.html"><a href="clustering.html#implementation-in-r"><i class="fa fa-check"></i><b>4.5.2</b> Implementation in R</a></li>
+<li class="chapter" data-level="4.5.3" data-path="clustering.html"><a href="clustering.html#choosing-parameters"><i class="fa fa-check"></i><b>4.5.3</b> Choosing parameters</a></li>
+</ul></li>
+<li class="chapter" data-level="4.6" data-path="clustering.html"><a href="clustering.html#example-clustering-synthetic-data-sets"><i class="fa fa-check"></i><b>4.6</b> Example: clustering synthetic data sets</a><ul>
+<li class="chapter" data-level="4.6.1" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative-1"><i class="fa fa-check"></i><b>4.6.1</b> Hierarchic agglomerative</a></li>
+<li class="chapter" data-level="4.6.2" data-path="clustering.html"><a href="clustering.html#k-means-1"><i class="fa fa-check"></i><b>4.6.2</b> K-means</a></li>
+<li class="chapter" data-level="4.6.3" data-path="clustering.html"><a href="clustering.html#dbscan-1"><i class="fa fa-check"></i><b>4.6.3</b> DBSCAN</a></li>
+</ul></li>
+<li class="chapter" data-level="4.7" data-path="clustering.html"><a href="clustering.html#evaluating-cluster-quality"><i class="fa fa-check"></i><b>4.7</b> Evaluating cluster quality</a><ul>
+<li class="chapter" data-level="4.7.1" data-path="clustering.html"><a href="clustering.html#silhouetteMethod"><i class="fa fa-check"></i><b>4.7.1</b> Silhouette method</a></li>
+<li class="chapter" data-level="4.7.2" data-path="clustering.html"><a href="clustering.html#example---k-means-clustering-of-blobs-data-set"><i class="fa fa-check"></i><b>4.7.2</b> Example - k-means clustering of blobs data set</a></li>
+<li class="chapter" data-level="4.7.3" data-path="clustering.html"><a href="clustering.html#example---dbscan-clustering-of-noisy-moons"><i class="fa fa-check"></i><b>4.7.3</b> Example - DBSCAN clustering of noisy moons</a></li>
+</ul></li>
+<li class="chapter" data-level="4.8" data-path="clustering.html"><a href="clustering.html#example-gene-expression-profiling-of-human-tissues"><i class="fa fa-check"></i><b>4.8</b> Example: gene expression profiling of human tissues</a><ul>
+<li class="chapter" data-level="4.8.1" data-path="clustering.html"><a href="clustering.html#hierarchic-agglomerative-2"><i class="fa fa-check"></i><b>4.8.1</b> Hierarchic agglomerative</a></li>
+<li class="chapter" data-level="4.8.2" data-path="clustering.html"><a href="clustering.html#k-means-2"><i class="fa fa-check"></i><b>4.8.2</b> K-means</a></li>
+<li class="chapter" data-level="4.8.3" data-path="clustering.html"><a href="clustering.html#dbscan-2"><i class="fa fa-check"></i><b>4.8.3</b> DBSCAN</a></li>
+</ul></li>
+<li class="chapter" data-level="4.9" data-path="clustering.html"><a href="clustering.html#exercises"><i class="fa fa-check"></i><b>4.9</b> Exercises</a><ul>
+<li class="chapter" data-level="4.9.1" data-path="clustering.html"><a href="clustering.html#clusteringEx1"><i class="fa fa-check"></i><b>4.9.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html"><i class="fa fa-check"></i><b>5</b> Nearest neighbours</a><ul>
+<li class="chapter" data-level="5.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#introduction-1"><i class="fa fa-check"></i><b>5.1</b> Introduction</a></li>
+<li class="chapter" data-level="5.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#classification-simulated-data"><i class="fa fa-check"></i><b>5.2</b> Classification: simulated data</a><ul>
+<li class="chapter" data-level="5.2.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-function"><i class="fa fa-check"></i><b>5.2.1</b> knn function</a></li>
+<li class="chapter" data-level="5.2.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#plotting-decision-boundaries"><i class="fa fa-check"></i><b>5.2.2</b> Plotting decision boundaries</a></li>
+<li class="chapter" data-level="5.2.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#bias-variance-tradeoff"><i class="fa fa-check"></i><b>5.2.3</b> Bias-variance tradeoff</a></li>
+<li class="chapter" data-level="5.2.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#choosing-k"><i class="fa fa-check"></i><b>5.2.4</b> Choosing <em>k</em></a></li>
+</ul></li>
+<li class="chapter" data-level="5.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-cell-segmentation"><i class="fa fa-check"></i><b>5.3</b> Classification: cell segmentation</a><ul>
+<li class="chapter" data-level="5.3.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#cell-segmentation-data-set"><i class="fa fa-check"></i><b>5.3.1</b> Cell segmentation data set</a></li>
+<li class="chapter" data-level="5.3.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#data-splitting"><i class="fa fa-check"></i><b>5.3.2</b> Data splitting</a></li>
+<li class="chapter" data-level="5.3.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#identification-of-data-quality-issues"><i class="fa fa-check"></i><b>5.3.3</b> Identification of data quality issues</a></li>
+<li class="chapter" data-level="5.3.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#fit-model"><i class="fa fa-check"></i><b>5.3.4</b> Fit model</a></li>
+</ul></li>
+<li class="chapter" data-level="5.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knn-regression"><i class="fa fa-check"></i><b>5.4</b> Regression</a><ul>
+<li class="chapter" data-level="5.4.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#partition-data"><i class="fa fa-check"></i><b>5.4.1</b> Partition data</a></li>
+<li class="chapter" data-level="5.4.2" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#data-pre-processing"><i class="fa fa-check"></i><b>5.4.2</b> Data pre-processing</a></li>
+<li class="chapter" data-level="5.4.3" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#search-for-optimum-k"><i class="fa fa-check"></i><b>5.4.3</b> Search for optimum <em>k</em></a></li>
+<li class="chapter" data-level="5.4.4" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#use-model-to-make-predictions"><i class="fa fa-check"></i><b>5.4.4</b> Use model to make predictions</a></li>
+</ul></li>
+<li class="chapter" data-level="5.5" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#exercises-1"><i class="fa fa-check"></i><b>5.5</b> Exercises</a><ul>
+<li class="chapter" data-level="5.5.1" data-path="nearest-neighbours.html"><a href="nearest-neighbours.html#knnEx1"><i class="fa fa-check"></i><b>5.5.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="svm.html"><a href="svm.html"><i class="fa fa-check"></i><b>6</b> Support vector machines</a><ul>
+<li class="chapter" data-level="6.1" data-path="svm.html"><a href="svm.html#introduction-2"><i class="fa fa-check"></i><b>6.1</b> Introduction</a><ul>
+<li class="chapter" data-level="6.1.1" data-path="svm.html"><a href="svm.html#maximum-margin-classifier"><i class="fa fa-check"></i><b>6.1.1</b> Maximum margin classifier</a></li>
+</ul></li>
+<li class="chapter" data-level="6.2" data-path="svm.html"><a href="svm.html#support-vector-classifier"><i class="fa fa-check"></i><b>6.2</b> Support vector classifier</a></li>
+<li class="chapter" data-level="6.3" data-path="svm.html"><a href="svm.html#support-vector-machine"><i class="fa fa-check"></i><b>6.3</b> Support Vector Machine</a></li>
+<li class="chapter" data-level="6.4" data-path="svm.html"><a href="svm.html#example---training-a-classifier"><i class="fa fa-check"></i><b>6.4</b> Example - training a classifier</a><ul>
+<li class="chapter" data-level="6.4.1" data-path="svm.html"><a href="svm.html#setup-environment"><i class="fa fa-check"></i><b>6.4.1</b> Setup environment</a></li>
+<li class="chapter" data-level="6.4.2" data-path="svm.html"><a href="svm.html#partition-data-1"><i class="fa fa-check"></i><b>6.4.2</b> Partition data</a></li>
+<li class="chapter" data-level="6.4.3" data-path="svm.html"><a href="svm.html#visualize-training-data"><i class="fa fa-check"></i><b>6.4.3</b> Visualize training data</a></li>
+<li class="chapter" data-level="6.4.4" data-path="svm.html"><a href="svm.html#define-a-custom-model"><i class="fa fa-check"></i><b>6.4.4</b> Define a custom model</a></li>
+<li class="chapter" data-level="6.4.5" data-path="svm.html"><a href="svm.html#model-cross-validation-and-tuning"><i class="fa fa-check"></i><b>6.4.5</b> Model cross-validation and tuning</a></li>
+<li class="chapter" data-level="6.4.6" data-path="svm.html"><a href="svm.html#prediction-performance-measures"><i class="fa fa-check"></i><b>6.4.6</b> Prediction performance measures</a></li>
+<li class="chapter" data-level="6.4.7" data-path="svm.html"><a href="svm.html#plot-decision-boundary"><i class="fa fa-check"></i><b>6.4.7</b> Plot decision boundary</a></li>
+</ul></li>
+<li class="chapter" data-level="6.5" data-path="svm.html"><a href="svm.html#example---regression"><i class="fa fa-check"></i><b>6.5</b> Example - regression</a></li>
+<li class="chapter" data-level="6.6" data-path="svm.html"><a href="svm.html#further-reading"><i class="fa fa-check"></i><b>6.6</b> Further reading</a></li>
+<li class="chapter" data-level="6.7" data-path="svm.html"><a href="svm.html#exercises-2"><i class="fa fa-check"></i><b>6.7</b> Exercises</a><ul>
+<li class="chapter" data-level="6.7.1" data-path="svm.html"><a href="svm.html#exercise-1"><i class="fa fa-check"></i><b>6.7.1</b> Exercise 1</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="7" data-path="decision-trees.html"><a href="decision-trees.html"><i class="fa fa-check"></i><b>7</b> Decision trees and random forests</a><ul>
+<li class="chapter" data-level="7.1" data-path="decision-trees.html"><a href="decision-trees.html#decision-trees"><i class="fa fa-check"></i><b>7.1</b> Decision Trees</a></li>
+<li class="chapter" data-level="7.2" data-path="decision-trees.html"><a href="decision-trees.html#random-forest"><i class="fa fa-check"></i><b>7.2</b> Random Forest</a></li>
+<li class="chapter" data-level="7.3" data-path="decision-trees.html"><a href="decision-trees.html#exercises-3"><i class="fa fa-check"></i><b>7.3</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="8" data-path="use-case-1.html"><a href="use-case-1.html"><i class="fa fa-check"></i><b>8</b> Use case 1</a><ul>
+<li class="chapter" data-level="8.1" data-path="use-case-1.html"><a href="use-case-1.html#introduction-3"><i class="fa fa-check"></i><b>8.1</b> Introduction</a></li>
+<li class="chapter" data-level="8.2" data-path="use-case-1.html"><a href="use-case-1.html#problem-automated-detection-of-malaria"><i class="fa fa-check"></i><b>8.2</b> Problem: automated detection of malaria</a></li>
+<li class="chapter" data-level="8.3" data-path="use-case-1.html"><a href="use-case-1.html#challenges"><i class="fa fa-check"></i><b>8.3</b> Challenges</a></li>
+<li class="chapter" data-level="8.4" data-path="use-case-1.html"><a href="use-case-1.html#getting-started"><i class="fa fa-check"></i><b>8.4</b> Getting started</a><ul>
+<li class="chapter" data-level="8.4.1" data-path="use-case-1.html"><a href="use-case-1.html#load-data"><i class="fa fa-check"></i><b>8.4.1</b> Load data</a></li>
+<li class="chapter" data-level="8.4.2" data-path="use-case-1.html"><a href="use-case-1.html#model-comparison"><i class="fa fa-check"></i><b>8.4.2</b> Model comparison</a></li>
+</ul></li>
+<li class="chapter" data-level="8.5" data-path="use-case-1.html"><a href="use-case-1.html#solutions"><i class="fa fa-check"></i><b>8.5</b> Solutions</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="linear-models.html"><a href="linear-models.html"><i class="fa fa-check"></i><b>9</b> Linear models and matrix algebra</a><ul>
+<li class="chapter" data-level="9.1" data-path="linear-models.html"><a href="linear-models.html#linear-models"><i class="fa fa-check"></i><b>9.1</b> Linear models</a></li>
+<li class="chapter" data-level="9.2" data-path="linear-models.html"><a href="linear-models.html#matrix-algebra"><i class="fa fa-check"></i><b>9.2</b> Matrix algebra</a></li>
+</ul></li>
+<li class="chapter" data-level="10" data-path="logistic-regression.html"><a href="logistic-regression.html"><i class="fa fa-check"></i><b>10</b> Supervised learning</a><ul>
+<li class="chapter" data-level="10.1" data-path="logistic-regression.html"><a href="logistic-regression.html#regression"><i class="fa fa-check"></i><b>10.1</b> Regression</a><ul>
+<li class="chapter" data-level="10.1.1" data-path="logistic-regression.html"><a href="logistic-regression.html#linear-regression"><i class="fa fa-check"></i><b>10.1.1</b> Linear regression</a></li>
+<li class="chapter" data-level="10.1.2" data-path="logistic-regression.html"><a href="logistic-regression.html#polynomial-regression"><i class="fa fa-check"></i><b>10.1.2</b> Polynomial regression</a></li>
+<li class="chapter" data-level="10.1.3" data-path="logistic-regression.html"><a href="logistic-regression.html#distributions-of-fits"><i class="fa fa-check"></i><b>10.1.3</b> Distributions of fits</a></li>
+<li class="chapter" data-level="10.1.4" data-path="logistic-regression.html"><a href="logistic-regression.html#gaussian-process-regression"><i class="fa fa-check"></i><b>10.1.4</b> Gaussian process regression</a></li>
+</ul></li>
+<li class="chapter" data-level="10.2" data-path="logistic-regression.html"><a href="logistic-regression.html#classification"><i class="fa fa-check"></i><b>10.2</b> Classification</a><ul>
+<li class="chapter" data-level="10.2.1" data-path="logistic-regression.html"><a href="logistic-regression.html#logistic-regression"><i class="fa fa-check"></i><b>10.2.1</b> Logistic regression</a></li>
+<li class="chapter" data-level="10.2.2" data-path="logistic-regression.html"><a href="logistic-regression.html#gp-classification"><i class="fa fa-check"></i><b>10.2.2</b> GP classification</a></li>
+<li class="chapter" data-level="10.2.3" data-path="logistic-regression.html"><a href="logistic-regression.html#other-classification-approaches."><i class="fa fa-check"></i><b>10.2.3</b> Other classification approaches.</a></li>
+</ul></li>
+<li class="chapter" data-level="10.3" data-path="logistic-regression.html"><a href="logistic-regression.html#resources"><i class="fa fa-check"></i><b>10.3</b> Resources</a></li>
+</ul></li>
+<li class="chapter" data-level="11" data-path="ann.html"><a href="ann.html"><i class="fa fa-check"></i><b>11</b> Artificial neural networks</a><ul>
+<li class="chapter" data-level="11.1" data-path="ann.html"><a href="ann.html#neural-networks"><i class="fa fa-check"></i><b>11.1</b> Neural Networks</a></li>
+</ul></li>
+<li class="chapter" data-level="12" data-path="use-case-2.html"><a href="use-case-2.html"><i class="fa fa-check"></i><b>12</b> Use case 2</a></li>
+<li class="chapter" data-level="13" data-path="mlnn.html"><a href="mlnn.html"><i class="fa fa-check"></i><b>13</b> Deep Learning</a><ul>
+<li class="chapter" data-level="13.1" data-path="mlnn.html"><a href="mlnn.html#multilayer-neural-networks"><i class="fa fa-check"></i><b>13.1</b> Multilayer Neural Networks</a><ul>
+<li class="chapter" data-level="13.1.1" data-path="mlnn.html"><a href="mlnn.html#reading-in-images"><i class="fa fa-check"></i><b>13.1.1</b> Reading in images</a></li>
+<li class="chapter" data-level="13.1.2" data-path="mlnn.html"><a href="mlnn.html#constructing-layers-in-kerasr"><i class="fa fa-check"></i><b>13.1.2</b> Constructing layers in kerasR</a></li>
+<li class="chapter" data-level="13.1.3" data-path="mlnn.html"><a href="mlnn.html#rick-and-morty-classifier-using-deep-learning"><i class="fa fa-check"></i><b>13.1.3</b> Rick and Morty classifier using Deep Learning</a></li>
+</ul></li>
+<li class="chapter" data-level="13.2" data-path="mlnn.html"><a href="mlnn.html#convolutional-neural-networks"><i class="fa fa-check"></i><b>13.2</b> Convolutional neural networks</a><ul>
+<li class="chapter" data-level="13.2.1" data-path="mlnn.html"><a href="mlnn.html#checking-the-models"><i class="fa fa-check"></i><b>13.2.1</b> Checking the models</a></li>
+<li class="chapter" data-level="13.2.2" data-path="mlnn.html"><a href="mlnn.html#data-augmentation"><i class="fa fa-check"></i><b>13.2.2</b> Data augmentation</a></li>
+<li class="chapter" data-level="13.2.3" data-path="mlnn.html"><a href="mlnn.html#asking-more-precise-questions"><i class="fa fa-check"></i><b>13.2.3</b> Asking more precise questions</a></li>
+<li class="chapter" data-level="13.2.4" data-path="mlnn.html"><a href="mlnn.html#more-complex-networks"><i class="fa fa-check"></i><b>13.2.4</b> More complex networks</a></li>
+</ul></li>
+<li class="chapter" data-level="13.3" data-path="mlnn.html"><a href="mlnn.html#further-reading-1"><i class="fa fa-check"></i><b>13.3</b> Further reading</a></li>
+</ul></li>
+<li class="appendix"><span><b>Appendix</b></span></li>
+<li class="chapter" data-level="A" data-path="logistic-regression.html"><a href="logistic-regression.html#resources"><i class="fa fa-check"></i><b>A</b> Resources</a><ul>
+<li class="chapter" data-level="A.1" data-path="resources.html"><a href="resources.html"><i class="fa fa-check"></i><b>A.1</b> Python</a></li>
+<li class="chapter" data-level="A.2" data-path="resources.html"><a href="resources.html#machine-learning-data-set-repositories"><i class="fa fa-check"></i><b>A.2</b> Machine learning data set repositories</a><ul>
+<li class="chapter" data-level="A.2.1" data-path="resources.html"><a href="resources.html#mldata"><i class="fa fa-check"></i><b>A.2.1</b> MLDATA</a></li>
+<li class="chapter" data-level="A.2.2" data-path="resources.html"><a href="resources.html#uci-machine-learning-repository"><i class="fa fa-check"></i><b>A.2.2</b> UCI Machine Learning Repository</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="B" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html"><i class="fa fa-check"></i><b>B</b> Solutions ch. 2 - Dimensionality reduction</a><ul>
+<li class="chapter" data-level="B.1" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.1"><i class="fa fa-check"></i><b>B.1</b> Exercise 2.1</a></li>
+<li class="chapter" data-level="B.2" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.2."><i class="fa fa-check"></i><b>B.2</b> Exercise 2.2.</a></li>
+<li class="chapter" data-level="B.3" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.3."><i class="fa fa-check"></i><b>B.3</b> Exercise 2.3.</a></li>
+<li class="chapter" data-level="B.4" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.4"><i class="fa fa-check"></i><b>B.4</b> Exercise 2.4</a></li>
+<li class="chapter" data-level="B.5" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.5."><i class="fa fa-check"></i><b>B.5</b> Exercise 2.5.</a></li>
+<li class="chapter" data-level="B.6" data-path="solutions-dimensionality-reduction.html"><a href="solutions-dimensionality-reduction.html#exercise-2.6."><i class="fa fa-check"></i><b>B.6</b> Exercise 2.6.</a></li>
+</ul></li>
+<li class="chapter" data-level="C" data-path="solutions-clustering.html"><a href="solutions-clustering.html"><i class="fa fa-check"></i><b>C</b> Solutions ch. 4 - Clustering</a><ul>
+<li class="chapter" data-level="C.1" data-path="solutions-clustering.html"><a href="solutions-clustering.html#exercise-1-1"><i class="fa fa-check"></i><b>C.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="D" data-path="solutions-nearest-neighbours.html"><a href="solutions-nearest-neighbours.html"><i class="fa fa-check"></i><b>D</b> Solutions ch. 7 - Nearest neighbours</a><ul>
+<li class="chapter" data-level="D.1" data-path="solutions-nearest-neighbours.html"><a href="solutions-nearest-neighbours.html#exercise-1-2"><i class="fa fa-check"></i><b>D.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="E" data-path="solutions-svm.html"><a href="solutions-svm.html"><i class="fa fa-check"></i><b>E</b> Solutions ch. 6 - Support vector machines</a><ul>
+<li class="chapter" data-level="E.1" data-path="solutions-svm.html"><a href="solutions-svm.html#exercise-1-3"><i class="fa fa-check"></i><b>E.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="F" data-path="solutions-decision-trees.html"><a href="solutions-decision-trees.html"><i class="fa fa-check"></i><b>F</b> Solutions ch. 9 - Decision trees and random forests</a><ul>
+<li class="chapter" data-level="F.1" data-path="solutions-decision-trees.html"><a href="solutions-decision-trees.html#exercise-1-4"><i class="fa fa-check"></i><b>F.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="G" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html"><i class="fa fa-check"></i><b>G</b> Solutions chapter 8 - use case 1</a><ul>
+<li class="chapter" data-level="G.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#preparation"><i class="fa fa-check"></i><b>G.1</b> Preparation</a><ul>
+<li class="chapter" data-level="G.1.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#load-required-libraries"><i class="fa fa-check"></i><b>G.1.1</b> Load required libraries</a></li>
+<li class="chapter" data-level="G.1.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#define-svm-model"><i class="fa fa-check"></i><b>G.1.2</b> Define SVM model</a></li>
+<li class="chapter" data-level="G.1.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#setup-parallel-processing"><i class="fa fa-check"></i><b>G.1.3</b> Setup parallel processing</a></li>
+<li class="chapter" data-level="G.1.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#load-data-1"><i class="fa fa-check"></i><b>G.1.4</b> Load data</a></li>
+<li class="chapter" data-level="G.1.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#data-splitting-1"><i class="fa fa-check"></i><b>G.1.5</b> Data splitting</a></li>
+</ul></li>
+<li class="chapter" data-level="G.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#assess-data-quality"><i class="fa fa-check"></i><b>G.2</b> Assess data quality</a><ul>
+<li class="chapter" data-level="G.2.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#zero-and-near-zero-variance-predictors-1"><i class="fa fa-check"></i><b>G.2.1</b> Zero and near-zero variance predictors</a></li>
+<li class="chapter" data-level="G.2.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#are-all-predictors-on-the-same-scale"><i class="fa fa-check"></i><b>G.2.2</b> Are all predictors on the same scale?</a></li>
+<li class="chapter" data-level="G.2.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#redundancy-from-correlated-variables"><i class="fa fa-check"></i><b>G.2.3</b> Redundancy from correlated variables</a></li>
+<li class="chapter" data-level="G.2.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#skewness-1"><i class="fa fa-check"></i><b>G.2.4</b> Skewness</a></li>
+</ul></li>
+<li class="chapter" data-level="G.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#infection-status-two-class-problem"><i class="fa fa-check"></i><b>G.3</b> Infection status (two-class problem)</a><ul>
+<li class="chapter" data-level="G.3.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#model-training-and-parameter-tuning"><i class="fa fa-check"></i><b>G.3.1</b> Model training and parameter tuning</a></li>
+<li class="chapter" data-level="G.3.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#knn"><i class="fa fa-check"></i><b>G.3.2</b> KNN</a></li>
+<li class="chapter" data-level="G.3.3" data-path="svm.html"><a href="svm.html#svm"><i class="fa fa-check"></i><b>G.3.3</b> SVM</a></li>
+<li class="chapter" data-level="G.3.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#decision-tree"><i class="fa fa-check"></i><b>G.3.4</b> Decision tree</a></li>
+<li class="chapter" data-level="G.3.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#random-forest-1"><i class="fa fa-check"></i><b>G.3.5</b> Random forest</a></li>
+<li class="chapter" data-level="G.3.6" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#compare-models"><i class="fa fa-check"></i><b>G.3.6</b> Compare models</a></li>
+<li class="chapter" data-level="G.3.7" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#predict-test-set-using-our-best-model"><i class="fa fa-check"></i><b>G.3.7</b> Predict test set using our best model</a></li>
+<li class="chapter" data-level="G.3.8" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#roc-curve"><i class="fa fa-check"></i><b>G.3.8</b> ROC curve</a></li>
+</ul></li>
+<li class="chapter" data-level="G.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#discrimination-of-infective-stages-multi-class-problem"><i class="fa fa-check"></i><b>G.4</b> Discrimination of infective stages (multi-class problem)</a><ul>
+<li class="chapter" data-level="G.4.1" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#define-cross-validation-procedure"><i class="fa fa-check"></i><b>G.4.1</b> Define cross-validation procedure</a></li>
+<li class="chapter" data-level="G.4.2" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#knn-1"><i class="fa fa-check"></i><b>G.4.2</b> KNN</a></li>
+<li class="chapter" data-level="G.4.3" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#svm-1"><i class="fa fa-check"></i><b>G.4.3</b> SVM</a></li>
+<li class="chapter" data-level="G.4.4" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#decision-tree-1"><i class="fa fa-check"></i><b>G.4.4</b> Decision tree</a></li>
+<li class="chapter" data-level="G.4.5" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#random-forest-2"><i class="fa fa-check"></i><b>G.4.5</b> Random forest</a></li>
+<li class="chapter" data-level="G.4.6" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#compare-models-1"><i class="fa fa-check"></i><b>G.4.6</b> Compare models</a></li>
+<li class="chapter" data-level="G.4.7" data-path="use-case-1-solutions.html"><a href="use-case-1-solutions.html#predict-test-set-using-our-best-model-1"><i class="fa fa-check"></i><b>G.4.7</b> Predict test set using our best model</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="H" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html"><i class="fa fa-check"></i><b>H</b> Solutions ch. 3 - Linear models and matrix algebra</a><ul>
+<li class="chapter" data-level="H.1" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html#example-2"><i class="fa fa-check"></i><b>H.1</b> Example 2</a></li>
+<li class="chapter" data-level="H.2" data-path="solutions-linear-models.html"><a href="solutions-linear-models.html#example-2-1"><i class="fa fa-check"></i><b>H.2</b> Example 2</a></li>
+</ul></li>
+<li class="chapter" data-level="I" data-path="solutions-logistic-regression.html"><a href="solutions-logistic-regression.html"><i class="fa fa-check"></i><b>I</b> Solutions ch. 4 - Linear and non-linear (logistic) regression</a></li>
+<li class="chapter" data-level="J" data-path="solutions-ann.html"><a href="solutions-ann.html"><i class="fa fa-check"></i><b>J</b> Solutions ch. 10 - Artificial neural networks</a><ul>
+<li class="chapter" data-level="J.1" data-path="solutions-ann.html"><a href="solutions-ann.html#exercise-1-5"><i class="fa fa-check"></i><b>J.1</b> Exercise 1</a></li>
+</ul></li>
+<li class="chapter" data-level="K" data-path="use-case-2-solutions.html"><a href="use-case-2-solutions.html"><i class="fa fa-check"></i><b>K</b> Solutions for use case 2</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">An Introduction to Machine Learning</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="clustering" class="section level1">
+<h1><span class="header-section-number">4</span> Clustering</h1>
+<!-- Matt -->
+<!-- http://www.madgroup.path.cam.ac.uk/microarraysummary.shtml -->
+<!--
+if variables are in same units - don't standardize, otherwise standardize
+-->
+<div id="introduction" class="section level2">
+<h2><span class="header-section-number">4.1</span> Introduction</h2>
+<p>Clustering attempts to find groups (clusters) of similar objects. The members of a cluster should be more similar to each other, than to objects in other clusters. Clustering algorithms aim to minimize intra-cluster variation and maximize inter-cluster variation.</p>
+<p>Methods of clustering can be broadly divided into two types:</p>
+<p><strong>Hierarchic</strong> techniques produce dendrograms (trees) through a process of division or agglomeration.</p>
+<p><strong>Partitioning</strong> algorithms divide objects into non-overlapping subsets (examples include k-means and DBSCAN)</p>
+<div class="figure" style="text-align: center"><span id="fig:clusterTypes"></span>
+<img src="03-clustering_files/figure-html/clusterTypes-1.png" alt="Example clusters. **A**, *blobs*; **B**, *aggregation* [@Gionis2007]; **C**, *noisy moons*; **D**, *different density*; **E**, *anisotropic distributions*; **F**, *no structure*." width="80%" />
+<p class="caption">
+Figure 4.1: Example clusters. <strong>A</strong>, <em>blobs</em>; <strong>B</strong>, <em>aggregation</em> <span class="citation">(Gionis, Mannila, and Tsaparas <a href="#ref-Gionis2007">2007</a>)</span>; <strong>C</strong>, <em>noisy moons</em>; <strong>D</strong>, <em>different density</em>; <strong>E</strong>, <em>anisotropic distributions</em>; <strong>F</strong>, <em>no structure</em>.
+</p>
+</div>
+</div>
+<div id="distance-metrics" class="section level2">
+<h2><span class="header-section-number">4.2</span> Distance metrics</h2>
+<p>Various distance metrics can be used with clustering algorithms. We will use Euclidean distance in the examples and exercises in this chapter.</p>
+<span class="math display" id="eq:euclidean">\[\begin{equation}
+  distance\left(p,q\right)=\sqrt{\sum_{i=1}^{n} (p_i-q_i)^2}
+  \tag{4.1}
+\end{equation}\]</span>
+<div class="figure" style="text-align: center"><span id="fig:euclideanDistanceDiagram"></span>
+<img src="03-clustering_files/figure-html/euclideanDistanceDiagram-1.png" alt="Euclidean distance." width="75%" />
+<p class="caption">
+Figure 4.2: Euclidean distance.
+</p>
+</div>
+</div>
+<div id="hierarchic-agglomerative" class="section level2">
+<h2><span class="header-section-number">4.3</span> Hierarchic agglomerative</h2>
+<div class="figure" style="text-align: center"><span id="fig:hierarchicClusteringDemo"></span>
+<img src="images/hclust_demo_0.png" alt="Building a dendrogram using hierarchic agglomerative clustering." width="55%" /><img src="images/hclust_demo_1.png" alt="Building a dendrogram using hierarchic agglomerative clustering." width="55%" /><img src="images/hclust_demo_2.png" alt="Building a dendrogram using hierarchic agglomerative clustering." width="55%" /><img src="images/hclust_demo_3.png" alt="Building a dendrogram using hierarchic agglomerative clustering." width="55%" /><img src="images/hclust_demo_4.png" alt="Building a dendrogram using hierarchic agglomerative clustering." width="55%" />
+<p class="caption">
+Figure 4.3: Building a dendrogram using hierarchic agglomerative clustering.
+</p>
+</div>
+<div id="linkage-algorithms" class="section level3">
+<h3><span class="header-section-number">4.3.1</span> Linkage algorithms</h3>
+<table>
+<caption><span id="tab:distance-matrix">Table 4.1: </span>Example distance matrix</caption>
+<thead>
+<tr class="header">
+<th></th>
+<th align="left">A</th>
+<th align="left">B</th>
+<th align="left">C</th>
+<th align="left">D</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>B</td>
+<td align="left">2</td>
+<td align="left"></td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td>C</td>
+<td align="left">6</td>
+<td align="left">5</td>
+<td align="left"></td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td>D</td>
+<td align="left">10</td>
+<td align="left">10</td>
+<td align="left">5</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td>E</td>
+<td align="left">9</td>
+<td align="left">8</td>
+<td align="left">3</td>
+<td align="left">4</td>
+</tr>
+</tbody>
+</table>
+<p>Single linkage - nearest neighbours linkage</p>
+<p>Complete linkage - furthest neighbours linkage</p>
+<p>Average linkage - UPGMA (Unweighted Pair Group Method with Arithmetic Mean)</p>
+<!--
+Explain anatomy of the dendrogram - branches, nodes and leaves.
+-->
+<table>
+<caption><span id="tab:distance-merge">Table 4.2: </span>Merge distances for objects in the example distance matrix using three different linkage methods.</caption>
+<thead>
+<tr class="header">
+<th align="left">Groups</th>
+<th align="right">Single</th>
+<th align="right">Complete</th>
+<th align="right">Average</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">A,B,C,D,E</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">(A,B),C,D,E</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">2.0</td>
+</tr>
+<tr class="odd">
+<td align="left">(A,B),(C,E),D</td>
+<td align="right">3</td>
+<td align="right">3</td>
+<td align="right">3.0</td>
+</tr>
+<tr class="even">
+<td align="left">(A,B)(C,D,E)</td>
+<td align="right">4</td>
+<td align="right">5</td>
+<td align="right">4.5</td>
+</tr>
+<tr class="odd">
+<td align="left">(A,B,C,D,E)</td>
+<td align="right">5</td>
+<td align="right">10</td>
+<td align="right">8.0</td>
+</tr>
+</tbody>
+</table>
+<div class="figure" style="text-align: center"><span id="fig:linkageComparison"></span>
+<img src="03-clustering_files/figure-html/linkageComparison-1.png" alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" /><img src="03-clustering_files/figure-html/linkageComparison-2.png" alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" /><img src="03-clustering_files/figure-html/linkageComparison-3.png" alt="Dendrograms for the example distance matrix using three different linkage methods. " width="100%" />
+<p class="caption">
+Figure 4.4: Dendrograms for the example distance matrix using three different linkage methods.
+</p>
+</div>
+</div>
+</div>
+<div id="k-means" class="section level2">
+<h2><span class="header-section-number">4.4</span> K-means</h2>
+<div id="algorithm" class="section level3">
+<h3><span class="header-section-number">4.4.1</span> Algorithm</h3>
+<p>Pseudocode for the K-means algorithm</p>
+<pre><code>randomly choose k objects as initial centroids
+while true:
+  1. create k clusters by assigning each object to closest centroid
+  2. compute k new centroids by averaging the objects in each cluster
+  3. if none of the centroids differ from the previous iteration:
+        return the current set of clusters</code></pre>
+<div class="figure" style="text-align: center"><span id="fig:kmeansIterations"></span>
+<img src="03-clustering_files/figure-html/kmeansIterations-1.png" alt="Iterations of the k-means algorithm" width="90%" />
+<p class="caption">
+Figure 4.5: Iterations of the k-means algorithm
+</p>
+</div>
+<p>The default setting of the <strong>kmeans</strong> function is to perform a maximum of 10 iterations and if the algorithm fails to converge a warning is issued. The maximum number of iterations is set with the argument <strong>iter.max</strong>.</p>
+</div>
+<div id="choosing-initial-cluster-centres" class="section level3">
+<h3><span class="header-section-number">4.4.2</span> Choosing initial cluster centres</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RColorBrewer)
+point_shapes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">15</span>,<span class="dv">17</span>,<span class="dv">19</span>)
+point_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">3</span>,<span class="st">&quot;Dark2&quot;</span>)
+point_size =<span class="st"> </span><span class="fl">1.5</span>
+center_point_size =<span class="st"> </span><span class="dv">8</span>
+
+blobs &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/blobs.csv&quot;</span>, <span class="dt">header=</span>F))
+
+good_centres &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">8</span>,<span class="dv">7</span>,<span class="dv">3</span>,<span class="dv">12</span>,<span class="dv">7</span>), <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T))
+bad_centres &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">matrix</span>(<span class="kw">c</span>(<span class="dv">13</span>,<span class="dv">13</span>,<span class="dv">8</span>,<span class="dv">12</span>,<span class="dv">2</span>,<span class="dv">2</span>), <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T))
+
+good_result &lt;-<span class="st"> </span><span class="kw">kmeans</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">centers=</span>good_centres)
+bad_result &lt;-<span class="st"> </span><span class="kw">kmeans</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">centers=</span>bad_centres)
+
+plotList &lt;-<span class="st"> </span><span class="kw">list</span>(
+<span class="kw">ggplot</span>(blobs, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">col=</span>point_colours[good_result<span class="op">$</span>cluster], <span class="dt">shape=</span>point_shapes[good_result<span class="op">$</span>cluster], 
+             <span class="dt">size=</span>point_size) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data=</span>good_centres, <span class="kw">aes</span>(V1,V2), <span class="dt">shape=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">size=</span>center_point_size) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">theme_bw</span>(),
+<span class="kw">ggplot</span>(blobs, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">col=</span>point_colours[bad_result<span class="op">$</span>cluster], <span class="dt">shape=</span>point_shapes[bad_result<span class="op">$</span>cluster], 
+             <span class="dt">size=</span>point_size) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">data=</span>bad_centres, <span class="kw">aes</span>(V1,V2), <span class="dt">shape=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">size=</span>center_point_size) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">theme_bw</span>()
+)
+
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">1</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">showXAxisPlotLabels =</span> T, <span class="dt">showYAxisPlotLabels =</span> T, 
+  <span class="dt">xAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;A&quot;</span>, <span class="st">&quot;B&quot;</span>)
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansCentreChoice"></span>
+<img src="03-clustering_files/figure-html/kmeansCentreChoice-1.png" alt="Initial centres determine clusters. The starting centres are shown as crosses. **A**, real clusters found; **B**, convergence to a local minimum." width="100%" />
+<p class="caption">
+Figure 4.6: Initial centres determine clusters. The starting centres are shown as crosses. <strong>A</strong>, real clusters found; <strong>B</strong>, convergence to a local minimum.
+</p>
+</div>
+<p>Convergence to a local minimum can be avoided by starting the algorithm multiple times, with different random centres. The <strong>nstart</strong> argument to the <strong>k-means</strong> function can be used to specify the number of random sets and optimal solution will be selected automatically.</p>
+</div>
+<div id="choosingK" class="section level3">
+<h3><span class="header-section-number">4.4.3</span> Choosing k</h3>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">point_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">9</span>,<span class="st">&quot;Set1&quot;</span>)
+k &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">9</span>
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})
+
+plotList &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){
+  <span class="kw">ggplot</span>(blobs, <span class="kw">aes</span>(V1, V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">col=</span>point_colours[res[[i]]<span class="op">$</span>cluster], <span class="dt">size=</span><span class="dv">1</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">data=</span><span class="kw">as.data.frame</span>(res[[i]]<span class="op">$</span>centers), <span class="kw">aes</span>(V1,V2), <span class="dt">shape=</span><span class="dv">3</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">size=</span><span class="dv">5</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x=</span><span class="dv">2</span>, <span class="dt">y=</span><span class="dv">13</span>, <span class="dt">label=</span><span class="kw">paste</span>(<span class="st">&quot;k=&quot;</span>, i, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>), <span class="dt">size=</span><span class="dv">8</span>, <span class="dt">col=</span><span class="st">&quot;black&quot;</span>) <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme_bw</span>()
+}
+)
+
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">3</span>, <span class="dt">ncol=</span><span class="dv">3</span>, <span class="dt">showXAxisPlotLabels =</span> T, <span class="dt">showYAxisPlotLabels =</span> T
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansRangeK"></span>
+<img src="03-clustering_files/figure-html/kmeansRangeK-1.png" alt="K-means clustering of the blobs data set using a range of values of k from 1-9. Cluster centres indicated with a cross." width="100%" />
+<p class="caption">
+Figure 4.7: K-means clustering of the blobs data set using a range of values of k from 1-9. Cluster centres indicated with a cross.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tot_withinss &lt;-<span class="st"> </span><span class="kw">sapply</span>(k, <span class="cf">function</span>(i){res[[i]]<span class="op">$</span>tot.withinss})
+<span class="kw">qplot</span>(k, tot_withinss, <span class="dt">geom=</span><span class="kw">c</span>(<span class="st">&quot;point&quot;</span>, <span class="st">&quot;line&quot;</span>), 
+      <span class="dt">ylab=</span><span class="st">&quot;Total within-cluster sum of squares&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:choosingKplot"></span>
+<img src="03-clustering_files/figure-html/choosingKplot-1.png" alt="Variance within the clusters. Total within-cluster sum of squares plotted against k." width="50%" />
+<p class="caption">
+Figure 4.8: Variance within the clusters. Total within-cluster sum of squares plotted against k.
+</p>
+</div>
+<p><em>N.B.</em> we have set <code>nstart=50</code> to run the algorithm 50 times, starting from different, random sets of centroids.</p>
+</div>
+</div>
+<div id="dbscan" class="section level2">
+<h2><span class="header-section-number">4.5</span> DBSCAN</h2>
+<p>Density-based spatial clustering of applications with noise</p>
+<div id="algorithm-1" class="section level3">
+<h3><span class="header-section-number">4.5.1</span> Algorithm</h3>
+<p>Abstract DBSCAN algorithm in pseudocode <span class="citation">(Schubert et al. <a href="#ref-Schubert2017">2017</a>)</span></p>
+<pre><code>1 Compute neighbours of each point and identify core points   // Identify core points
+2 Join neighbouring core points into clusters                 // Assign core points
+3 foreach non-core point do
+      Add to a neighbouring core point if possible            // Assign border points
+      Otherwise, add to noise                                 // Assign noise points</code></pre>
+<div class="figure" style="text-align: center"><span id="fig:dbscanIllustration"></span>
+<img src="images/DBSCAN_Illustration.svg" alt="Illustration of the DBSCAN algorithm. By Chire (Own work) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons." width="75%" />
+<p class="caption">
+Figure 4.9: Illustration of the DBSCAN algorithm. By Chire (Own work) [CC BY-SA 3.0 (<a href="http://creativecommons.org/licenses/by-sa/3.0" class="uri">http://creativecommons.org/licenses/by-sa/3.0</a>)], via Wikimedia Commons.
+</p>
+</div>
+<p>The method requires two parameters; MinPts that is the minimum number of samples in any cluster; Eps that is the maximum distance of the sample to at least one other sample within the same cluster.</p>
+<p>This algorithm works on a parametric approach. The two parameters involved in this algorithm are:</p>
+<ul>
+<li>e (eps) is the radius of our neighborhoods around a data point p.</li>
+<li>minPts is the minimum number of data points we want in a neighborhood to define a cluster.</li>
+</ul>
+</div>
+<div id="implementation-in-r" class="section level3">
+<h3><span class="header-section-number">4.5.2</span> Implementation in R</h3>
+<p>DBSCAN is implemented in two R packages: <a href="https://cran.r-project.org/package=dbscan">dbscan</a> and <a href="https://cran.r-project.org/package=fpc">fpc</a>. We will use the package <a href="https://cran.r-project.org/package=dbscan">dbscan</a>, because it is significantly faster and can handle larger data sets than <a href="https://cran.r-project.org/package=fpc">fpc</a>. The function has the same name in both packages and so if for any reason both packages have been loaded into our current workspace, there is a danger of calling the wrong implementation. To avoid this we can specify the package name when calling the function, e.g.:</p>
+<pre><code>dbscan::dbscan</code></pre>
+<p>We load the dbscan package in the usual way:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dbscan)</code></pre></div>
+</div>
+<div id="choosing-parameters" class="section level3">
+<h3><span class="header-section-number">4.5.3</span> Choosing parameters</h3>
+<p>The algorithm only needs parameteres <strong>eps</strong> and <strong>minPts</strong>.</p>
+<p>Read in data and use <strong>kNNdist</strong> function from <a href="https://cran.r-project.org/package=dbscan">dbscan</a> package to plot the distances of the 10-nearest neighbours for each observation (figure <a href="clustering.html#fig:blobsKNNdist">4.10</a>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">blobs &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/blobs.csv&quot;</span>, <span class="dt">header=</span>F)
+<span class="kw">kNNdistplot</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.6</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:blobsKNNdist"></span>
+<img src="03-clustering_files/figure-html/blobsKNNdist-1.png" alt="10-nearest neighbour distances for the blobs data set" width="75%" />
+<p class="caption">
+Figure 4.10: 10-nearest neighbour distances for the blobs data set
+</p>
+</div>
+<!-- dist2knn <- kNNdist(blobs, 10) -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.6</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##   0   1   2   3 
+##  43 484 486 487</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(blobs, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">col=</span><span class="kw">brewer.pal</span>(<span class="dv">8</span>,<span class="st">&quot;Dark2&quot;</span>)[<span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)][res<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>],
+             <span class="dt">shape=</span><span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">15</span>,<span class="dv">17</span>,<span class="dv">19</span>)[res<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>],
+             <span class="dt">size=</span><span class="fl">1.5</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:blobsDBSCANscatter"></span>
+<img src="03-clustering_files/figure-html/blobsDBSCANscatter-1.png" alt="DBSCAN clustering (eps=0.6, minPts=10) of the blobs data set. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.11: DBSCAN clustering (eps=0.6, minPts=10) of the blobs data set. Outlier observations are shown as grey crosses.
+</p>
+</div>
+</div>
+</div>
+<div id="example-clustering-synthetic-data-sets" class="section level2">
+<h2><span class="header-section-number">4.6</span> Example: clustering synthetic data sets</h2>
+<div id="hierarchic-agglomerative-1" class="section level3">
+<h3><span class="header-section-number">4.6.1</span> Hierarchic agglomerative</h3>
+<div id="step-by-step-instructions" class="section level4">
+<h4><span class="header-section-number">4.6.1.1</span> Step-by-step instructions</h4>
+<ol style="list-style-type: decimal">
+<li>Load required packages.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RColorBrewer)
+<span class="kw">library</span>(dendextend)</code></pre></div>
+<pre><code>## 
+## ---------------------
+## Welcome to dendextend version 1.9.0
+## Type citation(&#39;dendextend&#39;) for how to cite the package.
+## 
+## Type browseVignettes(package = &#39;dendextend&#39;) for the package vignette.
+## The github page is: https://github.com/talgalili/dendextend/
+## 
+## Suggestions and bug-reports can be submitted at: https://github.com/talgalili/dendextend/issues
+## Or contact: &lt;tal.galili@gmail.com&gt;
+## 
+##  To suppress this message use:  suppressPackageStartupMessages(library(dendextend))
+## ---------------------</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dendextend&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:ggdendro&#39;:
+## 
+##     theme_dendro</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     cutree</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(GGally)</code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Retrieve a palette of eight colours.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cluster_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>,<span class="st">&quot;Dark2&quot;</span>)</code></pre></div>
+<ol start="3" style="list-style-type: decimal">
+<li>Read in data for <strong>blobs</strong> example.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">blobs &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/blobs.csv&quot;</span>, <span class="dt">header=</span>F)</code></pre></div>
+<ol start="4" style="list-style-type: decimal">
+<li>Create distance matrix using Euclidean distance metric.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">dist</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<ol start="5" style="list-style-type: decimal">
+<li>Perform hierarchical clustering using the <strong>average</strong> agglomeration method and convert the result to an object of class <strong>dendrogram</strong>. A <strong>dendrogram</strong> object can be edited using the advanced features of the <strong>dendextend</strong> package.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dend &lt;-<span class="st"> </span><span class="kw">as.dendrogram</span>(<span class="kw">hclust</span>(d, <span class="dt">method=</span><span class="st">&quot;average&quot;</span>))</code></pre></div>
+<ol start="6" style="list-style-type: decimal">
+<li>Cut the tree into three clusters</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span><span class="kw">cutree</span>(dend,<span class="dv">3</span>,<span class="dt">order_clusters_as_data=</span>F)</code></pre></div>
+<ol start="7" style="list-style-type: decimal">
+<li>The vector <strong>clusters</strong> contains the cluster membership (in this case <em>1</em>, <em>2</em> or <em>3</em>) of each observation (data point) in the order they appear on the dendrogram. We can use this vector to colour the branches of the dendrogram by cluster.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dend &lt;-<span class="st"> </span><span class="kw">color_branches</span>(dend, <span class="dt">clusters=</span>clusters, <span class="dt">col=</span>cluster_colours[<span class="dv">1</span><span class="op">:</span><span class="dv">3</span>])</code></pre></div>
+<ol start="8" style="list-style-type: decimal">
+<li>We can use the <strong>labels</strong> function to annotate the leaves of the dendrogram. However, it is not possible to create legible labels for the 1,500 leaves in our example dendrogram, so we will set the label for each leaf to an empty string.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">labels</span>(dend) &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;&quot;</span>, <span class="kw">length</span>(blobs[,<span class="dv">1</span>]))</code></pre></div>
+<ol start="9" style="list-style-type: decimal">
+<li>If we want to plot the dendrogram using <strong>ggplot</strong>, we must convert it to an object of class <strong>ggdend</strong>.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ggd &lt;-<span class="st"> </span><span class="kw">as.ggdend</span>(dend)</code></pre></div>
+<ol start="10" style="list-style-type: decimal">
+<li>The <strong>nodes</strong> attribute of <strong>ggd</strong> is a data.frame of parameters related to the plotting of dendogram nodes. The <strong>nodes</strong> data.frame contains some NAs which will generate warning messages when <strong>ggd</strong> is processed by <strong>ggplot</strong>. Since we are not interested in annotating dendrogram nodes, the easiest option here is to delete all of the rows of <strong>nodes</strong>.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ggd<span class="op">$</span>nodes &lt;-<span class="st"> </span>ggd<span class="op">$</span>nodes[<span class="op">!</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(ggd<span class="op">$</span>nodes[,<span class="dv">1</span>])),]</code></pre></div>
+<ol start="11" style="list-style-type: decimal">
+<li>We can use the cluster membership of each observation contained in the vector <strong>clusters</strong> to assign colours to the data points of a scatterplot. However, first we need to reorder the vector so that the cluster memberships are in the same order that the observations appear in the data.frame of observations. Fortunately the names of the elements of the vector are the indices of the observations in the data.frame and so reordering can be accomplished in one line.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span>clusters[<span class="kw">order</span>(<span class="kw">as.numeric</span>(<span class="kw">names</span>(clusters)))]</code></pre></div>
+<ol start="12" style="list-style-type: decimal">
+<li>We are now ready to plot a dendrogram and scatterplot. We will use the <strong>ggmatrix</strong> function from the <strong>GGally</strong> package to place the plots side-by-side.</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotList &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">ggplot</span>(ggd),
+                 <span class="kw">ggplot</span>(blobs, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">                   </span><span class="kw">geom_point</span>(<span class="dt">col=</span>cluster_colours[clusters], <span class="dt">size=</span><span class="fl">0.2</span>)
+                 )
+
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">1</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">showXAxisPlotLabels =</span> F, <span class="dt">showYAxisPlotLabels =</span> F, 
+  <span class="dt">xAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;dendrogram&quot;</span>, <span class="st">&quot;scatter plot&quot;</span>)
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:hclustBlobs"></span>
+<img src="03-clustering_files/figure-html/hclustBlobs-1.png" alt="Hierarchical clustering of the blobs data set." width="80%" />
+<p class="caption">
+Figure 4.12: Hierarchical clustering of the blobs data set.
+</p>
+</div>
+</div>
+<div id="clustering-of-other-synthetic-data-sets" class="section level4">
+<h4><span class="header-section-number">4.6.1.2</span> Clustering of other synthetic data sets</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aggregation &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;data/example_clusters/aggregation.txt&quot;</span>)
+noisy_moons &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/noisy_moons.csv&quot;</span>, <span class="dt">header=</span>F)
+diff_density &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/different_density.csv&quot;</span>, <span class="dt">header=</span>F)
+aniso &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/aniso.csv&quot;</span>, <span class="dt">header=</span>F)
+no_structure &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/no_structure.csv&quot;</span>, <span class="dt">header=</span>F)
+
+hclust_plots &lt;-<span class="st"> </span><span class="cf">function</span>(data_set, n){
+  d &lt;-<span class="st"> </span><span class="kw">dist</span>(data_set[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])
+  dend &lt;-<span class="st"> </span><span class="kw">as.dendrogram</span>(<span class="kw">hclust</span>(d, <span class="dt">method=</span><span class="st">&quot;average&quot;</span>))
+  clusters &lt;-<span class="st"> </span><span class="kw">cutree</span>(dend,n,<span class="dt">order_clusters_as_data=</span>F)
+  dend &lt;-<span class="st"> </span><span class="kw">color_branches</span>(dend, <span class="dt">clusters=</span>clusters, <span class="dt">col=</span>cluster_colours[<span class="dv">1</span><span class="op">:</span>n])
+  clusters &lt;-<span class="st"> </span>clusters[<span class="kw">order</span>(<span class="kw">as.numeric</span>(<span class="kw">names</span>(clusters)))]
+  <span class="kw">labels</span>(dend) &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="st">&quot;&quot;</span>, <span class="kw">length</span>(data_set[,<span class="dv">1</span>]))
+  ggd &lt;-<span class="st"> </span><span class="kw">as.ggdend</span>(dend)
+  ggd<span class="op">$</span>nodes &lt;-<span class="st"> </span>ggd<span class="op">$</span>nodes[<span class="op">!</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(ggd<span class="op">$</span>nodes[,<span class="dv">1</span>])),]
+  plotPair &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">ggplot</span>(ggd),
+    <span class="kw">ggplot</span>(data_set, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">      </span><span class="kw">geom_point</span>(<span class="dt">col=</span>cluster_colours[clusters], <span class="dt">size=</span><span class="fl">0.2</span>))
+  <span class="kw">return</span>(plotPair)
+}
+
+plotList &lt;-<span class="st"> </span><span class="kw">c</span>(
+  <span class="kw">hclust_plots</span>(aggregation, <span class="dv">7</span>),
+  <span class="kw">hclust_plots</span>(noisy_moons, <span class="dv">2</span>),
+  <span class="kw">hclust_plots</span>(diff_density, <span class="dv">2</span>),
+  <span class="kw">hclust_plots</span>(aniso, <span class="dv">3</span>),
+  <span class="kw">hclust_plots</span>(no_structure, <span class="dv">3</span>)
+)
+
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">5</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">showXAxisPlotLabels =</span> F, <span class="dt">showYAxisPlotLabels =</span> F,
+  <span class="dt">xAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;dendrogram&quot;</span>, <span class="st">&quot;scatter plot&quot;</span>), 
+  <span class="dt">yAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;aggregation&quot;</span>, <span class="st">&quot;noisy moons&quot;</span>, <span class="st">&quot;different density&quot;</span>, <span class="st">&quot;anisotropic&quot;</span>, <span class="st">&quot;no structure&quot;</span>)
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:hclustToyData"></span>
+<img src="03-clustering_files/figure-html/hclustToyData-1.png" alt="Hierarchical clustering of synthetic data-sets. " width="75%" />
+<p class="caption">
+Figure 4.13: Hierarchical clustering of synthetic data-sets.
+</p>
+</div>
+</div>
+</div>
+<div id="k-means-1" class="section level3">
+<h3><span class="header-section-number">4.6.2</span> K-means</h3>
+<p>Earlier we saw how k-means performed on the blobs data set. Let’s see how k-means performs on the other toy data sets. First we will define some variables and functions we will use in the analysis of all data sets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">k=<span class="dv">1</span><span class="op">:</span><span class="dv">9</span>
+point_shapes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">15</span>,<span class="dv">17</span>,<span class="dv">19</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">0</span>,<span class="dv">1</span>)
+point_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">7</span>,<span class="st">&quot;Dark2&quot;</span>)
+point_size =<span class="st"> </span><span class="fl">1.5</span>
+center_point_size =<span class="st"> </span><span class="dv">8</span>
+
+plot_tot_withinss &lt;-<span class="st"> </span><span class="cf">function</span>(kmeans_output){
+  tot_withinss &lt;-<span class="st"> </span><span class="kw">sapply</span>(k, <span class="cf">function</span>(i){kmeans_output[[i]]<span class="op">$</span>tot.withinss})
+  <span class="kw">qplot</span>(k, tot_withinss, <span class="dt">geom=</span><span class="kw">c</span>(<span class="st">&quot;point&quot;</span>, <span class="st">&quot;line&quot;</span>), 
+        <span class="dt">ylab=</span><span class="st">&quot;Total within-cluster sum of squares&quot;</span>) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+}
+
+plot_clusters &lt;-<span class="st"> </span><span class="cf">function</span>(data_set, kmeans_output, num_clusters){
+    <span class="kw">ggplot</span>(data_set, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">col=</span>point_colours[kmeans_output[[num_clusters]]<span class="op">$</span>cluster],
+               <span class="dt">shape=</span>point_shapes[kmeans_output[[num_clusters]]<span class="op">$</span>cluster], 
+               <span class="dt">size=</span>point_size) <span class="op">+</span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">data=</span><span class="kw">as.data.frame</span>(kmeans_output[[num_clusters]]<span class="op">$</span>centers), <span class="kw">aes</span>(V1,V2),
+               <span class="dt">shape=</span><span class="dv">3</span>,<span class="dt">col=</span><span class="st">&quot;black&quot;</span>,<span class="dt">size=</span>center_point_size) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">theme_bw</span>()
+}</code></pre></div>
+<div id="aggregation" class="section level4">
+<h4><span class="header-section-number">4.6.2.1</span> Aggregation</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aggregation &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">read.table</span>(<span class="st">&quot;data/example_clusters/aggregation.txt&quot;</span>))
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(aggregation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})
+<span class="kw">plot_tot_withinss</span>(res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansAggregationElbow"></span>
+<img src="03-clustering_files/figure-html/kmeansAggregationElbow-1.png" alt="K-means clustering of the aggregation data set: variance within clusters." width="50%" />
+<p class="caption">
+Figure 4.14: K-means clustering of the aggregation data set: variance within clusters.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotList &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="kw">plot_clusters</span>(aggregation, res, <span class="dv">3</span>),
+  <span class="kw">plot_clusters</span>(aggregation, res, <span class="dv">7</span>)
+)
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">1</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">showXAxisPlotLabels =</span> T, <span class="dt">showYAxisPlotLabels =</span> T, 
+  <span class="dt">xAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;k=3&quot;</span>, <span class="st">&quot;k=7&quot;</span>)
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansAggregationScatter"></span>
+<img src="03-clustering_files/figure-html/kmeansAggregationScatter-1.png" alt="K-means clustering of the aggregation data set: scatterplots of clusters for k=3 and k=7. Cluster centres indicated with a cross." width="100%" />
+<p class="caption">
+Figure 4.15: K-means clustering of the aggregation data set: scatterplots of clusters for k=3 and k=7. Cluster centres indicated with a cross.
+</p>
+</div>
+</div>
+<div id="noisy-moons" class="section level4">
+<h4><span class="header-section-number">4.6.2.2</span> Noisy moons</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">noisy_moons &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/noisy_moons.csv&quot;</span>, <span class="dt">header=</span>F)
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(noisy_moons[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})
+<span class="kw">plot_tot_withinss</span>(res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansNoisyMoonsElbow"></span>
+<img src="03-clustering_files/figure-html/kmeansNoisyMoonsElbow-1.png" alt="K-means clustering of the noisy moons data set: variance within clusters." width="50%" />
+<p class="caption">
+Figure 4.16: K-means clustering of the noisy moons data set: variance within clusters.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_clusters</span>(noisy_moons, res, <span class="dv">2</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansNoisyMoonsScatter"></span>
+<img src="03-clustering_files/figure-html/kmeansNoisyMoonsScatter-1.png" alt="K-means clustering of the noisy moons data set: scatterplot of clusters for k=2. Cluster centres indicated with a cross." width="50%" />
+<p class="caption">
+Figure 4.17: K-means clustering of the noisy moons data set: scatterplot of clusters for k=2. Cluster centres indicated with a cross.
+</p>
+</div>
+</div>
+<div id="different-density" class="section level4">
+<h4><span class="header-section-number">4.6.2.3</span> Different density</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">diff_density &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/different_density.csv&quot;</span>, <span class="dt">header=</span>F))
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(diff_density[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})</code></pre></div>
+<pre><code>## Warning: did not converge in 10 iterations
+
+## Warning: did not converge in 10 iterations
+
+## Warning: did not converge in 10 iterations
+
+## Warning: did not converge in 10 iterations</code></pre>
+<p>Failure to converge, so increase number of iterations.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(diff_density[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">iter.max=</span><span class="dv">20</span>, <span class="dt">nstart=</span><span class="dv">50</span>)})
+<span class="kw">plot_tot_withinss</span>(res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansDiffDensityElbow"></span>
+<img src="03-clustering_files/figure-html/kmeansDiffDensityElbow-1.png" alt="K-means clustering of the different density distributions data set: variance within clusters." width="50%" />
+<p class="caption">
+Figure 4.18: K-means clustering of the different density distributions data set: variance within clusters.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_clusters</span>(diff_density, res, <span class="dv">2</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansDiffDensityScatter"></span>
+<img src="03-clustering_files/figure-html/kmeansDiffDensityScatter-1.png" alt="K-means clustering of the different density distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross." width="50%" />
+<p class="caption">
+Figure 4.19: K-means clustering of the different density distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross.
+</p>
+</div>
+</div>
+<div id="anisotropic-distributions" class="section level4">
+<h4><span class="header-section-number">4.6.2.4</span> Anisotropic distributions</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aniso &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/aniso.csv&quot;</span>, <span class="dt">header=</span>F))
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(aniso[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})
+<span class="kw">plot_tot_withinss</span>(res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansAnisoElbow"></span>
+<img src="03-clustering_files/figure-html/kmeansAnisoElbow-1.png" alt="K-means clustering  of the anisotropic distributions data set: variance within clusters." width="50%" />
+<p class="caption">
+Figure 4.20: K-means clustering of the anisotropic distributions data set: variance within clusters.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">plotList &lt;-<span class="st"> </span><span class="kw">list</span>(
+  <span class="kw">plot_clusters</span>(aniso, res, <span class="dv">2</span>),
+  <span class="kw">plot_clusters</span>(aniso, res, <span class="dv">3</span>)
+)
+pm &lt;-<span class="st"> </span><span class="kw">ggmatrix</span>(
+  plotList, <span class="dt">nrow=</span><span class="dv">1</span>, <span class="dt">ncol=</span><span class="dv">2</span>, <span class="dt">showXAxisPlotLabels =</span> T, 
+  <span class="dt">showYAxisPlotLabels =</span> T, <span class="dt">xAxisLabels=</span><span class="kw">c</span>(<span class="st">&quot;k=2&quot;</span>, <span class="st">&quot;k=3&quot;</span>)
+) <span class="op">+</span><span class="st"> </span><span class="kw">theme_bw</span>()
+pm</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:kmeansAnisoScatter"></span>
+<img src="03-clustering_files/figure-html/kmeansAnisoScatter-1.png" alt="K-means clustering of the anisotropic distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross." width="100%" />
+<p class="caption">
+Figure 4.21: K-means clustering of the anisotropic distributions data set: scatterplots of clusters for k=2 and k=3. Cluster centres indicated with a cross.
+</p>
+</div>
+</div>
+<div id="no-structure" class="section level4">
+<h4><span class="header-section-number">4.6.2.5</span> No structure</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">no_structure &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/no_structure.csv&quot;</span>, <span class="dt">header=</span>F))
+res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(no_structure[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})
+<span class="kw">plot_tot_withinss</span>(res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:noStructureElbow"></span>
+<img src="03-clustering_files/figure-html/noStructureElbow-1.png" alt="K-means clustering of the data set with no structure: variance within clusters." width="50%" />
+<p class="caption">
+Figure 4.22: K-means clustering of the data set with no structure: variance within clusters.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_clusters</span>(no_structure, res, <span class="dv">4</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:noStructureScatter"></span>
+<img src="03-clustering_files/figure-html/noStructureScatter-1.png" alt="K-means clustering of the data set with no structure: scatterplot of clusters for k=4. Cluster centres indicated with a cross." width="50%" />
+<p class="caption">
+Figure 4.23: K-means clustering of the data set with no structure: scatterplot of clusters for k=4. Cluster centres indicated with a cross.
+</p>
+</div>
+</div>
+</div>
+<div id="dbscan-1" class="section level3">
+<h3><span class="header-section-number">4.6.3</span> DBSCAN</h3>
+<p>Prepare by defining some variables and a plotting function.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">point_shapes &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">15</span>,<span class="dv">17</span>,<span class="dv">19</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">0</span>,<span class="dv">1</span>)
+point_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">8</span>,<span class="st">&quot;Dark2&quot;</span>)[<span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)]
+point_size =<span class="st"> </span><span class="fl">1.5</span>
+center_point_size =<span class="st"> </span><span class="dv">8</span>
+
+plot_dbscan_clusters &lt;-<span class="st"> </span><span class="cf">function</span>(data_set, dbscan_output){
+  <span class="kw">ggplot</span>(data_set, <span class="kw">aes</span>(V1,V2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_point</span>(<span class="dt">col=</span>point_colours[dbscan_output<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>],
+               <span class="dt">shape=</span>point_shapes[dbscan_output<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>], 
+               <span class="dt">size=</span>point_size) <span class="op">+</span>
+<span class="st">    </span><span class="kw">theme_bw</span>()
+}</code></pre></div>
+<div id="aggregation-1" class="section level4">
+<h4><span class="header-section-number">4.6.3.1</span> Aggregation</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aggregation &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="st">&quot;data/example_clusters/aggregation.txt&quot;</span>)
+<span class="kw">kNNdistplot</span>(aggregation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">1.8</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:aggregationKNNdist"></span>
+<img src="03-clustering_files/figure-html/aggregationKNNdist-1.png" alt="10-nearest neighbour distances for the aggregation data set" width="75%" />
+<p class="caption">
+Figure 4.24: 10-nearest neighbour distances for the aggregation data set
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(aggregation[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">1.8</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##   0   1   2   3   4   5   6 
+##   2 168 307 105 127  45  34</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dbscan_clusters</span>(aggregation, res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:aggregationDBSCANscatter"></span>
+<img src="03-clustering_files/figure-html/aggregationDBSCANscatter-1.png" alt="DBSCAN clustering (eps=1.8, minPts=10) of the aggregation data set. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.25: DBSCAN clustering (eps=1.8, minPts=10) of the aggregation data set. Outlier observations are shown as grey crosses.
+</p>
+</div>
+</div>
+<div id="noisy-moons-1" class="section level4">
+<h4><span class="header-section-number">4.6.3.2</span> Noisy moons</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">noisy_moons &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/noisy_moons.csv&quot;</span>, <span class="dt">header=</span>F)
+<span class="kw">kNNdistplot</span>(noisy_moons[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.075</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:noisyMoonsKNNdist"></span>
+<img src="03-clustering_files/figure-html/noisyMoonsKNNdist-1.png" alt="10-nearest neighbour distances for the noisy moons data set" width="75%" />
+<p class="caption">
+Figure 4.26: 10-nearest neighbour distances for the noisy moons data set
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(noisy_moons[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.075</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##   0   1   2 
+##   8 748 744</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dbscan_clusters</span>(noisy_moons, res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:noisyMoonsDBSCANscatter"></span>
+<img src="03-clustering_files/figure-html/noisyMoonsDBSCANscatter-1.png" alt="DBSCAN clustering (eps=0.075, minPts=10) of the noisy moons data set. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.27: DBSCAN clustering (eps=0.075, minPts=10) of the noisy moons data set. Outlier observations are shown as grey crosses.
+</p>
+</div>
+</div>
+<div id="different-density-1" class="section level4">
+<h4><span class="header-section-number">4.6.3.3</span> Different density</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">diff_density &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/different_density.csv&quot;</span>, <span class="dt">header=</span>F)
+<span class="kw">kNNdistplot</span>(diff_density[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.9</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.6</span>, <span class="dt">lty=</span><span class="dv">2</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:diffDensityKNNdist"></span>
+<img src="03-clustering_files/figure-html/diffDensityKNNdist-1.png" alt="10-nearest neighbour distances for the different density distributions data set" width="75%" />
+<p class="caption">
+Figure 4.28: 10-nearest neighbour distances for the different density distributions data set
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(diff_density[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.9</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##    0    1 
+##   40 1460</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dbscan_clusters</span>(diff_density, res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:diffDensityDBSCANscatter1"></span>
+<img src="03-clustering_files/figure-html/diffDensityDBSCANscatter1-1.png" alt="DBSCAN clustering of the different density distribution data set with eps=0.9 and minPts=10. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.29: DBSCAN clustering of the different density distribution data set with eps=0.9 and minPts=10. Outlier observations are shown as grey crosses.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(diff_density[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.6</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##   0   1   2 
+## 109 399 992</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dbscan_clusters</span>(diff_density, res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:diffDensityDBSCANscatter2"></span>
+<img src="03-clustering_files/figure-html/diffDensityDBSCANscatter2-1.png" alt="DBSCAN clustering of the different density distribution data set with eps=0.6 and minPts=10. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.30: DBSCAN clustering of the different density distribution data set with eps=0.6 and minPts=10. Outlier observations are shown as grey crosses.
+</p>
+</div>
+</div>
+<div id="anisotropic-distributions-1" class="section level4">
+<h4><span class="header-section-number">4.6.3.4</span> Anisotropic distributions</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">aniso &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/aniso.csv&quot;</span>, <span class="dt">header=</span>F)
+<span class="kw">kNNdistplot</span>(aniso[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.35</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:anisoKNNdist"></span>
+<img src="03-clustering_files/figure-html/anisoKNNdist-1.png" alt="10-nearest neighbour distances for the anisotropic distributions data set" width="75%" />
+<p class="caption">
+Figure 4.31: 10-nearest neighbour distances for the anisotropic distributions data set
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(aniso[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.35</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##   0   1   2   3 
+##  29 489 488 494</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot_dbscan_clusters</span>(aniso, res)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:anisoDBSCANscatter"></span>
+<img src="03-clustering_files/figure-html/anisoDBSCANscatter-1.png" alt="DBSCAN clustering (eps=0.3, minPts=10) of the anisotropic distributions data set. Outlier observations are shown as grey crosses." width="60%" />
+<p class="caption">
+Figure 4.32: DBSCAN clustering (eps=0.3, minPts=10) of the anisotropic distributions data set. Outlier observations are shown as grey crosses.
+</p>
+</div>
+</div>
+<div id="no-structure-1" class="section level4">
+<h4><span class="header-section-number">4.6.3.5</span> No structure</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">no_structure &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="st">&quot;data/example_clusters/no_structure.csv&quot;</span>, <span class="dt">header=</span>F)
+<span class="kw">kNNdistplot</span>(no_structure[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">k=</span><span class="dv">10</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="fl">0.057</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:noStructureKNNdist"></span>
+<img src="03-clustering_files/figure-html/noStructureKNNdist-1.png" alt="10-nearest neighbour distances for the data set with no structure." width="75%" />
+<p class="caption">
+Figure 4.33: 10-nearest neighbour distances for the data set with no structure.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(no_structure[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.57</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##    1 
+## 1500</code></pre>
+<!--No need for scatter plot-->
+</div>
+</div>
+</div>
+<div id="evaluating-cluster-quality" class="section level2">
+<h2><span class="header-section-number">4.7</span> Evaluating cluster quality</h2>
+<!--
+http://scikit-learn.org/stable/auto_examples/cluster/plot_kmeans_silhouette_analysis.html
+-->
+<div id="silhouetteMethod" class="section level3">
+<h3><span class="header-section-number">4.7.1</span> Silhouette method</h3>
+<strong>Silhouette</strong>
+<span class="math display" id="eq:silhouette">\[\begin{equation}
+  s(i) = \frac{b(i) - a(i)}{max\left(a(i),b(i)\right)}
+  \tag{4.2}
+\end{equation}\]</span>
+<p>Where</p>
+<ul>
+<li><em>a(i)</em> - average dissimmilarity of <em>i</em> with all other data within the cluster. <em>a(i)</em> can be interpreted as how well <em>i</em> is assigned to its cluster (the smaller the value, the better the assignment).</li>
+<li><em>b(i)</em> - the lowest average dissimilarity of <em>i</em> to any other cluster, of which <em>i</em> is not a member.</li>
+</ul>
+<p>Observations with a large <em>s(i)</em> (close to 1) are very well clustered. Observations lying between clusters will have a small <em>s(i)</em> (close to 0). If an observation has a negative <em>s(i)</em>, it has probably been placed in the wrong cluster.</p>
+</div>
+<div id="example---k-means-clustering-of-blobs-data-set" class="section level3">
+<h3><span class="header-section-number">4.7.2</span> Example - k-means clustering of blobs data set</h3>
+<p>Load library required for calculating silhouette coefficients and plotting silhouettes.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(cluster)</code></pre></div>
+<p>We are going to take another look at k-means clustering of the blobs data-set (figure <a href="clustering.html#fig:kmeansRangeK">4.7</a>). Specifically we are going to see if silhouette analysis supports our original choice of k=3 as the optimum number of clusters (figure <a href="clustering.html#fig:choosingKplot">4.8</a>).</p>
+<p>Silhouette analysis requires a minimum of two clusters, so we’ll try values of k from 2 to 9.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">k &lt;-<span class="st"> </span><span class="dv">2</span><span class="op">:</span><span class="dv">9</span></code></pre></div>
+<p>Create a palette of colours for plotting.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">kColours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">9</span>,<span class="st">&quot;Set1&quot;</span>)</code></pre></div>
+<p>Perform k-means clustering for each value of k from 2 to 9.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">kmeans</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], i, <span class="dt">nstart=</span><span class="dv">50</span>)})</code></pre></div>
+<p>Calculate the Euclidean distance matrix</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">dist</span>(blobs[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<p>Silhouette plot for k=2</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s2 &lt;-<span class="st"> </span><span class="kw">silhouette</span>(res[[<span class="dv">2</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster, d)
+<span class="kw">plot</span>(s2, <span class="dt">border=</span><span class="ot">NA</span>, <span class="dt">col=</span>kColours[<span class="kw">sort</span>(res[[<span class="dv">2</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster)], <span class="dt">main=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:silhouetteK2"></span>
+<img src="03-clustering_files/figure-html/silhouetteK2-1.png" alt="Silhouette plot for k-means clustering of the blobs data set with k=2." width="60%" />
+<p class="caption">
+Figure 4.34: Silhouette plot for k-means clustering of the blobs data set with k=2.
+</p>
+</div>
+<p>Silhouette plot for k=9</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s9 &lt;-<span class="st"> </span><span class="kw">silhouette</span>(res[[<span class="dv">9</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster, d)
+<span class="kw">plot</span>(s9, <span class="dt">border=</span><span class="ot">NA</span>, <span class="dt">col=</span>kColours[<span class="kw">sort</span>(res[[<span class="dv">9</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster)], <span class="dt">main=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:silhouetteK9"></span>
+<img src="03-clustering_files/figure-html/silhouetteK9-1.png" alt="Silhouette plot for k-means clustering of the blobs data set with k=9." width="60%" />
+<p class="caption">
+Figure 4.35: Silhouette plot for k-means clustering of the blobs data set with k=9.
+</p>
+</div>
+<p>Let’s take a look at the silhouette plot for k=3.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s3 &lt;-<span class="st"> </span><span class="kw">silhouette</span>(res[[<span class="dv">3</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster, d)
+<span class="kw">plot</span>(s3, <span class="dt">border=</span><span class="ot">NA</span>, <span class="dt">col=</span>kColours[<span class="kw">sort</span>(res[[<span class="dv">3</span><span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster)], <span class="dt">main=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:silhouetteK3"></span>
+<img src="03-clustering_files/figure-html/silhouetteK3-1.png" alt="Silhouette plot for k-means clustering of the blobs data set with k=3." width="60%" />
+<p class="caption">
+Figure 4.36: Silhouette plot for k-means clustering of the blobs data set with k=3.
+</p>
+</div>
+<p>So far the silhouette plots have shown that k=3 appears to be the optimum number of clusters, but we should investigate the silhouette coefficients at other values of k. Rather than produce a silhouette plot for each value of k, we can get a useful summary by making a barplot of average silhouette coefficients.</p>
+<p>First we will calculate the silhouette coefficient for every observation (we need to index our list of <strong>kmeans</strong> outputs by <code>i-1</code>, because we are counting from k=2 ).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">s &lt;-<span class="st"> </span><span class="kw">lapply</span>(k, <span class="cf">function</span>(i){<span class="kw">silhouette</span>(res[[i<span class="op">-</span><span class="dv">1</span>]]<span class="op">$</span>cluster, d)})</code></pre></div>
+<p>We can then calculate the mean silhouette coefficient for each value of k from 2 to 9.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">avgS &lt;-<span class="st"> </span><span class="kw">sapply</span>(s, <span class="cf">function</span>(x){<span class="kw">mean</span>(x[,<span class="dv">3</span>])})</code></pre></div>
+<p>Now we have the data we need to produce a barplot.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dat &lt;-<span class="st"> </span><span class="kw">data.frame</span>(k, avgS)
+<span class="kw">ggplot</span>(<span class="dt">data=</span>dat, <span class="kw">aes</span>(<span class="dt">x=</span>k, <span class="dt">y=</span>avgS)) <span class="op">+</span><span class="st"> </span>
+<span class="st">         </span><span class="kw">geom_bar</span>(<span class="dt">stat=</span><span class="st">&quot;identity&quot;</span>, <span class="dt">fill=</span><span class="st">&quot;steelblue&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">label=</span><span class="kw">round</span>(avgS,<span class="dv">2</span>)), <span class="dt">vjust=</span><span class="fl">1.6</span>, <span class="dt">color=</span><span class="st">&quot;white&quot;</span>, <span class="dt">size=</span><span class="fl">3.5</span>)<span class="op">+</span>
+<span class="st">  </span><span class="kw">labs</span>(<span class="dt">y=</span><span class="st">&quot;Average silhouette coefficient&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks=</span><span class="dv">2</span><span class="op">:</span><span class="dv">9</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:silhouetteAllK"></span>
+<img src="03-clustering_files/figure-html/silhouetteAllK-1.png" alt="Barplot of the average silhouette coefficients resulting from k-means clustering of the blobs data-set using values of k from 1-9." width="75%" />
+<p class="caption">
+Figure 4.37: Barplot of the average silhouette coefficients resulting from k-means clustering of the blobs data-set using values of k from 1-9.
+</p>
+</div>
+<p>The bar plot (figure <a href="clustering.html#fig:silhouetteAllK">4.37</a>) confirms that the optimum number of clusters is three.</p>
+</div>
+<div id="example---dbscan-clustering-of-noisy-moons" class="section level3">
+<h3><span class="header-section-number">4.7.3</span> Example - DBSCAN clustering of noisy moons</h3>
+<!--
+Read data
+
+```r
+noisy_moons <- read.csv("data/example_clusters/noisy_moons.csv", header=F)
+```
+-->
+<p>The clusters that DBSCAN found in the noisy moons data set are shown in figure <a href="clustering.html#fig:noisyMoonsDBSCANscatter">4.27</a>.</p>
+<p>Let’s repeat clustering, because the original result is no longer in memory.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(noisy_moons[,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>], <span class="dt">eps=</span><span class="fl">0.075</span>, <span class="dt">minPts =</span> <span class="dv">10</span>)</code></pre></div>
+<p>Identify noise points as we do not want to include these in the silhouette analysis</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># identify and remove noise points</span>
+noise &lt;-<span class="st"> </span>res<span class="op">$</span>cluster<span class="op">==</span><span class="dv">0</span></code></pre></div>
+<p>Remove noise points from cluster results</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusters &lt;-<span class="st"> </span>res<span class="op">$</span>cluster[<span class="op">!</span>noise]</code></pre></div>
+<p>Generate distance matrix from <code>noisy_moons</code> data.frame, exluding noise points.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">dist</span>(noisy_moons[<span class="op">!</span>noise,<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>])</code></pre></div>
+<p>Silhouette analysis</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">clusterColours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="dv">9</span>,<span class="st">&quot;Set1&quot;</span>)
+sil &lt;-<span class="st"> </span><span class="kw">silhouette</span>(clusters, d)
+<span class="kw">plot</span>(sil, <span class="dt">border=</span><span class="ot">NA</span>, <span class="dt">col=</span>clusterColours[<span class="kw">sort</span>(clusters)], <span class="dt">main=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:silhouetteNoisyMoonsDBSCAN"></span>
+<img src="03-clustering_files/figure-html/silhouetteNoisyMoonsDBSCAN-1.png" alt="Silhouette plot for DBSCAN clustering of the noisy moons data set." width="60%" />
+<p class="caption">
+Figure 4.38: Silhouette plot for DBSCAN clustering of the noisy moons data set.
+</p>
+</div>
+<p>The silhouette analysis suggests that DBSCAN has found clusters of poor quality in the noisy moons data set. However, we saw by eye that it it did a good job of deliminiting the two clusters. The result demonstrates that the silhouette method is less useful when dealing with clusters that are defined by density, rather than inertia.</p>
+</div>
+</div>
+<div id="example-gene-expression-profiling-of-human-tissues" class="section level2">
+<h2><span class="header-section-number">4.8</span> Example: gene expression profiling of human tissues</h2>
+<div id="hierarchic-agglomerative-2" class="section level3">
+<h3><span class="header-section-number">4.8.1</span> Hierarchic agglomerative</h3>
+<div id="basics" class="section level4">
+<h4><span class="header-section-number">4.8.1.1</span> Basics</h4>
+<p>Load required libraries</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RColorBrewer)
+<span class="kw">library</span>(dendextend)</code></pre></div>
+<p>Load data</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;data/tissues_gene_expression/tissuesGeneExpression.rda&quot;</span>)</code></pre></div>
+<p>Inspect data</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(tissue)</code></pre></div>
+<pre><code>## tissue
+##  cerebellum       colon endometrium hippocampus      kidney       liver 
+##          38          34          15          31          39          26 
+##    placenta 
+##           6</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(e)</code></pre></div>
+<pre><code>## [1] 22215   189</code></pre>
+<p>Compute distance between each sample</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">d &lt;-<span class="st"> </span><span class="kw">dist</span>(<span class="kw">t</span>(e))</code></pre></div>
+<p>perform hierarchical clustering</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hc &lt;-<span class="st"> </span><span class="kw">hclust</span>(d, <span class="dt">method=</span><span class="st">&quot;average&quot;</span>)
+<span class="kw">plot</span>(hc, <span class="dt">labels=</span>tissue, <span class="dt">cex=</span><span class="fl">0.5</span>, <span class="dt">hang=</span><span class="op">-</span><span class="dv">1</span>, <span class="dt">xlab=</span><span class="st">&quot;&quot;</span>, <span class="dt">sub=</span><span class="st">&quot;&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueDendrogram"></span>
+<img src="03-clustering_files/figure-html/tissueDendrogram-1.png" alt="Clustering of tissue samples based on gene expression profiles. " width="100%" />
+<p class="caption">
+Figure 4.39: Clustering of tissue samples based on gene expression profiles.
+</p>
+</div>
+</div>
+<div id="colour-labels" class="section level4">
+<h4><span class="header-section-number">4.8.1.2</span> Colour labels</h4>
+<p>The dendextend library can be used to plot dendrogram with colour labels</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tissue_type &lt;-<span class="st"> </span><span class="kw">unique</span>(tissue)
+dend &lt;-<span class="st"> </span><span class="kw">as.dendrogram</span>(hc)
+dend_colours &lt;-<span class="st"> </span><span class="kw">brewer.pal</span>(<span class="kw">length</span>(<span class="kw">unique</span>(tissue)),<span class="st">&quot;Dark2&quot;</span>)
+<span class="kw">names</span>(dend_colours) &lt;-<span class="st"> </span>tissue_type
+<span class="kw">labels</span>(dend) &lt;-<span class="st"> </span>tissue[<span class="kw">order.dendrogram</span>(dend)]
+<span class="kw">labels_colors</span>(dend) &lt;-<span class="st"> </span>dend_colours[tissue][<span class="kw">order.dendrogram</span>(dend)]
+<span class="kw">labels_cex</span>(dend) =<span class="st"> </span><span class="fl">0.5</span>
+<span class="kw">plot</span>(dend, <span class="dt">horiz=</span>T)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueDendrogramColour"></span>
+<img src="03-clustering_files/figure-html/tissueDendrogramColour-1.png" alt="Clustering of tissue samples based on gene expression profiles with labels coloured by tissue type. " width="100%" />
+<p class="caption">
+Figure 4.40: Clustering of tissue samples based on gene expression profiles with labels coloured by tissue type.
+</p>
+</div>
+</div>
+<div id="defining-clusters-by-cutting-tree" class="section level4">
+<h4><span class="header-section-number">4.8.1.3</span> Defining clusters by cutting tree</h4>
+<p>Define clusters by cutting tree at a specific height</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(dend, <span class="dt">horiz=</span>T)
+<span class="kw">abline</span>(<span class="dt">v=</span><span class="dv">125</span>, <span class="dt">lwd=</span><span class="dv">2</span>, <span class="dt">lty=</span><span class="dv">2</span>, <span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueDendrogramCutHeight"></span>
+<img src="03-clustering_files/figure-html/tissueDendrogramCutHeight-1.png" alt="Clusters found by cutting tree at a height of 125" width="100%" />
+<p class="caption">
+Figure 4.41: Clusters found by cutting tree at a height of 125
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hclusters &lt;-<span class="st"> </span><span class="kw">cutree</span>(dend, <span class="dt">h=</span><span class="dv">125</span>)
+<span class="kw">table</span>(tissue, <span class="dt">cluster=</span>hclusters)</code></pre></div>
+<pre><code>##              cluster
+## tissue         1  2  3  4  5  6
+##   cerebellum   0 36  0  0  2  0
+##   colon        0  0 34  0  0  0
+##   endometrium 15  0  0  0  0  0
+##   hippocampus  0 31  0  0  0  0
+##   kidney      37  0  0  0  2  0
+##   liver        0  0  0 24  2  0
+##   placenta     0  0  0  0  0  6</code></pre>
+<p>Select a specific number of clusters.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(dend, <span class="dt">horiz=</span>T)
+<span class="kw">abline</span>(<span class="dt">v =</span> <span class="kw">heights_per_k.dendrogram</span>(dend)[<span class="st">&quot;8&quot;</span>], <span class="dt">lwd =</span> <span class="dv">2</span>, <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">col =</span> <span class="st">&quot;blue&quot;</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueDendrogramEightClusters"></span>
+<img src="03-clustering_files/figure-html/tissueDendrogramEightClusters-1.png" alt="Selection of eight clusters from the dendogram" width="100%" />
+<p class="caption">
+Figure 4.42: Selection of eight clusters from the dendogram
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hclusters &lt;-<span class="st"> </span><span class="kw">cutree</span>(dend, <span class="dt">k=</span><span class="dv">8</span>)
+<span class="kw">table</span>(tissue, <span class="dt">cluster=</span>hclusters)</code></pre></div>
+<pre><code>##              cluster
+## tissue         1  2  3  4  5  6  7  8
+##   cerebellum   0 31  0  0  2  0  5  0
+##   colon        0  0 34  0  0  0  0  0
+##   endometrium  0  0  0  0  0 15  0  0
+##   hippocampus  0 31  0  0  0  0  0  0
+##   kidney      37  0  0  0  2  0  0  0
+##   liver        0  0  0 24  2  0  0  0
+##   placenta     0  0  0  0  0  0  0  6</code></pre>
+</div>
+<div id="heatmap" class="section level4">
+<h4><span class="header-section-number">4.8.1.4</span> Heatmap</h4>
+<p>Base R provides a <strong>heatmap</strong> function, but we will use the more advanced <strong>heatmap.2</strong> from the <strong>gplots</strong> package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(gplots)</code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;gplots&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:stats&#39;:
+## 
+##     lowess</code></pre>
+<p>Define a colour palette (also known as a lookup table).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">heatmap_colours &lt;-<span class="st"> </span><span class="kw">colorRampPalette</span>(<span class="kw">brewer.pal</span>(<span class="dv">9</span>, <span class="st">&quot;PuBuGn&quot;</span>))(<span class="dv">100</span>)</code></pre></div>
+<p>Calculate the variance of each gene.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">geneVariance &lt;-<span class="st"> </span><span class="kw">apply</span>(e,<span class="dv">1</span>,var)</code></pre></div>
+<p>Find the row numbers of the 40 genes with the highest variance.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">idxTop40 &lt;-<span class="st"> </span><span class="kw">order</span>(<span class="op">-</span>geneVariance)[<span class="dv">1</span><span class="op">:</span><span class="dv">40</span>]</code></pre></div>
+<p>Define colours for tissues.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tissueColours &lt;-<span class="st"> </span><span class="kw">palette</span>(<span class="kw">brewer.pal</span>(<span class="dv">8</span>, <span class="st">&quot;Dark2&quot;</span>))[<span class="kw">as.numeric</span>(<span class="kw">as.factor</span>(tissue))]</code></pre></div>
+<p>Plot heatmap.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">heatmap.2</span>(e[idxTop40,], <span class="dt">labCol=</span>tissue, <span class="dt">trace=</span><span class="st">&quot;none&quot;</span>,
+          <span class="dt">ColSideColors=</span>tissueColours, <span class="dt">col=</span>heatmap_colours)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:heatmapTissueExpression"></span>
+<img src="03-clustering_files/figure-html/heatmapTissueExpression-1.png" alt="Heatmap of the expression of the 40 genes with the highest variance." width="100%" />
+<p class="caption">
+Figure 4.43: Heatmap of the expression of the 40 genes with the highest variance.
+</p>
+</div>
+</div>
+</div>
+<div id="k-means-2" class="section level3">
+<h3><span class="header-section-number">4.8.2</span> K-means</h3>
+<p>Load data if not already in workspace.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;data/tissues_gene_expression/tissuesGeneExpression.rda&quot;</span>)</code></pre></div>
+<p>As we saw earlier, the data set contains expression levels for over 22,000 transcripts in seven tissues.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(tissue)</code></pre></div>
+<pre><code>## tissue
+##  cerebellum       colon endometrium hippocampus      kidney       liver 
+##          38          34          15          31          39          26 
+##    placenta 
+##           6</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(e)</code></pre></div>
+<pre><code>## [1] 22215   189</code></pre>
+<p>First we will examine the total intra-cluster variance with different values of <em>k</em>. Our data-set is fairly large, so clustering it for several values or <em>k</em> and with multiple random starting centres is computationally quite intensive. Fortunately the task readily lends itself to parallelization; we can assign the analysis of each ‘k’ to a different processing core. As we have seen in the previous chapters on supervised learning, <a href="http://cran.r-project.org/web/packages/caret/index.html">caret</a> has parallel processing built in and we simply have to load a package for multicore processing, such as <a href="http://cran.r-project.org/web/packages/doMC/index.html">doMC</a>, and then register the number of cores we would like to use. Running <strong>kmeans</strong> in parallel is slightly more involved, but still very easy. We will start by loading <a href="http://cran.r-project.org/web/packages/doMC/index.html">doMC</a> and registering all available cores:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(doMC)</code></pre></div>
+<pre><code>## Loading required package: foreach</code></pre>
+<pre><code>## Loading required package: iterators</code></pre>
+<pre><code>## Loading required package: parallel</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">registerDoMC</span>(<span class="kw">detectCores</span>())</code></pre></div>
+<p>To find out how many cores we have registered we can use:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">getDoParWorkers</span>()</code></pre></div>
+<pre><code>## [1] 8</code></pre>
+<p>Instead of using the <strong>lapply</strong> function to vectorize our code, we will instead use the parallel equivalent, <strong>foreach</strong>. Like <strong>lapply</strong>, <strong>foreach</strong> returns a list by default. For this example we have set a seed, rather than generate a random number, for the sake of reproducibility. Ordinarily we would omit <code>set.seed(42)</code> and <code>.options.multicore=list(set.seed=FALSE)</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">k&lt;-<span class="dv">1</span><span class="op">:</span><span class="dv">15</span>
+<span class="kw">set.seed</span>(<span class="dv">42</span>)
+res_k_<span class="dv">15</span> &lt;-<span class="st"> </span><span class="kw">foreach</span>(
+  <span class="dt">i=</span>k, 
+  <span class="dt">.options.multicore=</span><span class="kw">list</span>(<span class="dt">set.seed=</span><span class="ot">FALSE</span>)) <span class="op">%dopar%</span><span class="st"> </span><span class="kw">kmeans</span>(<span class="kw">t</span>(e), i, <span class="dt">nstart=</span><span class="dv">10</span>)
+<span class="kw">plot_tot_withinss</span>(res_k_<span class="dv">15</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueExpressionElbow"></span>
+<img src="03-clustering_files/figure-html/tissueExpressionElbow-1.png" alt="K-means clustering of human tissue gene expression: variance within clusters." width="100%" />
+<p class="caption">
+Figure 4.44: K-means clustering of human tissue gene expression: variance within clusters.
+</p>
+</div>
+<!--
+set.seed(42)
+res_k_15 <- lapply(k, function(i){kmeans(t(e), i, nstart=10)})
+-->
+<p>There is no obvious elbow, but since we know that there are seven tissues in the data set we will try k=7. <!--
+
+```r
+set.seed(42)
+res <- kmeans(t(e), 7, nstart=10)
+table(tissue, res$cluster)
+```
+
+```
+##              
+## tissue         1  2  3  4  5  6  7
+##   cerebellum   0  0  0 33  0  0  5
+##   colon        0  0  0  0  0 34  0
+##   endometrium  0  0  0  0 15  0  0
+##   hippocampus  0  0  0  0  0  0 31
+##   kidney       0  0 39  0  0  0  0
+##   liver       26  0  0  0  0  0  0
+##   placenta     0  6  0  0  0  0  0
+```
+--></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(tissue, res_k_<span class="dv">15</span>[[<span class="dv">7</span>]]<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>##              
+## tissue         1  2  3  4  5  6  7
+##   cerebellum   0  0  0 33  0  0  5
+##   colon        0  0  0  0  0 34  0
+##   endometrium  0  0  0  0 15  0  0
+##   hippocampus  0  0  0  0  0  0 31
+##   kidney       0  0 39  0  0  0  0
+##   liver       26  0  0  0  0  0  0
+##   placenta     0  6  0  0  0  0  0</code></pre>
+<p>The analysis has found a distinct cluster for each tissue and therefore performed slightly better than the earlier hierarchical clustering analysis, which placed endometrium and kidney observations in the same cluster.</p>
+<p>To visualize the result in a 2D scatter plot we first need to apply dimensionality reduction. We will use principal component analysis (PCA), which was described in chapter <a href="dimensionality-reduction.html#dimensionality-reduction">3</a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pca &lt;-<span class="st"> </span><span class="kw">prcomp</span>(<span class="kw">t</span>(e))
+<span class="kw">ggplot</span>(<span class="dt">data=</span><span class="kw">as.data.frame</span>(pca<span class="op">$</span>x), <span class="kw">aes</span>(PC1,PC2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">col=</span><span class="kw">brewer.pal</span>(<span class="dv">7</span>,<span class="st">&quot;Dark2&quot;</span>)[res_k_<span class="dv">15</span>[[<span class="dv">7</span>]]<span class="op">$</span>cluster], 
+             <span class="dt">shape=</span><span class="kw">c</span>(<span class="dv">49</span><span class="op">:</span><span class="dv">55</span>)[res_k_<span class="dv">15</span>[[<span class="dv">7</span>]]<span class="op">$</span>cluster], <span class="dt">size=</span><span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueExpressionPCA"></span>
+<img src="03-clustering_files/figure-html/tissueExpressionPCA-1.png" alt="K-means clustering of human gene expression (k=7): scatterplot of first two principal components." width="50%" />
+<p class="caption">
+Figure 4.45: K-means clustering of human gene expression (k=7): scatterplot of first two principal components.
+</p>
+</div>
+</div>
+<div id="dbscan-2" class="section level3">
+<h3><span class="header-section-number">4.8.3</span> DBSCAN</h3>
+<p>Load data if not already in workspace.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;data/tissues_gene_expression/tissuesGeneExpression.rda&quot;</span>)</code></pre></div>
+<p>Get a summary of the data set.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(tissue)</code></pre></div>
+<pre><code>## tissue
+##  cerebellum       colon endometrium hippocampus      kidney       liver 
+##          38          34          15          31          39          26 
+##    placenta 
+##           6</code></pre>
+<p>We’ll try k=5 (default for dbscan), because there are only six observations for placenta.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">kNNdistplot</span>(<span class="kw">t</span>(e), <span class="dt">k=</span><span class="dv">5</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="dv">85</span>)</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueExpressionKNNdist"></span>
+<img src="03-clustering_files/figure-html/tissueExpressionKNNdist-1.png" alt="Five-nearest neighbour distances for the gene expression profiling of human tissues data set." width="75%" />
+<p class="caption">
+Figure 4.46: Five-nearest neighbour distances for the gene expression profiling of human tissues data set.
+</p>
+</div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">set.seed</span>(<span class="dv">42</span>)
+res &lt;-<span class="st"> </span>dbscan<span class="op">::</span><span class="kw">dbscan</span>(<span class="kw">t</span>(e), <span class="dt">eps=</span><span class="dv">85</span>, <span class="dt">minPts=</span><span class="dv">5</span>)
+<span class="kw">table</span>(res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>## 
+##  0  1  2  3  4  5  6 
+## 12 37 62 34 24 15  5</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(tissue, res<span class="op">$</span>cluster)</code></pre></div>
+<pre><code>##              
+## tissue         0  1  2  3  4  5  6
+##   cerebellum   2  0 31  0  0  0  5
+##   colon        0  0  0 34  0  0  0
+##   endometrium  0  0  0  0  0 15  0
+##   hippocampus  0  0 31  0  0  0  0
+##   kidney       2 37  0  0  0  0  0
+##   liver        2  0  0  0 24  0  0
+##   placenta     6  0  0  0  0  0  0</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pca &lt;-<span class="st"> </span><span class="kw">prcomp</span>(<span class="kw">t</span>(e))
+<span class="kw">ggplot</span>(<span class="dt">data=</span><span class="kw">as.data.frame</span>(pca<span class="op">$</span>x), <span class="kw">aes</span>(PC1,PC2)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">col=</span><span class="kw">brewer.pal</span>(<span class="dv">8</span>,<span class="st">&quot;Dark2&quot;</span>)[<span class="kw">c</span>(<span class="dv">8</span>,<span class="dv">1</span><span class="op">:</span><span class="dv">7</span>)][res<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>], 
+             <span class="dt">shape=</span><span class="kw">c</span>(<span class="dv">48</span><span class="op">:</span><span class="dv">55</span>)[res<span class="op">$</span>cluster<span class="op">+</span><span class="dv">1</span>], <span class="dt">size=</span><span class="dv">5</span>) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">theme_bw</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:tissueExpressionDBSCANscatter"></span>
+<img src="03-clustering_files/figure-html/tissueExpressionDBSCANscatter-1.png" alt="Clustering of human tissue gene expression: scatterplot of first two principal components." width="60%" />
+<p class="caption">
+Figure 4.47: Clustering of human tissue gene expression: scatterplot of first two principal components.
+</p>
+</div>
+</div>
+</div>
+<div id="exercises" class="section level2">
+<h2><span class="header-section-number">4.9</span> Exercises</h2>
+<div id="clusteringEx1" class="section level3">
+<h3><span class="header-section-number">4.9.1</span> Exercise 1</h3>
+<p>Image segmentation is used to partition digital images into distinct regions containing pixels with similar attributes. Applications include identifying objects or structures in biomedical images. The aim of this exercise is to use k-means clustering to segment the image of a histological section of lung tissue (figure <a href="clustering.html#fig:lungHistology">4.48</a>) into distinct biological structures, based on pixel colour.</p>
+<div class="figure" style="text-align: center"><span id="fig:lungHistology"></span>
+<img src="data/histology/Emphysema_H_and_E.jpg" alt="Image of haematoxylin and eosin (H&amp;E) stained section of lung tissue from a patient with end-stage emphysema. CC BY 2.0, https://commons.wikimedia.org/w/index.php?curid=437645." width="80%" />
+<p class="caption">
+Figure 4.48: Image of haematoxylin and eosin (H&amp;E) stained section of lung tissue from a patient with end-stage emphysema. CC BY 2.0, <a href="https://commons.wikimedia.org/w/index.php?curid=437645" class="uri">https://commons.wikimedia.org/w/index.php?curid=437645</a>.
+</p>
+</div>
+<p>The haematoxylin and eosin (H &amp; E) staining reveals four types of biological objects, identified by the following colours:</p>
+<ul>
+<li>blue-purple: cell nuclei</li>
+<li>red: red blood cells</li>
+<li>pink: other cell bodies and extracellular material</li>
+<li>white: air spaces</li>
+</ul>
+<p><strong>Consider the following questions:</strong></p>
+<ul>
+<li>Can k-means clustering find the four biological objects in the image based on pixel colour?</li>
+<li>Earlier we saw that if we plot the total within-cluster sum of squares against k, the position of the “elbow” is a useful guide to choosing the appropriate value of k (see section <a href="clustering.html#choosingK">4.4.3</a>. According to the “elbow” method, how many distinct clusters (colours) of pixels are present in the image?</li>
+</ul>
+<p><strong>Hints:</strong> If you haven’t worked with images in R before, you may find the following information helpful.</p>
+<p>The package <a href="https://bioconductor.org/packages/EBImage/">EBImage</a> provides a suite of tools for working with images. We will use it to read the file containing the image of the lung section.</p>
+<!--EBImage needs methods library, but doesn't import it -->
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(EBImage)</code></pre></div>
+<pre><code>## 
+## Attaching package: &#39;EBImage&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:dendextend&#39;:
+## 
+##     rotate</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(methods)
+img &lt;-<span class="st"> </span><span class="kw">readImage</span>(<span class="st">&quot;data/histology/Emphysema_H_and_E.jpg&quot;</span>)</code></pre></div>
+<p><code>img</code> is an object of the <a href="https://bioconductor.org/packages/EBImage/">EBImage</a> class Image; it is essentially a multidimensional array containing the pixel intensities. To see the dimensions of the array, run:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(img)</code></pre></div>
+<pre><code>## [1] 528 393   3</code></pre>
+<p>In the case of this colour image, the array is 3-dimensional with 528 x 393 x 3 elements. These dimensions correspond to the image width (in pixels), image height and number of colour channels, respectively. The colour channels are red, green and blue (RGB).</p>
+<p>Before we can cluster the pixels on colour, we need to convert the 3D array into a 2D data.frame (or matrix). Specifically, we require a data.frame (or matrix) where rows represent pixels and there is a column for the intensity of each of the three colour channels. We also need columns for the x and y coordinates of each pixel.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">imgDim &lt;-<span class="st"> </span><span class="kw">dim</span>(img)
+imgDF &lt;-<span class="st"> </span><span class="kw">data.frame</span>(
+  <span class="dt">x =</span> <span class="kw">rep</span>(<span class="dv">1</span><span class="op">:</span>imgDim[<span class="dv">1</span>], imgDim[<span class="dv">2</span>]),
+  <span class="dt">y =</span> <span class="kw">rep</span>(imgDim[<span class="dv">2</span>]<span class="op">:</span><span class="dv">1</span>, <span class="dt">each=</span>imgDim[<span class="dv">1</span>]),
+  <span class="dt">r =</span> <span class="kw">as.vector</span>(img[,,<span class="dv">1</span>]),
+  <span class="dt">g =</span> <span class="kw">as.vector</span>(img[,,<span class="dv">2</span>]),
+  <span class="dt">b =</span> <span class="kw">as.vector</span>(img[,,<span class="dv">3</span>])
+)</code></pre></div>
+<p>If the data in <code>imgDF</code> are correct, we should be able to display the image using ggplot:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(<span class="dt">data =</span> imgDF, <span class="kw">aes</span>(<span class="dt">x =</span> x, <span class="dt">y =</span> y)) <span class="op">+</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">colour =</span> <span class="kw">rgb</span>(imgDF[<span class="kw">c</span>(<span class="st">&quot;r&quot;</span>, <span class="st">&quot;g&quot;</span>, <span class="st">&quot;b&quot;</span>)])) <span class="op">+</span>
+<span class="st">  </span><span class="kw">xlab</span>(<span class="st">&quot;x&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;y&quot;</span>) <span class="op">+</span>
+<span class="st">  </span><span class="kw">theme_minimal</span>()</code></pre></div>
+<div class="figure" style="text-align: center"><span id="fig:recreatedLungHistology"></span>
+<img src="03-clustering_files/figure-html/recreatedLungHistology-1.png" alt="Image of lung tissue recreated from reshaped data." width="80%" />
+<p class="caption">
+Figure 4.49: Image of lung tissue recreated from reshaped data.
+</p>
+</div>
+<p>This should be all the information you need to perform this exercise.</p>
+<p><strong>Solutions to exercises can be found in appendix <a href="solutions-clustering.html#solutions-clustering">C</a>.</strong></p>
+
+</div>
+</div>
+</div>
+<h3><span class="header-section-number">K</span> Solutions for use case 2</h3>
+<div id="refs" class="references">
+<div id="ref-Gionis2007">
+<p>Gionis, A., H. Mannila, and P. Tsaparas. 2007. “Clustering aggregation.” <em>ACM Transactions on Knowledge Discovery from Data (TKDD)</em> 1 (1): 1–30.</p>
+</div>
+<div id="ref-Schubert2017">
+<p>Schubert, Erich, Jörg Sander, Martin Ester, Hans Peter Kriegel, and Xiaowei Xu. 2017. “DBSCAN Revisited, Revisited: Why and How You Should (Still) Use Dbscan.” <em>ACM Trans. Database Syst.</em> 42 (3): 19:1–19:21. doi:<a href="https://doi.org/10.1145/3068335">10.1145/3068335</a>.</p>
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="dimensionality-reduction.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="nearest-neighbours.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
