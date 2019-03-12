@@ -28,6 +28,8 @@ Why we need caret
 |rpart      |rpart   |predict(obj, type = "prob")              |
 |Weka       |RWeka   |predict(obj, type = "probability")       |
 |LogitBoost |caTools |predict(obj, type = "raw", nIter)        |
+
+
 https://www.r-project.org/conferences/useR-2013/Tutorials/kuhn/user_caret_2up.pdf
 
 
@@ -38,44 +40,140 @@ Available Models
 
 <https://topepo.github.io/caret/available-models.html>
 
-Parameter tuning - K nearest neighbours
-========================================================
-![k nearest neighbours](img/knn_classification.svg)
 
-By Antti Ajanki AnAj - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=2170282
-
-k-fold cross-validation
-=========================
-![k-fold cross-validation](img/cross-validation.png)
-
-Demo
+CARET Workflow
 ========================================================
 type:section
 
-
-
-Data set: detection and staging of malaria infection
-========================================================
-Automated Detection of P. falciparum Using Machine Learning Algorithms with Quantitative Phase Images of Unstained Cells
-
-Park HS, Rinehart MT, Walzer KA, Chi J-TA, Wax A (2016)
-
-https://doi.org/10.1371/journal.pone.0163045
-
-![bright field images](img/brightfield.png)
-
-**A** uninfected, **B** early trophozoite, **C** late trophozoite, **D** schizont.
-
-Malaria data set
+CARET Workflow
 ========================================================
 
-![optical path length images](img/OPL_images.PNG)
+- required packages
+- example data set
+- partition data
+- assess data quality
+- model tuning
+- model comparison
+- making predictions using model
 
-Optical path length images
-
-Demo
+Packages
 =======================================================
-type:alert
+Load **CARET** package
+
+```r
+library(caret)
+```
+
+Other required packages are **doMC** (parallel processing) and **corrplot** (correlation matrix plots):
+
+```r
+library(doMC)
+library(corrplot)
+```
+
+Example data set
+=======================================================
+type:section
+
+Wheat seeds data set
+=======================================================
+The seeds data set https://archive.ics.uci.edu/ml/datasets/seeds contains morphological measurements on the kernels of three varieties of wheat: Kama, Rosa and Canadian.
+
+Load the data into your R session using:
+
+
+```r
+load("data/wheat_seeds/wheat_seeds.Rda")
+```
+What objects have been loaded into our R session?
+
+```r
+ls()
+```
+
+```
+[1] "morphometrics" "variety"      
+```
+
+Wheat seeds data set: predictors
+======================================================
+The **morphometrics** data.frame contains seven variables describing the morphology of the seeds.
+
+```r
+str(morphometrics)
+```
+
+```
+'data.frame':	210 obs. of  7 variables:
+ $ area        : num  15.3 14.9 14.3 13.8 16.1 ...
+ $ perimeter   : num  14.8 14.6 14.1 13.9 15 ...
+ $ compactness : num  0.871 0.881 0.905 0.895 0.903 ...
+ $ kernLength  : num  5.76 5.55 5.29 5.32 5.66 ...
+ $ kernWidth   : num  3.31 3.33 3.34 3.38 3.56 ...
+ $ asymCoef    : num  2.22 1.02 2.7 2.26 1.35 ...
+ $ grooveLength: num  5.22 4.96 4.83 4.8 5.17 ...
+```
+
+Wheat seeds data set: class labels
+======================================================
+The class labels of the seeds are in the factor **variety**.
+
+```r
+summary(variety)
+```
+
+```
+Canadian     Kama     Rosa 
+      70       70       70 
+```
+
+Partition data
+======================================================
+type:section
+
+Training and test set
+======================================================
+![](img/cross-validation.png)
+
+Partition data into training and test set
+======================================================
+
+```r
+set.seed(42)
+trainIndex <- createDataPartition(y=variety, times=1, p=0.7, list=F)
+
+varietyTrain <- variety[trainIndex]
+morphTrain <- morphometrics[trainIndex,]
+
+varietyTest <- variety[-trainIndex]
+morphTest <- morphometrics[-trainIndex,]
+```
+
+Class distributions are balanced across the splits
+====================================================
+Training set
+
+```r
+summary(varietyTrain)
+```
+
+```
+Canadian     Kama     Rosa 
+      49       49       49 
+```
+
+Test set
+
+```r
+summary(varietyTest)
+```
+
+```
+Canadian     Kama     Rosa 
+      21       21       21 
+```
+
+
 
 Resources
 ========================================================

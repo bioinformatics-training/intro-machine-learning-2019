@@ -32,6 +32,10 @@ syntax <- data.frame(column1, column2, column3)
 names(syntax) <- c("obj Class", "Package", "predict Function Syntax")
 knitr::kable(syntax)
 ```
+
+```{r echo=F}
+rm(list=ls())
+```
 https://www.r-project.org/conferences/useR-2013/Tutorials/kuhn/user_caret_2up.pdf
 
 
@@ -42,44 +46,103 @@ Available Models
 
 <https://topepo.github.io/caret/available-models.html>
 
-Parameter tuning - K nearest neighbours
-========================================================
-![k nearest neighbours](img/knn_classification.svg)
 
-By Antti Ajanki AnAj - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=2170282
-
-k-fold cross-validation
-=========================
-![k-fold cross-validation](img/cross-validation.png)
-
-Demo
+CARET Workflow
 ========================================================
 type:section
 
-
-
-Data set: detection and staging of malaria infection
-========================================================
-Automated Detection of P. falciparum Using Machine Learning Algorithms with Quantitative Phase Images of Unstained Cells
-
-Park HS, Rinehart MT, Walzer KA, Chi J-TA, Wax A (2016)
-
-https://doi.org/10.1371/journal.pone.0163045
-
-![bright field images](img/brightfield.png)
-
-**A** uninfected, **B** early trophozoite, **C** late trophozoite, **D** schizont.
-
-Malaria data set
+CARET Workflow
 ========================================================
 
-![optical path length images](img/OPL_images.PNG)
+- required packages
+- example data set
+- partition data
+- assess data quality
+- model tuning
+- model comparison
+- making predictions using model
 
-Optical path length images
-
-Demo
+Packages
 =======================================================
-type:alert
+Load **CARET** package
+```{r echo=T}
+library(caret)
+```
+
+Other required packages are **doMC** (parallel processing) and **corrplot** (correlation matrix plots):
+```{r echo=T}
+library(doMC)
+library(corrplot)
+```
+
+Example data set
+=======================================================
+type:section
+
+Wheat seeds data set
+=======================================================
+The seeds data set https://archive.ics.uci.edu/ml/datasets/seeds contains morphological measurements on the kernels of three varieties of wheat: Kama, Rosa and Canadian.
+
+Load the data into your R session using:
+```{r echo=F}
+load("../../data/wheat_seeds/wheat_seeds.Rda")
+```
+```{r eval=F}
+load("data/wheat_seeds/wheat_seeds.Rda")
+```
+What objects have been loaded into our R session?
+```{r eval=T}
+ls()
+```
+
+Wheat seeds data set: predictors
+======================================================
+The **morphometrics** data.frame contains seven variables describing the morphology of the seeds.
+```{r eval=T}
+str(morphometrics)
+```
+
+Wheat seeds data set: class labels
+======================================================
+The class labels of the seeds are in the factor **variety**.
+```{r eval=T}
+summary(variety)
+```
+
+Partition data
+======================================================
+type:section
+
+Training and test set
+======================================================
+![](img/cross-validation.png)
+
+Partition data into training and test set
+======================================================
+```{r eval=T}
+set.seed(42)
+trainIndex <- createDataPartition(y=variety, times=1, p=0.7, list=F)
+
+varietyTrain <- variety[trainIndex]
+morphTrain <- morphometrics[trainIndex,]
+
+varietyTest <- variety[-trainIndex]
+morphTest <- morphometrics[-trainIndex,]
+```
+
+Class distributions are balanced across the splits
+====================================================
+Training set
+```{r eval=T}
+summary(varietyTrain)
+```
+
+Test set
+```{r eval=T}
+summary(varietyTest)
+```
+
+
 
 Resources
 ========================================================
