@@ -14,6 +14,8 @@ Solutions to exercises of chapter \@ref(use-case-1).
 library(caret)
 library(doMC)
 library(corrplot)
+library(rpart.plot)
+library(pROC)
 ```
 
 ### Define SVM model
@@ -195,43 +197,242 @@ featurePlot(x = morphologyTrain,
 ### Model training and parameter tuning
 All of the models we are going to use have a single tuning parameter. For each model we will use repeated cross validation to try 10 different values of the tuning parameter. 
 
-For each model let's do five-fold cross-validation a total of five times:
-```{r eval=F}
-train_ctrl <- trainControl(method="repeatedcv",
-                           number = 5,
-                           repeats = 5)
-```
-
-To make the analysis reproducible we need to specify the seed for each resampling iteration.
+For each model let's do five-fold cross-validation a total of five times. To make the analysis reproducible we need to specify the seed for each resampling iteration.
 ```{r}
 set.seed(42)
 seeds <- vector(mode = "list", length = 26)
 for(i in 1:25) seeds[[i]] <- sample.int(1000, 10)
 seeds[[26]] <- sample.int(1000,1)
 
-train_ctrl <- trainControl(method="repeatedcv",
+train_ctrl_infect_status <- trainControl(method="repeatedcv",
                            number = 5,
                            repeats = 5,
-                           seeds = seeds)
+                           seeds = seeds,
+                           summaryFunction = twoClassSummary,
+                           classProbs = TRUE)
 ```
 
 ### KNN
+Train knn model:
+```{r}
+knnFit <- train(morphologyTrain, infectionStatusTrain,
+                method="knn",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_infect_status)
+
+knnFit
+
+plot(knnFit)
+```
+
 
 ### SVM
+Train svm model:
+```{r}
+svmFit <- train(morphologyTrain, infectionStatusTrain,
+                method=svmRadialE1071,
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_infect_status)
+
+svmFit
+
+plot(svmFit, scales = list(x = list(log =2)))
+```
+
 
 ### Decision tree
+Train decision tree model:
+```{r}
+dtFit <- train(morphologyTrain, infectionStatusTrain,
+                method="rpart",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_infect_status)
+
+dtFit
+
+plot(dtFit)
+
+prp(dtFit$finalModel)
+```
+
+
 
 ### Random forest
+```{r}
+rfFit <- train(morphologyTrain, infectionStatusTrain,
+                method="rf",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_infect_status)
+
+rfFit
+
+plot(rfFit)
+```
+
+
+### Compare models
+Make a list of our models
+```{r}
+model_list <- list(knn=knnFit,
+                   svm=svmFit,
+                   decisionTree=dtFit,
+                   randomForest=rfFit)
+```
+
+Collect resampling results for each model
+```{r}
+resamps <- resamples(model_list)
+resamps
+summary(resamps)
+```
+```{r}
+bwplot(resamps)
+```
+
+
+### Predict test set using our best model
+```{r}
+test_pred <- predict(svmFit, morphologyTest)
+confusionMatrix(test_pred, infectionStatusTest)
+```
+
+### ROC curve
+```{r}
+svmProbs <- predict(svmFit, morphologyTest, type="prob")
+head(svmProbs)
+```
+
+```{r}
+svmROC <- roc(infectionStatusTest, svmProbs[,"infected"])
+auc(svmROC)
+```
+
+```{r}
+plot(svmROC)
+```
+
 
 
 ## Discrimination of infective stages (multi-class problem)
 
+### Define cross-validation procedure
+train_ctrl_stage <- trainControl(method="repeatedcv",
+                           number = 5,
+                           repeats = 5,
+                           seeds = seeds)
+
+
 ### KNN
+Train knn model with all variables:
+```{r}
+knnFit <- train(morphologyTrain, stageTrain,
+                method="knn",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_stage)
+
+knnFit
+
+plot(knnFit)
+```
+<!--
+Train knn model excluding highly correlated variables:
+```{r}
+knnFitNoCorr <- train(morphologyTrain, stageTrain,
+                method="knn",
+                preProcess = c("center", "scale", "corr"),
+                preProcOptions=list(cutoff=0.75),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_stage)
+
+knnFitNoCorr
+```
+-->
 
 ### SVM
+Train SVM model with all variables:
+```{r}
+svmFit <- train(morphologyTrain, stageTrain,
+                method=svmRadialE1071,
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_stage)
+
+svmFit
+plot(svmFit, scales = list(x = list(log =2)))
+```
+
 
 ### Decision tree
+Train decision tree model with all variables:
+```{r}
+dtFit <- train(morphologyTrain, stageTrain,
+                method="rpart",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_stage)
+
+dtFit
+
+plot(dtFit)
+
+prp(dtFit$finalModel)
+```
+
 
 ### Random forest
+Train random forest model with all variables:
+```{r}
+rfFit <- train(morphologyTrain, stageTrain,
+                method="rf",
+                preProcess = c("center", "scale"),
+                #tuneGrid=tuneParam,
+                tuneLength=10,
+                trControl=train_ctrl_stage)
+
+rfFit
+
+plot(rfFit)
+```
+
+### Compare models
+Make a list of our models
+```{r}
+model_list <- list(knn=knnFit,
+                   svm=svmFit,
+                   decisionTree=dtFit,
+                   randomForest=rfFit)
+```
+
+Collect resampling results for each model
+```{r}
+resamps <- resamples(model_list)
+resamps
+summary(resamps)
+```
+```{r}
+bwplot(resamps)
+```
+
+
+### Predict test set using our best model
+```{r}
+test_pred <- predict(rfFit, morphologyTest)
+confusionMatrix(test_pred, stageTest)
+```
+
+
 
 
