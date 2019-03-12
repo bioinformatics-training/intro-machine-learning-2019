@@ -1,12 +1,14 @@
 # Supervised learning  {#logistic-regression}
 
-Supervised learning refers to the general task of identifying *functions* from a labelled set of data, and using those functions for prediction. The labelled data typically consists of a matched pair of observations $\{\mathbf{X},\mathbf{y}\}$, where $\mathbf{X}$ (the *input variables*) usually denotes a matrix of (real-valued) explanatory variables, with $\mathbf{X}_i$ denoting the $i$th column which contains observations for the $i$th variable, and $\mathbf{y} = (y_1,\ldots,y_n)^\top$ (the *output variable*) denotes a vector of observations for a variable of interest[^The input variables need not be real values vectors, and could instead represent any measurement including graphs, text etc.]. Depending on the nature of the output variable, supervised learning is split into **regression** and **classification** tasks.
+Supervised learning refers to the general task of identifying how a set of annotated input data maps to a set of outcomes. In other words, it's about learning *functions* from a labelled set of data, and using those functions for prediction. The labelled data typically consists of a matched pair of observations $\{\mathbf{X},\mathbf{y}\}$, where $\mathbf{X}$ (the *input variables*) usually denotes a matrix of (real-valued) explanatory variables, with $\mathbf{X}_i$ denoting the $i$th column which contains observations for the $i$th variable, and $\mathbf{y} = (y_1,\ldots,y_n)^\top$ (the *output variable*) denotes a vector of observations for a variable of interest[^The input variables need not be real values vectors, and could instead represent any measurement including graphs, text etc.]. Depending on the nature of the output variable, supervised learning is split into **regression** and **classification** tasks.
 
 Within a regression setting, we aim to identify how the input variables map to the (continuous-valued) output variable(s). A simple example would involve measuring the population size of a bacterial culture, $\mathbf{y} = (N_1,\ldots,N_n)^\top$, at a set of time points, $\mathbf{X} = (t_1,\ldots,t_n)^\top$, and learning the function that maps from $\mathbf{X}$ to $\mathbf{y}$. Doing so should reveal something about the physical nature of the system, such as identifying the existence of distinct phases of growth. Correctly identifying these functions would also allow us to predict the output variable, $\mathbf{y}^* = (N_i^*,\ldots,N_k^*)^\top$, at a new set of times, $\mathbf{X}^* = (t_i,\ldots,t_k)^\top$.
 
 Classification algorithms, on the other hand, deal with discrete-valued outputs. Here each observation in $\mathbf{y} = (y_1,\ldots,y_n)$ can take on only a finite number of values. For example, we may have a measurment that indicates "infected" versus "uninfected", which can be represented in binary, $y_i \in [0,1]$. More generally we have data that falls into $K$ classes e.g., "group 1" through to "group K". As with regression, the aim is to identify how the (potentially continuous-valued) input variables map to the discrete set of class labels, and ultimately, assign labels to a new set of observations. Notable examples would be to identify how the expression levels of particular set of marker genes are predictive of a discrete phenotype.
 
-In section \@ref(regression) we briefly recap linear regression, and introduce nonlinear approaches to regression based on Gaussian processes. We demonstrate the use of regression to predict gene expression values as a function of time, and how this can be used to inform us about the nature of the data. In section \@ref(classification) we introduce a variety of classification algorithms, starting with logistic regression (section \@ref(logistic-regression)), and demonstrate how such approaches can be used to predict pathogen infection status in *Arabidopsis thaliana*. By doing so we identify key marker genes indicative of pathogen growth. Finally, we note the limitations of linear classification algorithms, and introduce nonlinear approaches based on Gaussian processes (section \@ref(gp-classification)).
+In section \@ref(regression) we briefly recap linear regression, and introduce nonlinear approaches to regression using Gaussian processes. We demonstrate the use of regression to predict gene expression values as a function of time, and how this can be used to inform us about the nature of the data, and as a way to make decisions about whether there are changed in gene expression over time. 
+
+In section \@ref(classification) we introduce a variety of classification algorithms, starting with logistic regression (section \@ref(logistic-regression)), and demonstrate how such approaches can be used to predict pathogen infection status in *Arabidopsis thaliana*. By doing so we identify key marker genes indicative of pathogen growth. Finally, we note the limitations of linear classification algorithms, and introduce nonlinear approaches based on Gaussian processes (section \@ref(gp-classification)).
 
 ## Regression {#regression}
 
@@ -27,7 +29,9 @@ genenames <- colnames(D)
 Xs <- D$Time[1:24]
 ```
 
-Exercise 3.1. Plot the gene expression profiles to familiarise yourself with the data.
+
+
+Exercise 9.1. Plot the gene expression profiles to familiarise yourself with the data.
 
 ### Linear regression {#linear-regression}
 
@@ -110,7 +114,7 @@ $\mbox{RMSE} = \sqrt{\sum_{i=1}^n (\hat{y_i}-y_i)^2/n}$
 
 where $\hat{y_i}$ is the predicted value and $y_i$ the observed value of the $i$th (held out) datapoint. In previous sections we explicitly specified a set of training data and hold-out data (test data). If we do not specify this in {caret}, the data is split by default values. 
 
-Exercise 3.4. What happens if we fit a much higher order polynomial? Try fitting a polynomial with degree = 20 and plotting the result. As we increase the model complexity the fit *appears* to match much more closely to the observed data. However, intuitively we feel this is wrong. Whilst it may be possible that the data was generated by such complex polynomials, it's far more likely that we are overfitting the data. We can evaluate how good the model *really* is by holding some data back and looking at the RMSE from bootstrapped samples. Try splitting the data into training and test datasets, and fitting polynomials of increasing complexity. Plot the RMSE on the training and the test datasets as a function of degree. How does the RMSE compare? Which model seems to be best?
+Exercise 9.4. What happens if we fit a much higher order polynomial? Try fitting a polynomial with degree = 20 and plotting the result. As we increase the model complexity the fit *appears* to match much more closely to the observed data. However, intuitively we feel this is wrong. Whilst it may be possible that the data was generated by such complex polynomials, it's far more likely that we are overfitting the data. We can evaluate how good the model *really* is by holding some data back and looking at the RMSE from bootstrapped samples. Try splitting the data into training and test datasets, and fitting polynomials of increasing complexity. Plot the RMSE on the training and the test datasets as a function of degree. How does the RMSE compare? Which model seems to be best?
 
 ### Distributions of fits
 
@@ -256,7 +260,7 @@ lines(y3)
 
 When we specify a GP, we are essentially encoding a distribution over a whole range of functions. Exactly how those functions behave depends upon the choice of covariance function and the hyperparameters. To get a feel for this, try changing the hyperparameters in the above code. What do the functions look like? A variety of other covariance functions exist, and can be found, with examples in the [Kernel Cookbook](http://www.cs.toronto.edu/~duvenaud/cookbook/).
 
-Exercise 3.4 (optional): Try implementing another covariance function from the [Kernel Cookbook](http://www.cs.toronto.edu/~duvenaud/cookbook/) and generating samples from the GP prior. Since we have already seen that some of our genes are circadian, a useuful covariance function to try would be the periodic covariance function.
+Exercise 9.4 (optional): Try implementing another covariance function from the [Kernel Cookbook](http://www.cs.toronto.edu/~duvenaud/cookbook/) and generating samples from the GP prior. Since we have already seen that some of our genes are circadian, a useuful covariance function to try would be the periodic covariance function.
 
 #### Inference with GPs
 
@@ -304,7 +308,7 @@ lines(x.star,f.star.bar-2*sqrt(diag(cov.f.star)),type = 'l',pch=22, lty=2, col="
 
 We can see that the GP has pinned down functions that pass close to the datapoint. Of course, at this stage, the fit is not particularly good, but that's not surprising as we only had one observation. Crucially, we can see that the GP encodes the idea of *uncertainty*. Although the model fit is not particularly good, we can see exactly *where* it is no good.
 
-Exercise 3.5 (optional): Try plotting some sample function from the posterior GP. Hint: these will be Gaussian distributed with mean {f.star.bar} and covariance {cov.f.star}.
+Exercise 9.5 (optional): Try plotting some sample function from the posterior GP. Hint: these will be Gaussian distributed with mean {f.star.bar} and covariance {cov.f.star}.
 
 Let's start by adding more observations. Here's what the posterior fit looks like if we include 4 observations (at $x \in [-4,-2,0,1]$):
 
@@ -389,9 +393,9 @@ print(c("process variance", par[ind[2]]))
 
 Here we have performed a grid search to identify the optimal hyperparameters. In practice, the derivative of the marginal likelihood with respect to the hyperparameters is analytically tractable, allowing us to optimise using gradient search algorithms.
 
-Exercise 3.6: Try plotting the GP using the optimised hyperparameter values. 
+Exercise 9.6: Try plotting the GP using the optimised hyperparameter values. 
 
-Exercise 3.7: Now try fitting a Gaussian process to one of the gene expression profiles in the Botrytis dataset. Hint: You may need to normalise the time axis. Since this data also contains a high level of noise you will also need to use a covariance function/ML calculation that incorporates noise. The snippet of code, below, does this, with the noise now representing a $3$rd hyperparameter.
+Exercise 9.7: Now try fitting a Gaussian process to one of the gene expression profiles in the Botrytis dataset. Hint: You may need to normalise the time axis. Since this data also contains a high level of noise you will also need to use a covariance function/ML calculation that incorporates noise. The snippet of code, below, does this, with the noise now representing a $3$rd hyperparameter.
 
 ```{r echo=T}
 covSEn <- function(X1,X2,l=1,sig=1,sigman=0.1) {
@@ -442,45 +446,7 @@ knitr::include_graphics(c("images/TimeSeries.jpg"))
 
 Gaussian processes regression represents a useful way of modelling time series, and can therefore be used as a basis for detecting differential expression in time series. To do so we write down two competing modes: (i) the two time series are differentially expressed, and are therefore best described by two independent GPs; (ii) the two time series are noisy observations from an identical underlying process, and are therefore best described by a single joint GP applied to the union of the data. 
 
-Exercise 3.8 (optional): Write a function for determining differential expression for two genes. Hint: you will need to fit $3$ GPs: one to the mock/control, one to the infected dataset, and one to the union of mock/control and infected. You can use the Bayes' Factor to determine if the gene is differentially expressed.
-
-#### Advanced Application 2: Timing of differential expression {#application-2}
-
-Nonlinear Bayesian regression represent a powerful tool for modelling time series. In the previous section we have shown how GPs can be used to model *if* two time series are differentially expressed. More advanced models using GPs aim to identify *when* two (or more) time series diverge [@Stegle2010robust,@yang2016inferring,@penfold2017nonparametric]. The [DEtime](https://github.com/ManchesterBioinference/DEtime) package [@yang2016inferring] is one way to do so.
-
-```{r echo=T}
-###install.packages("devtools")
-library(devtools)
-###install_github("ManchesterBioinference/DEtime")
-###import(DEtime)
-library(DEtime)
-```
-
-Within {DEtime}, we can call the function {DEtime_rank} to calculate marginal likelihood ratios for two time series, similar to our application in the previous section. Note that here, the hyperparameters are optimised by gradient search rather than grid searches. 
-
-```{r echo=T}
-res_rank <- DEtime_rank(ControlTimes = Xs, ControlData = D[1:24,3], PerturbedTimes = Xs, PerturbedData = D[25:48,3], savefile=TRUE)
-```
-
-For genes that are DE, we identify the timing of divergence between two time series using the function {DEtime_infer} and visualise the plot using the {plot_DEtime} function.
-
-```{r echo=T}
-res <- DEtime_infer(ControlTimes = Xs, ControlData = D[1:24,3], PerturbedTimes = Xs, PerturbedData = D[25:48,3])
-print_DEtime
-plot_DEtime(res)
-```
-
-We can do it for all genes using the example below:
-
-```{r echo=T}
-res <- DEtime_infer(ControlTimes = Xs, ControlData = t(D[1:24,]), PerturbedTimes = Xs, PerturbedData = t(D[25:48,]))
-```
-
-By systematically evaluating the time of divergence for all genes (and visualising the results as a histogram), we can we can begin to shed light on the temporal progression of the infection process. 
-
-```{r echo=T}
-hist(as.numeric(res$result[,2]),breaks=20)
-```
+Exercise 9.8 (optional): Write a function for determining differential expression for two genes. Hint: you will need to fit $3$ GPs: one to the mock/control, one to the infected dataset, and one to the union of mock/control and infected. You can use the Bayes' Factor to determine if the gene is differentially expressed.
 
 #### Scalability
 

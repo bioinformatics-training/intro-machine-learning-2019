@@ -2,7 +2,7 @@
 
 Solutions to exercises of chapter \@ref(logistic-regression).
 
-Exercise 3.1.
+Exercise 9.1.
 
 ```{r echo=T}
 options(warn=-1)
@@ -15,9 +15,9 @@ plot(Xs,(D[1:24,geneindex]),type="p",col="black",ylim=c(min(D[,geneindex])-0.2, 
 points(Xs,(D[25:nrow(D),geneindex]),type="p",col="red")
 ```
 
-Exercise 3.2. The caret package has a variety of features that are of use in ML. In the previous example, above, we fitted a linear model to a gene to identify parameters and make predictions using all the data. A better approach would be to partition the data into a test We can make use of the caret functionality to split our data into training and test sets, which should allow us to gauge uncertainty in our parameters and the strength of the model.
+Exercise 9.2. The caret package has a variety of features that are of use in ML. In the previous example, above, we fitted a linear model to a gene to identify parameters and make predictions using all the data. A better approach would be to partition the data into a test We can make use of the caret functionality to split our data into training and test sets, which should allow us to gauge uncertainty in our parameters and the strength of the model.
 
-Exercise 3.3. Linear regression can generally be applied for any number of variables. A notable example, would be to regress the expression pattern of a gene against putative regulators.
+Exercise 9.3. Linear regression can generally be applied for any number of variables. A notable example, would be to regress the expression pattern of a gene against putative regulators.
 
 
 ```{r echo=T}
@@ -26,7 +26,7 @@ geneindex <- 10
 lrfit3 <- train(y~., data=data.frame(x=D[1:24,3:10],y=D[1:24,geneindex]), method = "lm")
 ```
 
-Excercise 3.4. Compare the RMSE for various polynomial models versus that of the linear models. 
+Excercise 9.4. Compare the RMSE for various polynomial models versus that of the linear models. 
 
 ```{r echo=T}
 lrfit2 <- train(y~poly(x,degree=1), data=data.frame(x=D[25:nrow(D),1],y=D[25:nrow(D),geneindex]), method = "lm")
@@ -45,7 +45,7 @@ We can look at the RMSE:
 barplot(c(lrfit2$results$RMSE,lrfit3$results$RMSE,lrfit4$results$RMSE))
 ```
 
-Excercise 3.4 (optional): 
+Excercise 9.4 (optional): 
 
 Example covariance functions implemented from the [Kernel Cookbook](http://www.cs.toronto.edu/~duvenaud/cookbook/). Here we implement a rational quadratic covariance function:
 
@@ -76,7 +76,7 @@ covPer <- function(X1,X2,l=1,sig=1,p=1) {
 ```
 
 
-Exercise 3.5: Try fitting plotting the GP for the optimised values of the hyperparameters. 
+Exercise 9.5: Try fitting plotting the GP for the optimised values of the hyperparameters. 
 
 We need to borrow the following snippets of code from the main text.
 
@@ -120,7 +120,7 @@ lines(x.star,y2,type = 'l',col="blue")
 lines(x.star,y3,type = 'l',col="blue")
 ```
 
-Exercise 3.6: Try fitting plotting the GP for the optimised values of the hyperparameters. 
+Exercise 9.6: Try fitting plotting the GP for the optimised values of the hyperparameters. 
 
 ```{r echo=T}
 calcML <- function(f,l=1,sig=1) {
@@ -171,7 +171,7 @@ lines(x.star,f.star.bar+2*sqrt(diag(cov.f.star)),type = 'l',pch=22, lty=2, col="
 lines(x.star,f.star.bar-2*sqrt(diag(cov.f.star)),type = 'l',pch=22, lty=2, col="black")
 ```
 
-Excercise 3.7: Now try fitting a Gaussian process to one of the gene expression profiles in the Botrytis dataset.
+Excercise 9.7: Now try fitting a Gaussian process to one of the gene expression profiles in the Botrytis dataset.
 
 ```{r echo=T}
 covSEn <- function(X1,X2,l=1,sig=1,sigman=0.1) {
@@ -225,7 +225,7 @@ calcMLn <- function(f,l=1,sig=1,sigman=0.1) {
 }
 ```
 
-Exercise 3.8 (optional): Write a function for determining differential expression for two genes. Hint: we are interested in comparing two models, and using Bayes' Factor to determine if the genes are differentially expressed. 
+Exercise 9.8 (optional): Write a function for determining differential expression for two genes. Hint: we are interested in comparing two models, and using Bayes' Factor to determine if the genes are differentially expressed. 
 
 ```{r echo=T}
 f <- data.frame(x=D[25:nrow(D),1]/48, y=D[25:nrow(D),geneindex])
