@@ -8,7 +8,7 @@ documentclass: book
 bibliography: [book.bib, packages.bib]
 biblio-style: apalike
 link-citations: yes
-github-repo: bioinformatics-training/intro-machine-learning-2018
+github-repo: bioinformatics-training/intro-machine-learning-2019
 description: "Course materials for An Introduction to Machine Learning"
 cover-image: figures/cover_image.png
 ---

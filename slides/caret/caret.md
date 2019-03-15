@@ -615,6 +615,16 @@ Detection Prevalence          0.3175      0.3651      0.3175
 Balanced Accuracy             0.9762      0.9405      0.9405
 ```
 
+Performance measures
+=========================================================
+**sensitivity** = TPR = TP/P = TP/(TP+FN)
+
+**specificity** = TNR = TN/N = TN/(TN+FP)
+
+**precision** = PPV = TP/(TP+FP)
+
+**negative predictive value** = TN/(TN+FN)
+
 Resources
 ========================================================
 

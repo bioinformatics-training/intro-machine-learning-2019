@@ -401,6 +401,16 @@ test_pred <- predict(rsFit, morphTest)
 confusionMatrix(test_pred, varietyTest)
 ```
 
+Performance measures
+=========================================================
+**sensitivity** = TPR = TP/P = TP/(TP+FN)
+
+**specificity** = TNR = TN/N = TN/(TN+FP)
+
+**precision** = PPV = TP/(TP+FP)
+
+**negative predictive value** = TN/(TN+FN)
+
 Resources
 ========================================================
 
